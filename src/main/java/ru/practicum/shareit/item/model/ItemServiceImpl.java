@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item.model;
 
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
+@Service
 public class ItemServiceImpl implements ItemService{
     @Override
     public Item addNewItem(long userId, Item item) {

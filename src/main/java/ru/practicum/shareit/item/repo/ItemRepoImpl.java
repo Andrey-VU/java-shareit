@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item.repo;
 
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
 
+@Repository
 public class ItemRepoImpl implements ItemRepo {
     @Override
     public Collection<Item> findByUserId(long userId) {
