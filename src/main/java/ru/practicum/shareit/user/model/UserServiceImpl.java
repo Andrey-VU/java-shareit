@@ -1,20 +1,22 @@
 package ru.practicum.shareit.user.model;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.repo.UserRepo;
 
 import java.util.Collection;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
     UserRepo userRepo;
-
-    public UserServiceImpl(UserRepo userRepo) {
-        this.userRepo = userRepo;
-    }
+    UserMapper mapper;
 
     /*
     Кроме DTO-классов, понадобятся Mapper-классы —
@@ -24,8 +26,8 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User create(User user) {
-        return userRepo.save(user);
+    public User create(UserDto userDto) {
+        return userRepo.save(mapper.makeUser(userDto));
     }
 
     @Override
@@ -44,8 +46,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(User user, long id) {
-        return userRepo.update(user, id);
+    public User update(UserDto userDto, long id) {
+        return userRepo.update(mapper.makeUser(userDto), id);
     }
 
     @Override

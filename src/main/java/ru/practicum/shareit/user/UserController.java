@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 import ru.practicum.shareit.user.model.UserServiceImpl;
@@ -20,9 +21,9 @@ public class UserController {
         }
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
-        log.info("create: {} - Started", user);
-        user = userService.create(user);
+    public User create(@Valid @RequestBody UserDto userDto) {
+        log.info("create: {} - Started", userDto);
+        User user = userService.create(userDto);
         log.info("create: {} - Finished", user);
         return user;
     }
@@ -45,9 +46,9 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public User update(@PathVariable ("userId") long id,
-                       @RequestBody User user) {
-        log.info("update user id: {} - Started", user);
-        user = userService.update(user, id);
+                       @RequestBody UserDto userDto) {
+        log.info("update {} for user id: {}  - Started", userDto, id);
+        User user = userService.update(userDto, id);
         log.info("update: {} - Finished", user);
         return user;
     }
