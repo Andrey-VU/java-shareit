@@ -5,6 +5,6 @@ import java.util.Collection;
 
 public interface ItemRepo {
     Collection<Item> findByUserId(long userId);
-    Item save(Item item);
+    Item save(long userId, Item item);
     void deleteByUserIdAndItemId(long userId, long itemId);
 }

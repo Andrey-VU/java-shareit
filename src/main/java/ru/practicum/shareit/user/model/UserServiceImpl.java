@@ -11,7 +11,7 @@ import ru.practicum.shareit.user.repo.UserRepo;
 
 import java.util.Collection;
 
-@Service
+@Service("userService")
 @Slf4j
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {

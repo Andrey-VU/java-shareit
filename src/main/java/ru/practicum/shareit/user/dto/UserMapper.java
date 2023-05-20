@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.model.User;
 
 @Component
-public class UserMapper {
+public final class UserMapper {
     public User makeUser(UserDto userDto) {
         User user = new User();
         if (userDto.getName() != null) {
