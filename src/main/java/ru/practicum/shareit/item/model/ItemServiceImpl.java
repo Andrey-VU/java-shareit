@@ -26,17 +26,16 @@ public class ItemServiceImpl implements ItemService{
     }
 
     @Override
-    public Item getItem(long userId, long itemId) {
-        validateId(userId);
+    public Item getItem(long itemId) {
         validateId(itemId);
-        userService.getUser(userId);                         // проверяем есть ли в базе
-
-        if (itemRepo.findByUserId(userId).containsKey(itemId)) {
-            return itemRepo.findByUserId(userId).get(itemId);
-        } else {
-            log.error("Item Id {} is not found. Update error", itemId);
-            throw new ItemNotFoundException("Item is not found");
-        }
+        return itemRepo.get(itemId);
+//
+//        if (itemRepo.findByUserId(userId).containsKey(itemId)) {
+//            return itemRepo.findByUserId(userId).get(itemId);
+//        } else {
+//            log.error("Item Id {} is not found. Update error", itemId);
+//            throw new ItemNotFoundException("Item is not found");
+//        }
 
 
 //        if (itemRepo.findByUserId(userId).containsKey(itemId)) {
@@ -59,7 +58,7 @@ public class ItemServiceImpl implements ItemService{
 
     @Override
     public Collection<Item> getItems(long userId) {
-        userService.getUser(userId);                         // проверяем есть ли в базе
+        //userService.getUser(userId);                         // проверяем есть ли в базе
         if (itemRepo.findByUserId(userId) == null) {
             log.warn("User {} has not items ", userId);
             throw new ItemNotFoundException("Items of User " + userId + " are NOT FOUND");
@@ -71,7 +70,7 @@ public class ItemServiceImpl implements ItemService{
     public Item updateItem(long userId, long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         isUserHasItem(userId, itemId);
-        Item oldItem = getItem(userId, itemId);
+        Item oldItem = getItem(itemId);
         itemDtoWithUpdate.setId(itemId);
         return itemRepo.update(userId, mapper.makeItemForUpdate(oldItem, itemDtoWithUpdate));
     }
@@ -81,7 +80,7 @@ public class ItemServiceImpl implements ItemService{
             log.warn("User {} has not items", userId);
             throw new ItemNotFoundException("Item " + id + " NOT FOUND");
         }
-        if (!getItems(userId).contains(getItem(userId, id))) {
+        if (!itemRepo.findByUserId(userId).containsKey(id)) {
             log.warn("User {} has not item {} ", userId, id);
             throw new ItemNotFoundException("Item " + id + " NOT FOUND");
         }

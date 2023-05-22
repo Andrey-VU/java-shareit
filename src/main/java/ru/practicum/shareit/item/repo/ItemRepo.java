@@ -10,7 +10,7 @@ public interface ItemRepo {
 
     Item save(long userId, Item item);
 
-    Optional<Item> get(long userId, long itemId);
+    Item get(long itemId);
 
     Item update(long userId, Item item);
 

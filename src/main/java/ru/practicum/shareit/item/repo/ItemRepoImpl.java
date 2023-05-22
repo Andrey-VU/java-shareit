@@ -10,7 +10,8 @@ import java.util.*;
 @Repository("itemRepo")
 @Slf4j
 public class ItemRepoImpl implements ItemRepo {
-    private final Map<Long, Map<Long, Item>> itemStorageInMemory = new HashMap<>();
+    private final Map<Long, Item> itemStorageInMemory = new HashMap<>();
+    private final Map<Long, List<Item>> itemsOfUsers = new HashMap<>(); // ключ - id пользователя. список - его вещи
     private long idGenerator;
 
     @Override
@@ -29,8 +30,12 @@ public class ItemRepoImpl implements ItemRepo {
     }
 
     @Override
-    public Optional<Item> get(long userId, long itemId) {
-        return null;
+    public Item get(long itemId) {
+        final Item[] item = {new Item()};
+        itemStorageInMemory.values().stream()
+                .filter(mapWithItem -> mapWithItem.containsKey(itemId))
+                .peek(mapWithItem -> item[0] = mapWithItem.get(itemId));
+        return item[0];
     }
 
     @Override

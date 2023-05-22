@@ -55,8 +55,8 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public Item getItem(@RequestHeader("X-Sharer-User-Id") long userId,
                         @PathVariable long itemId) {
-        log.info("Search for item id {} user id {} - Started", itemId, userId);
-        Item item = itemService.getItem(userId, itemId);
+        log.info("Search for item id {} - Started", itemId);
+        Item item = itemService.getItem(itemId);
         log.info("item {} was found", item);
         return item;
     }
