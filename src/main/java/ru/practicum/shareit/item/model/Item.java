@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.Data;
+import ru.practicum.shareit.request.ItemRequest;
 
 import javax.validation.constraints.NotBlank;
 
@@ -13,4 +14,5 @@ public class Item {
     private String description;
     @NotBlank
     private Boolean available;
+    //private ItemRequest request;
 }

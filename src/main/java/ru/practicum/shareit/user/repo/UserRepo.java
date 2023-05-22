@@ -10,7 +10,10 @@ public interface UserRepo {
     User update(User user, long id);
 
     Collection<User> findAll();
+
     Optional<User> findUser(long id);
+
     boolean delete(long id);
+
     boolean deleteAllUser(long id);
 }

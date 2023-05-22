@@ -18,13 +18,6 @@ public class UserServiceImpl implements UserService {
     UserRepo userRepo;
     UserMapper mapper;
 
-    /*
-    Кроме DTO-классов, понадобятся Mapper-классы —
-    они помогут преобразовывать объекты модели в DTO-объекты и обратно.
-    Для базовых сущностей Item и User создайте Mapper-класс
-    и метод преобразования объекта модели в DTO-объект.*/
-
-
     @Override
     public User create(UserDto userDto) {
         return userRepo.save(mapper.makeUser(userDto));

@@ -14,6 +14,10 @@ public class ItemMapper {
         String name = itemDto.getName();
         String description = itemDto.getDescription();
 
+        if (itemDto.getId() != 0) {
+            item.setId(itemDto.getId());
+        }
+
         if (!StringUtils.isBlank(name)) {
             item.setName(itemDto.getName());
         } else {
@@ -33,5 +37,24 @@ public class ItemMapper {
             throw new IncorrectItemDtoException("Available-status of item not found");
         }
         return item;
+    }
+
+
+    public Item makeItemForUpdate(Item oldItem, ItemDto itemDtoWithUpdate) {
+        Item itemUpd = oldItem;
+        itemUpd.setId(itemDtoWithUpdate.getId());
+
+        if (itemDtoWithUpdate.getName() != null) {
+            itemUpd.setName(itemDtoWithUpdate.getName());
+        }
+
+        if (itemDtoWithUpdate.getDescription() != null) {
+            itemUpd.setDescription(itemDtoWithUpdate.getDescription());
+        }
+
+        if (itemDtoWithUpdate.getAvailable() != null) {
+            itemUpd.setAvailable(itemDtoWithUpdate.getAvailable());
+        }
+        return itemUpd;
     }
 }

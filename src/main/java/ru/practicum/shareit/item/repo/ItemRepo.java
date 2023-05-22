@@ -1,10 +1,18 @@
 package ru.practicum.shareit.item.repo;
 
 import ru.practicum.shareit.item.model.Item;
-import java.util.Collection;
+
+import java.util.Map;
+import java.util.Optional;
 
 public interface ItemRepo {
-    Collection<Item> findByUserId(long userId);
+    Map findByUserId(long userId);
+
     Item save(long userId, Item item);
+
+    Optional<Item> get(long userId, long itemId);
+
+    Item update(long userId, Item item);
+
     void deleteByUserIdAndItemId(long userId, long itemId);
 }

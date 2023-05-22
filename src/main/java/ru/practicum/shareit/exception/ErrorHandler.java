@@ -23,8 +23,20 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleItemNotFoundException(final ItemNotFoundException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleIncorrectIdException(final IncorrectIdException e) {
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleAvailableNotFoundException(final IncorrectItemDtoException e) {
+    public Map<String, String> handleIncorrectItemDtoException(final IncorrectItemDtoException e) {
         return Map.of("error", e.getMessage());
     }
 
