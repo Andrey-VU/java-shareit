@@ -14,4 +14,8 @@ public interface ItemService {
     Item updateItem(long userId, long itemId, ItemDto itemDto);
 
     boolean deleteItem(long userId, long itemId);
+
+    void clearAll();
+
+    Collection<Item> searchForItems(String text);
 }

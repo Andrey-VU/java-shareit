@@ -14,9 +14,9 @@ public class ItemMapper {
         String name = itemDto.getName();
         String description = itemDto.getDescription();
 
-        if (itemDto.getId() != 0) {
-            item.setId(itemDto.getId());
-        }
+//        if (itemDto.getId() != 0) {
+//            item.setId(itemDto.getId());
+//        }
 
         if (!StringUtils.isBlank(name)) {
             item.setName(itemDto.getName());

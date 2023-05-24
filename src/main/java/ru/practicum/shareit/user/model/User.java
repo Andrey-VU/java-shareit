@@ -8,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 @Data
-//@AllArgsConstructor
 public class User {
     private Long id;
     @NotBlank

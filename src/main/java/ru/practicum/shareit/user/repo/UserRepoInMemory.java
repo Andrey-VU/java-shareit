@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Repository
+@Repository("UserStorage")
 @Slf4j
 public class UserRepoInMemory implements UserRepo {
     private long idGenerator = 0;
@@ -73,7 +73,9 @@ public class UserRepoInMemory implements UserRepo {
     }
 
     @Override
-    public boolean deleteAllUser(long id) {
-        return false;
+    public void deleteAllUser() {
+        if (!users.isEmpty()) {
+            users.clear();
+        }
     }
 }

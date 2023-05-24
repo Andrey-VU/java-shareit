@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.repo;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
@@ -10,53 +11,98 @@ import java.util.*;
 @Repository("itemRepo")
 @Slf4j
 public class ItemRepoImpl implements ItemRepo {
-    private final Map<Long, Item> itemStorageInMemory = new HashMap<>();
+    private final Map<Long, Item> itemStorageInMemory = new HashMap<>(); // ключ  - id item
     private final Map<Long, List<Item>> itemsOfUsers = new HashMap<>(); // ключ - id пользователя. список - его вещи
     private long idGenerator;
 
-    @Override
-    public Map<Long, Item> findByUserId(long userId) {
-        itemStorageInMemory.get(userId);
-        return itemStorageInMemory.get(userId);
-    }
-
-    @Override
+       @Override
     public Item save(long userId, Item item) {
         item.setId(++idGenerator);
-        Map<Long, Item> mapOfItem = new HashMap<>();
-        mapOfItem.put(idGenerator, item);
-        itemStorageInMemory.put(userId, mapOfItem);
-        return itemStorageInMemory.get(userId).get(idGenerator);
-    }
+        if (itemsOfUsers.containsKey(userId) && itemsOfUsers.get(userId).contains(item)){
+            log.warn("User id {} already has item {} ", userId, item);
+            throw new ConflictException("item already exists");
+        }
 
-    @Override
-    public Item get(long itemId) {
-        final Item[] item = {new Item()};
-        itemStorageInMemory.values().stream()
-                .filter(mapWithItem -> mapWithItem.containsKey(itemId))
-                .peek(mapWithItem -> item[0] = mapWithItem.get(itemId));
-        return item[0];
-    }
+        itemStorageInMemory.put(item.getId(), item);
 
-    @Override
-    public Item update(long userId, Item item) {
-        Map <Long, Item> itemsOfUser = findByUserId(userId);
-        if (itemsOfUser.containsKey(item.getId())) {
-            findByUserId(userId).put(item.getId(), item);
-            return findByUserId(userId).get(item.getId());
+        if (itemsOfUsers.containsKey(userId)) {
+            itemsOfUsers.get(userId).add(item);
         } else {
-            log.error("Item Id {} is not found. Update error", item.getId());
+            List<Item> myItems = new ArrayList<>();
+            myItems.add(item);
+            itemsOfUsers.put(userId, myItems);
+        }
+
+        return itemStorageInMemory.get(item.getId());
+    }
+
+    @Override
+    public Item getItem(long itemId) {
+        if (itemStorageInMemory.containsKey(itemId)) {
+            return itemStorageInMemory.get(itemId);
+        } else {
+            log.error("Item Id {} is not found. Update error", itemId);
             throw new ItemNotFoundException("Item is not found");
         }
     }
 
+    @Override
+    public Item update(long userId, Item item) {
+        ifUserHasItem(userId, item);
+        if (itemStorageInMemory.containsKey(item.getId())) {
+            itemStorageInMemory.remove(item.getId());
+            itemStorageInMemory.put(item.getId(), item);
+        } else {
+            log.error("Item Id {} is not found. Update error", item.getId());
+            throw new ItemNotFoundException("Item is not found");
+        }
+        itemsOfUsers.get(userId).remove(getItem(item.getId()));
+        itemsOfUsers.get(userId).add(item);
+
+        return getItem(item.getId());
+    }
+
+    private void ifUserHasItem(long userId, Item item) {
+        if (!itemsOfUsers.containsKey(userId)) {
+            log.error("User Id {} has not items", userId);
+            throw new ItemNotFoundException("Item is not found");
+        } else if (!itemsOfUsers.get(userId).contains(item)) {
+                log.error("User Id {} has not item {}", userId, item);
+                throw new ItemNotFoundException("Item is not found");
+            }
+    }
 
     @Override
-    public void deleteByUserIdAndItemId(long userId, long itemId) {
-        findByUserId(userId).remove(itemId);
-//        } else {
-//            log.error("Item Id {} is not found. Update error", itemId);
-//            throw new ItemNotFoundException("Item is not found");
-//        }
+    public void delete(long userId, long itemId) {
+        ifUserHasItem(userId, getItem(itemId));
+        itemsOfUsers.get(userId).remove(getItem(itemId));
+        itemStorageInMemory.remove(itemId);
+    }
+
+    @Override
+    public Collection<Item> getItemsOfUser(long userId) {
+        if (itemsOfUsers.containsKey(userId)) {
+            return itemsOfUsers.get(userId);
+        } else {
+            log.warn("User {} has not items ", userId);
+            throw new ItemNotFoundException("Items of User " + userId + " are NOT FOUND");
+        }
+    }
+
+    @Override
+    public Collection<Item> getAllItems() {
+        return itemStorageInMemory.values();
+    }
+
+    @Override
+    public void clearAll() {
+       if (!itemStorageInMemory.isEmpty()) {
+           itemStorageInMemory.clear();
+           log.info("Хранилище вещей очищено");
+       }
+       if (!itemsOfUsers.isEmpty()) {
+           itemsOfUsers.clear();
+           log.info("Список вещей всех пользователей очищен");
+       }
     }
 }

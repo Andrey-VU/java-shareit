@@ -49,4 +49,9 @@ public class UserServiceImpl implements UserService {
         userRepo.delete(id);
         return true;
     }
+
+    @Override
+    public void clearAll() {
+        userRepo.deleteAllUser();
+    }
 }

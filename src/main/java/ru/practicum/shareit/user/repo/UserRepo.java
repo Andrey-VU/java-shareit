@@ -15,5 +15,5 @@ public interface UserRepo {
 
     boolean delete(long id);
 
-    boolean deleteAllUser(long id);
+    void deleteAllUser();
 }

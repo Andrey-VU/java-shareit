@@ -61,6 +61,14 @@ public class ItemController {
         return item;
     }
 
+    @GetMapping("/search")
+    public Collection<Item> searchItems(@RequestParam String text) {
+        log.info("Search for available items with text '{}' - Started", text);
+        Collection<Item> searchResult = itemService.searchForItems(text);
+        log.info("{} available items with text '{}' was found - Finished", searchResult.size(), text);
+        return searchResult;
+    }
+
     @DeleteMapping("/{itemId}")
     public void deleteItem(@RequestHeader("X-Sharer-User-Id") long userId,
                            @PathVariable long itemId) {
@@ -70,4 +78,10 @@ public class ItemController {
 
     }
 
+    @DeleteMapping
+    public void clearAll() {
+        log.info("Total clear - Started");
+        itemService.clearAll();
+        log.info("All items was deleted");
+    }
 }

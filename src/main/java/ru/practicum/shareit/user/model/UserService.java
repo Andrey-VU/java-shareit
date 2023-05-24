@@ -11,4 +11,6 @@ public interface UserService {
     Collection<User> getUsers();
     User update(UserDto userDto, long id);
     boolean delete(long id);
+
+    void clearAll();
 }
