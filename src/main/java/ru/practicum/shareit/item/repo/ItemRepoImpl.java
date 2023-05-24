@@ -48,33 +48,19 @@ public class ItemRepoImpl implements ItemRepo {
 
     @Override
     public Item update(long userId, Item item) {
-        ifUserHasItem(userId, item);
-        if (itemStorageInMemory.containsKey(item.getId())) {
-            itemStorageInMemory.remove(item.getId());
-            itemStorageInMemory.put(item.getId(), item);
-        } else {
-            log.error("Item Id {} is not found. Update error", item.getId());
-            throw new ItemNotFoundException("Item is not found");
-        }
-        itemsOfUsers.get(userId).remove(getItem(item.getId()));
-        itemsOfUsers.get(userId).add(item);
-
-        return getItem(item.getId());
-    }
-
-    private void ifUserHasItem(long userId, Item item) {
-        if (!itemsOfUsers.containsKey(userId)) {
-            log.error("User Id {} has not items", userId);
-            throw new ItemNotFoundException("Item is not found");
-        } else if (!itemsOfUsers.get(userId).contains(item)) {
-                log.error("User Id {} has not item {}", userId, item);
-                throw new ItemNotFoundException("Item is not found");
-            }
+       if (itemStorageInMemory.containsKey(item.getId())) {
+           itemStorageInMemory.put(item.getId(), item);
+       } else {
+           log.error("Item Id {} is not found. Update error", item.getId());
+           throw new ItemNotFoundException("Item is not found");
+       }
+       itemsOfUsers.get(userId).remove(getItem(item.getId()));
+       itemsOfUsers.get(userId).add(item);
+    return getItem(item.getId());
     }
 
     @Override
     public void delete(long userId, long itemId) {
-        ifUserHasItem(userId, getItem(itemId));
         itemsOfUsers.get(userId).remove(getItem(itemId));
         itemStorageInMemory.remove(itemId);
     }

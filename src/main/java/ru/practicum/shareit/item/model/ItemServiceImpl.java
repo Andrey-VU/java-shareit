@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectIdException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.repo.ItemRepoImpl;
@@ -30,7 +31,7 @@ public class ItemServiceImpl implements ItemService{
 
     @Override
     public Item addNewItem(long userId, ItemDto itemDto) {
-        return itemRepo.save(userId, mapper.makeItem(itemDto));
+        return itemRepo.save(userId, mapper.makeItem(itemDto, userService.getUser(userId)));
     }
 
     @Override
@@ -56,8 +57,13 @@ public class ItemServiceImpl implements ItemService{
     public Item updateItem(long userId, long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         Item itemFromRepo = getItem(itemId);
-        itemDtoWithUpdate.setId(itemId);
-        return itemRepo.update(userId, mapper.makeItemForUpdate(itemFromRepo, itemDtoWithUpdate));
+        if (itemFromRepo.getOwner().getId() == userId) {
+            itemDtoWithUpdate.setId(itemId);
+            return itemRepo.update(userId, mapper.makeItemForUpdate(itemFromRepo, itemDtoWithUpdate));
+        } else {
+            log.error("User Id {} has not item", userId);
+            throw new ItemNotFoundException("Item is not found");
+        }
     }
 
     @Override
@@ -78,8 +84,10 @@ public class ItemServiceImpl implements ItemService{
         if (!text.isBlank()) {
             searchResult = itemRepo.getAllItems().stream()
                     .filter(item -> item.getAvailable().equals(true))
-                    .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()))
-                    .filter(item -> item.getDescription().toLowerCase().contains(text.toLowerCase()))
+
+                    .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
+                            item.getDescription().toLowerCase().contains(text.toLowerCase()) )
+
                     .collect(Collectors.toList());
         }
         return searchResult;

@@ -5,18 +5,17 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.item.model.Item;
 import org.apache.commons.lang3.StringUtils;
+import ru.practicum.shareit.user.model.User;
 
 @Component
 @Slf4j
 public class ItemMapper {
-    public Item makeItem(ItemDto itemDto) {
+    public Item makeItem(ItemDto itemDto, User user) {
         Item item = new Item();
         String name = itemDto.getName();
         String description = itemDto.getDescription();
 
-//        if (itemDto.getId() != 0) {
-//            item.setId(itemDto.getId());
-//        }
+        item.setOwner(user);
 
         if (!StringUtils.isBlank(name)) {
             item.setName(itemDto.getName());

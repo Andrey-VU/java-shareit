@@ -63,9 +63,9 @@ public class ItemController {
 
     @GetMapping("/search")
     public Collection<Item> searchItems(@RequestParam String text) {
-        log.info("Search for available items with text '{}' - Started", text);
+        log.info("Search for available items with text '{}' - Started", text.toLowerCase());
         Collection<Item> searchResult = itemService.searchForItems(text);
-        log.info("{} available items with text '{}' was found - Finished", searchResult.size(), text);
+        log.info("{} available items with text '{}' was found - Finished", searchResult.size(), text.toLowerCase());
         return searchResult;
     }
 
