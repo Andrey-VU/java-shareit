@@ -10,7 +10,7 @@ public final class UserMapper {
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
-        if (userDto.getEmail() != null){
+        if (userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
         }
         return user;

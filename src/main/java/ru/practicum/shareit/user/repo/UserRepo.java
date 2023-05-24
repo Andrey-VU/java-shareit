@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.repo;
 
 import ru.practicum.shareit.user.model.User;
+
 import java.util.Collection;
 import java.util.Optional;
 

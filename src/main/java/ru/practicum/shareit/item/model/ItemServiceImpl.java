@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service("itemService")
 @Slf4j
-public class ItemServiceImpl implements ItemService{
+public class ItemServiceImpl implements ItemService {
     ItemMapper mapper;
     ItemRepoImpl itemRepo;
     UserServiceImpl userService;
@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService{
     }
 
     @Override
-    public void clearAll(){
+    public void clearAll() {
         itemRepo.clearAll();
     }
 
@@ -84,13 +84,10 @@ public class ItemServiceImpl implements ItemService{
         if (!text.isBlank()) {
             searchResult = itemRepo.getAllItems().stream()
                     .filter(item -> item.getAvailable().equals(true))
-
                     .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
-                            item.getDescription().toLowerCase().contains(text.toLowerCase()) )
-
+                            item.getDescription().toLowerCase().contains(text.toLowerCase()))
                     .collect(Collectors.toList());
         }
         return searchResult;
     }
-
 }

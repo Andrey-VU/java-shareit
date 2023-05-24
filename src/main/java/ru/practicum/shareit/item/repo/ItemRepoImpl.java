@@ -15,10 +15,10 @@ public class ItemRepoImpl implements ItemRepo {
     private final Map<Long, List<Item>> itemsOfUsers = new HashMap<>(); // ключ - id пользователя. список - его вещи
     private long idGenerator;
 
-       @Override
+    @Override
     public Item save(long userId, Item item) {
         item.setId(++idGenerator);
-        if (itemsOfUsers.containsKey(userId) && itemsOfUsers.get(userId).contains(item)){
+        if (itemsOfUsers.containsKey(userId) && itemsOfUsers.get(userId).contains(item)) {
             log.warn("User id {} already has item {} ", userId, item);
             throw new ConflictException("item already exists");
         }
@@ -48,15 +48,15 @@ public class ItemRepoImpl implements ItemRepo {
 
     @Override
     public Item update(long userId, Item item) {
-       if (itemStorageInMemory.containsKey(item.getId())) {
-           itemStorageInMemory.put(item.getId(), item);
-       } else {
-           log.error("Item Id {} is not found. Update error", item.getId());
-           throw new ItemNotFoundException("Item is not found");
-       }
-       itemsOfUsers.get(userId).remove(getItem(item.getId()));
-       itemsOfUsers.get(userId).add(item);
-    return getItem(item.getId());
+        if (itemStorageInMemory.containsKey(item.getId())) {
+            itemStorageInMemory.put(item.getId(), item);
+        } else {
+            log.error("Item Id {} is not found. Update error", item.getId());
+            throw new ItemNotFoundException("Item is not found");
+        }
+        itemsOfUsers.get(userId).remove(getItem(item.getId()));
+        itemsOfUsers.get(userId).add(item);
+        return getItem(item.getId());
     }
 
     @Override
@@ -82,13 +82,13 @@ public class ItemRepoImpl implements ItemRepo {
 
     @Override
     public void clearAll() {
-       if (!itemStorageInMemory.isEmpty()) {
-           itemStorageInMemory.clear();
-           log.info("Хранилище вещей очищено");
-       }
-       if (!itemsOfUsers.isEmpty()) {
-           itemsOfUsers.clear();
-           log.info("Список вещей всех пользователей очищен");
-       }
+        if (!itemStorageInMemory.isEmpty()) {
+            itemStorageInMemory.clear();
+            log.info("Хранилище вещей очищено");
+        }
+        if (!itemsOfUsers.isEmpty()) {
+            itemsOfUsers.clear();
+            log.info("Список вещей всех пользователей очищен");
+        }
     }
 }
