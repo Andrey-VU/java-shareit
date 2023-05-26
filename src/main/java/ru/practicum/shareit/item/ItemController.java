@@ -15,19 +15,15 @@ import java.util.Collection;
 @Slf4j
 public class ItemController {
     ItemService itemService;
-    UserService userService;
 
-    public ItemController(@Qualifier("itemService") ItemService itemService,
-                          @Qualifier("userService") UserService userService) {
+    public ItemController(ItemService itemService) {
         this.itemService = itemService;
-        this.userService = userService;
     }
 
     @PostMapping
     public Item add(@RequestHeader("X-Sharer-User-Id") long userId,
                     @RequestBody ItemDto itemDto) {
         log.info("add: {} - Started", itemDto);
-        userService.getUser(userId);                     // проверяем наличие в базе такого юзера
         Item item = itemService.addNewItem(userId, itemDto);
         log.info("create: {} - Finished", item);
         return item;
@@ -38,7 +34,6 @@ public class ItemController {
                        @PathVariable long itemId,
                        @RequestBody ItemDto itemDto) {
         log.info("Update {} for item id: {} by user id {}  - Started", itemDto, itemId, userId);
-        userService.getUser(userId);                     // проверяем наличие в базе такого юзера
         Item item = itemService.updateItem(userId, itemId, itemDto);
         log.info("update: {} - Finished", item);
         return item;

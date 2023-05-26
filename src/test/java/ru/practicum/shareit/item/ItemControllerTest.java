@@ -26,7 +26,7 @@ class ItemControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        controller = new ItemController(itemService, userService);
+        controller = new ItemController(itemService);
         userDto.setName("First");
         userDto.setEmail("a1@a.mail.ru");
         firstUser = userService.create(userDto);
@@ -65,16 +65,4 @@ class ItemControllerTest {
         assertEquals(firstUpdateItem, controller.getItem(1, 1),
                 "Item не обновлено или не получено из хранилища");
     }
-
-//    @Test
-//    void getItems() {
-//    }
-//
-//    @Test
-//    void getItem() {
-//    }
-//
-//    @Test
-//    void deleteItem() {
-//    }
 }

@@ -7,7 +7,9 @@ import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.repo.ItemRepo;
 import ru.practicum.shareit.item.repo.ItemRepoImpl;
+import ru.practicum.shareit.user.model.UserService;
 import ru.practicum.shareit.user.model.UserServiceImpl;
 
 import java.util.ArrayList;
@@ -18,12 +20,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
     ItemMapper mapper;
-    ItemRepoImpl itemRepo;
-    UserServiceImpl userService;
+    ItemRepo itemRepo;
+    UserService userService;
 
     public ItemServiceImpl(ItemMapper mapper,
-                           @Qualifier("itemRepo") ItemRepoImpl itemRepo,
-                           @Qualifier("userService") UserServiceImpl userService) {
+                           ItemRepo itemRepo,
+                           UserService userService) {
         this.mapper = mapper;
         this.itemRepo = itemRepo;
         this.userService = userService;

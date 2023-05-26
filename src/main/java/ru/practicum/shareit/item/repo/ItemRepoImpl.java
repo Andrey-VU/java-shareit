@@ -11,8 +11,8 @@ import java.util.*;
 @Repository("itemRepo")
 @Slf4j
 public class ItemRepoImpl implements ItemRepo {
-    private final Map<Long, Item> itemStorageInMemory = new HashMap<>(); // ключ  - id item
-    private final Map<Long, List<Item>> itemsOfUsers = new HashMap<>(); // ключ - id пользователя. список - его вещи
+    private final Map<Long, Item> itemStorageInMemory = new HashMap<>();
+    private final Map<Long, List<Item>> itemsOfUsers = new HashMap<>();
     private long idGenerator;
 
     @Override
