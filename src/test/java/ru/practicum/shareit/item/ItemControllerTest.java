@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 
@@ -29,7 +30,7 @@ class ItemControllerTest {
         controller = new ItemController(itemService);
         userDto.setName("First");
         userDto.setEmail("a1@a.mail.ru");
-        firstUser = userService.create(userDto);
+        firstUser = UserMapper.makeUserWithId(userService.create(userDto));
     }
 
     @AfterEach
