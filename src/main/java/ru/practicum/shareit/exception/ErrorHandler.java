@@ -10,33 +10,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler
+    @ExceptionHandler(value = {ValidationException.class, IncorrectItemDtoException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationException(final ValidationException e) {
+    public Map<String, String> handleValidationException(final RuntimeException e) {
         return Map.of("error", e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(value = {UserNotFoundException.class, ItemNotFoundException.class,
+            IncorrectIdException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleUserNotFoundException(final UserNotFoundException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleItemNotFoundException(final ItemNotFoundException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleIncorrectIdException(final IncorrectIdException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleIncorrectItemDtoException(final IncorrectItemDtoException e) {
+    public Map<String, String> handleNotFoundException(final RuntimeException e) {
         return Map.of("error", e.getMessage());
     }
 
