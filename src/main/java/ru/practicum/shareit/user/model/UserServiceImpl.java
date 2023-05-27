@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.repo.UserRepo;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service("userService")

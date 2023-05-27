@@ -1,17 +1,14 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.repo.ItemRepo;
-import ru.practicum.shareit.item.repo.ItemRepoImpl;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.UserService;
-import ru.practicum.shareit.user.model.UserServiceImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +22,8 @@ public class ItemServiceImpl implements ItemService {
     UserService userService;
 
     public ItemServiceImpl(
-                           ItemRepo itemRepo,
-                           UserService userService) {
+            ItemRepo itemRepo,
+            UserService userService) {
         this.itemRepo = itemRepo;
         this.userService = userService;
     }
@@ -54,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> getItems(long userId) {
-        userService.getUser(userId);                         // проверяем есть ли в базе
+        userService.getUser(userId);
         return itemRepo.getItemsOfUser(userId);
     }
 
@@ -63,8 +60,6 @@ public class ItemServiceImpl implements ItemService {
         validateId(itemId);
         ItemDto itemFromRepo = getItem(itemId);
         if (itemFromRepo.getOwner().getId() != null && itemFromRepo.getOwner().getId() == userId) {
-            // Здесь у пользователя не установлен до сих пор ид...  выкидывает ошибку
-
             itemDtoWithUpdate.setId(itemId);
             Item itemUpdated = itemRepo.update(userId, ItemMapper.makeItemForUpdate(itemFromRepo, itemDtoWithUpdate));
             return ItemMapper.makeDtoFromItem(itemUpdated);
@@ -76,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public boolean deleteItem(long userId, long itemId) {
-        userService.getUser(userId);                         // проверяем есть ли в базе
+        userService.getUser(userId);
         itemRepo.delete(userId, itemId);
         return true;
     }

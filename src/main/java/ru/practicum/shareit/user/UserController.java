@@ -3,11 +3,9 @@ package ru.practicum.shareit.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserServiceImpl;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +44,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto update(@PathVariable("userId") long id,
-                       @RequestBody UserDto userDto) {
+                          @RequestBody UserDto userDto) {
         log.info("update {} for user id: {}  - Started", userDto, id);
         UserDto user = userService.update(userDto, id);
         log.info("update: {} - Finished", user);

@@ -1,12 +1,9 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemService;
-import ru.practicum.shareit.user.model.UserService;
 
 import java.util.Collection;
 
@@ -22,7 +19,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
-                    @RequestBody ItemDto itemDto) {
+                       @RequestBody ItemDto itemDto) {
         log.info("add: {} - Started", itemDto);
         ItemDto itemDtoFromRepo = itemService.addNewItem(userId, itemDto);
         log.info("create: {} - Finished", itemDtoFromRepo);
@@ -31,8 +28,8 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
-                       @PathVariable long itemId,
-                       @RequestBody ItemDto itemDto) {
+                          @PathVariable long itemId,
+                          @RequestBody ItemDto itemDto) {
         log.info("Update {} for item id: {} by user id {}  - Started", itemDto, itemId, userId);
         ItemDto itemDtoFromRepo = itemService.updateItem(userId, itemId, itemDto);
         log.info("update: {} - Finished", itemDtoFromRepo);
@@ -49,7 +46,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
-                        @PathVariable long itemId) {
+                           @PathVariable long itemId) {
         log.info("Search for item id {} - Started", itemId);
         ItemDto itemDto = itemService.getItem(itemId);
         log.info("item {} was found", itemDto);
@@ -70,7 +67,6 @@ public class ItemController {
         log.info("Delete item id {} user id {} - Started", itemId, userId);
         boolean isDel = itemService.deleteItem(userId, itemId);
         log.info("item id {} was deleted - {} ", itemId, isDel);
-
     }
 
     @DeleteMapping

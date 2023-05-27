@@ -8,7 +8,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository("itemRepo")
@@ -58,8 +61,8 @@ public class ItemRepoImpl implements ItemRepo {
             throw new ItemNotFoundException("Item is not found");
         }
         List<Item> newItemList = itemsOfUsers.get(userId).stream()
-                                    .filter(item1 -> item1.getId() != item.getId())
-                                    .collect(Collectors.toList());
+                .filter(item1 -> item1.getId() != item.getId())
+                .collect(Collectors.toList());
         newItemList.add(item);
         itemsOfUsers.put(userId, newItemList);
 

@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -61,7 +60,7 @@ public final class ItemMapper {
         return itemUpd;
     }
 
-    public static ItemDto makeDtoFromItem(Item item){
+    public static ItemDto makeDtoFromItem(Item item) {
         ItemDto itemDto = new ItemDto();
 
         itemDto.setAvailable(item.getAvailable());
