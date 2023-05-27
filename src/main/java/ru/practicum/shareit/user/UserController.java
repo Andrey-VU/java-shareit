@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.UserServiceImpl;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -20,34 +21,34 @@ public class UserController {
     }
 
     @PostMapping
-    public User create(@Valid @RequestBody UserDto userDto) {
+    public UserDto create(@Valid @RequestBody UserDto userDto) {
         log.info("create: {} - Started", userDto);
-        User user = userService.create(userDto);
+        UserDto user = userService.create(userDto);
         log.info("create: {} - Finished", user);
         return user;
     }
 
     @GetMapping
-    public Collection<User> findAll() {
+    public List<UserDto> findAll() {
         log.info("findAll - Started");
-        Collection<User> allUsers = userService.getUsers();
+        List<UserDto> allUsers = userService.getUsers();
         log.info("findAll: найдено {} пользователей - Finished", allUsers.size());
         return allUsers;
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable("userId") long id) {
+    public UserDto getUser(@PathVariable("userId") long id) {
         log.info("getUser: {} - Started", id);
-        User user = userService.getUser(id);
+        UserDto user = userService.getUser(id);
         log.info("getUser: {} - Finished", user);
         return user;
     }
 
     @PatchMapping("/{userId}")
-    public User update(@PathVariable("userId") long id,
+    public UserDto update(@PathVariable("userId") long id,
                        @RequestBody UserDto userDto) {
         log.info("update {} for user id: {}  - Started", userDto, id);
-        User user = userService.update(userDto, id);
+        UserDto user = userService.update(userDto, id);
         log.info("update: {} - Finished", user);
         return user;
     }

@@ -2,19 +2,18 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
+
 import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-@Component
+
 @Slf4j
-public class ItemMapper {
-    public Item makeItem(ItemDto itemDto, User user) {
+public final class ItemMapper {
+    public static Item makeItem(ItemDto itemDto, User user) {
         Item item = new Item();
         String name = itemDto.getName();
         String description = itemDto.getDescription();
-
         item.setOwner(user);
 
         if (!StringUtils.isBlank(name)) {
@@ -35,13 +34,18 @@ public class ItemMapper {
             log.warn("Available-status of item {} can't be null!", itemDto);
             throw new IncorrectItemDtoException("Available-status of item not found");
         }
+
         return item;
     }
 
+    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate) {
+        Item itemUpd = new Item();
 
-    public Item makeItemForUpdate(Item oldItem, ItemDto itemDtoWithUpdate) {
-        Item itemUpd = oldItem;
-        itemUpd.setId(itemDtoWithUpdate.getId());
+        itemUpd.setAvailable(oldItemDto.getAvailable());
+        itemUpd.setId(oldItemDto.getId());
+        itemUpd.setOwner(oldItemDto.getOwner());
+        itemUpd.setDescription(oldItemDto.getDescription());
+        itemUpd.setName(oldItemDto.getName());
 
         if (itemDtoWithUpdate.getName() != null) {
             itemUpd.setName(itemDtoWithUpdate.getName());
@@ -55,5 +59,17 @@ public class ItemMapper {
             itemUpd.setAvailable(itemDtoWithUpdate.getAvailable());
         }
         return itemUpd;
+    }
+
+    public static ItemDto makeDtoFromItem(Item item){
+        ItemDto itemDto = new ItemDto();
+
+        itemDto.setAvailable(item.getAvailable());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setName(item.getName());
+        itemDto.setId(item.getId());
+        itemDto.setOwner(item.getOwner());
+
+        return itemDto;
     }
 }

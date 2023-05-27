@@ -44,8 +44,8 @@ class ItemControllerTest {
         firstItemDto.setName("1stItem");
         firstItemDto.setDescription("1stDescription");
         firstItemDto.setAvailable(false);
-        Item firstItem = controller.add(firstUser.getId(), firstItemDto);
-        assertEquals(firstItem, controller.getItem(firstUser.getId(), firstItem.getId()),
+        ItemDto firstItemDtoFromRepo = controller.add(firstUser.getId(), firstItemDto);
+        assertEquals(firstItemDtoFromRepo, controller.getItem(firstUser.getId(), firstItemDtoFromRepo.getId()),
                 "Item не создано или не получено из хранилища");
     }
 
@@ -55,14 +55,14 @@ class ItemControllerTest {
         firstItemDto.setName("1stItem");
         firstItemDto.setDescription("1stDescription");
         firstItemDto.setAvailable(false);
-        Item firstItem = controller.add(firstUser.getId(), firstItemDto);
+        ItemDto firstItemDtoFromRepo = controller.add(firstUser.getId(), firstItemDto);
 
         ItemDto firstUpdateItemDto = new ItemDto();
         firstUpdateItemDto.setName("1stItemUpdate");
         firstUpdateItemDto.setDescription("1stDescriptionUpdate");
         firstUpdateItemDto.setAvailable(true);
-        Item firstUpdateItem = controller.update(firstUser.getId(), firstUser.getId(), firstUpdateItemDto);
-        assertEquals(firstUpdateItem, controller.getItem(1, 1),
+        ItemDto firstUpdateItemDtoFromRepo = controller.update(firstUser.getId(), firstUser.getId(), firstUpdateItemDto);
+        assertEquals(firstUpdateItemDtoFromRepo, controller.getItem(1, 1),
                 "Item не обновлено или не получено из хранилища");
     }
 }

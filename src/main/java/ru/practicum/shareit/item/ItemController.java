@@ -21,45 +21,45 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item add(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto add(@RequestHeader("X-Sharer-User-Id") long userId,
                     @RequestBody ItemDto itemDto) {
         log.info("add: {} - Started", itemDto);
-        Item item = itemService.addNewItem(userId, itemDto);
-        log.info("create: {} - Finished", item);
-        return item;
+        ItemDto itemDtoFromRepo = itemService.addNewItem(userId, itemDto);
+        log.info("create: {} - Finished", itemDtoFromRepo);
+        return itemDtoFromRepo;
     }
 
     @PatchMapping("/{itemId}")
-    public Item update(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
                        @PathVariable long itemId,
                        @RequestBody ItemDto itemDto) {
         log.info("Update {} for item id: {} by user id {}  - Started", itemDto, itemId, userId);
-        Item item = itemService.updateItem(userId, itemId, itemDto);
-        log.info("update: {} - Finished", item);
-        return item;
+        ItemDto itemDtoFromRepo = itemService.updateItem(userId, itemId, itemDto);
+        log.info("update: {} - Finished", itemDtoFromRepo);
+        return itemDtoFromRepo;
     }
 
     @GetMapping
-    public Collection<Item> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("GetItems for user id {} - Started", userId);
-        Collection<Item> itemsOfUser = itemService.getItems(userId);
+        Collection<ItemDto> itemsOfUser = itemService.getItems(userId);
         log.info("Found {} items of user id {} - GetItems Finished", itemsOfUser.size(), userId);
         return itemsOfUser;
     }
 
     @GetMapping("/{itemId}")
-    public Item getItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
                         @PathVariable long itemId) {
         log.info("Search for item id {} - Started", itemId);
-        Item item = itemService.getItem(itemId);
-        log.info("item {} was found", item);
-        return item;
+        ItemDto itemDto = itemService.getItem(itemId);
+        log.info("item {} was found", itemDto);
+        return itemDto;
     }
 
     @GetMapping("/search")
-    public Collection<Item> searchItems(@RequestParam String text) {
+    public Collection<ItemDto> searchItems(@RequestParam String text) {
         log.info("Search for available items with text '{}' - Started", text.toLowerCase());
-        Collection<Item> searchResult = itemService.searchForItems(text);
+        Collection<ItemDto> searchResult = itemService.searchForItems(text);
         log.info("{} available items with text '{}' was found - Finished", searchResult.size(), text.toLowerCase());
         return searchResult;
     }

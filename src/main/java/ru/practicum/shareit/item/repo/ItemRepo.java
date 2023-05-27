@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.repo;
 
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface ItemRepo {
 
@@ -14,9 +15,9 @@ public interface ItemRepo {
 
     void delete(long userId, long itemId);
 
-    Collection<Item> getItemsOfUser(long userId);
+    List<ItemDto> getItemsOfUser(long userId);
 
-    Collection<Item> getAllItems();
+    List<ItemDto> getAllItems();
 
     void clearAll();
 }

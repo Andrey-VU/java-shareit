@@ -4,12 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository("UserStorage")
@@ -32,7 +31,6 @@ public class UserRepoInMemory implements UserRepo {
             log.error("User Id {} is not found. Update error", id);
             throw new UserNotFoundException("User is not found");
         });
-
         if (user.getName() != null) {
             userStorage.setName(user.getName());
         }
@@ -56,9 +54,11 @@ public class UserRepoInMemory implements UserRepo {
     }
 
     @Override
-    public Collection<User> findAll() {
+    public List<UserDto> findAll() {
         log.info("Количество пользователей составляет: " + users.size());
-        return users.values();
+        return users.values().stream()
+                .map(user -> UserMapper.makeDto(user))
+                .collect(Collectors.toList());
     }
 
     @Override

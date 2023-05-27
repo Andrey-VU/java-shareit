@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository("itemRepo")
 @Slf4j
@@ -54,8 +57,12 @@ public class ItemRepoImpl implements ItemRepo {
             log.error("Item Id {} is not found. Update error", item.getId());
             throw new ItemNotFoundException("Item is not found");
         }
-        itemsOfUsers.get(userId).remove(getItem(item.getId()));
-        itemsOfUsers.get(userId).add(item);
+        List<Item> newItemList = itemsOfUsers.get(userId).stream()
+                                    .filter(item1 -> item1.getId() != item.getId())
+                                    .collect(Collectors.toList());
+        newItemList.add(item);
+        itemsOfUsers.put(userId, newItemList);
+
         return getItem(item.getId());
     }
 
@@ -66,9 +73,11 @@ public class ItemRepoImpl implements ItemRepo {
     }
 
     @Override
-    public Collection<Item> getItemsOfUser(long userId) {
+    public List<ItemDto> getItemsOfUser(long userId) {
         if (itemsOfUsers.containsKey(userId)) {
-            return itemsOfUsers.get(userId);
+            return itemsOfUsers.get(userId).stream()
+                    .map(item -> ItemMapper.makeDtoFromItem(item))
+                    .collect(Collectors.toList());
         } else {
             log.warn("User {} has not items ", userId);
             throw new ItemNotFoundException("Items of User " + userId + " are NOT FOUND");
@@ -76,8 +85,10 @@ public class ItemRepoImpl implements ItemRepo {
     }
 
     @Override
-    public Collection<Item> getAllItems() {
-        return itemStorageInMemory.values();
+    public List<ItemDto> getAllItems() {
+        return itemStorageInMemory.values().stream()
+                .map(item -> ItemMapper.makeDtoFromItem(item))
+                .collect(Collectors.toList());
     }
 
     @Override

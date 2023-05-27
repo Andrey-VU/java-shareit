@@ -9,37 +9,39 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.repo.UserRepo;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service("userService")
 @Slf4j
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     UserRepo userRepo;
-    UserMapper mapper;
 
     @Override
-    public User create(UserDto userDto) {
-        return userRepo.save(mapper.makeUser(userDto));
+    public UserDto create(UserDto userDto) {
+        User user = userRepo.save(UserMapper.makeUser(userDto));
+        return UserMapper.makeDto(user);
     }
 
     @Override
-    public User getUser(long id) {
+    public UserDto getUser(long id) {
         if (userRepo.findUser(id).isEmpty()) {
             log.warn("User {} is not found", id);
         }
         User user = userRepo.findUser(id).orElseThrow(() -> new UserNotFoundException("Пользователь id "
                 + id + " не найден"));
-        return user;
+        return UserMapper.makeDto(user);
     }
 
     @Override
-    public Collection<User> getUsers() {
+    public List<UserDto> getUsers() {
         return userRepo.findAll();
     }
 
     @Override
-    public User update(UserDto userDto, long id) {
-        return userRepo.update(mapper.makeUser(userDto), id);
+    public UserDto update(UserDto userDto, long id) {
+        User user = userRepo.update(UserMapper.makeUser(userDto), id);
+        return UserMapper.makeDto(user);
     }
 
     @Override

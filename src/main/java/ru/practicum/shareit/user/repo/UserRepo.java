@@ -1,8 +1,9 @@
 package ru.practicum.shareit.user.repo;
 
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepo {
@@ -10,7 +11,7 @@ public interface UserRepo {
 
     User update(User user, long id);
 
-    Collection<User> findAll();
+    List<UserDto> findAll();
 
     Optional<User> findUser(long id);
 
