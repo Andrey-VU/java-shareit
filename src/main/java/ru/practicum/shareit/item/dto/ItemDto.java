@@ -15,5 +15,5 @@ public class ItemDto {
     @NotBlank
     private Boolean available;
     @NotBlank
-    private User owner;
+    private long owner;
 }

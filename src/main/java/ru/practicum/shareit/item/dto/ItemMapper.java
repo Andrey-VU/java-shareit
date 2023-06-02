@@ -13,7 +13,7 @@ public final class ItemMapper {
         Item item = new Item();
         String name = itemDto.getName();
         String description = itemDto.getDescription();
-        item.setOwner(user);
+        item.setOwner(user.getId());
 
         if (!StringUtils.isBlank(name)) {
             item.setName(itemDto.getName());

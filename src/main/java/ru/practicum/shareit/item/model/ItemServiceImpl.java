@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(long userId, long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         ItemDto itemFromRepo = getItem(itemId);
-        if (itemFromRepo.getOwner().getId() != null && itemFromRepo.getOwner().getId() == userId) {
+        if (itemFromRepo.getOwner() == userId) {
             itemDtoWithUpdate.setId(itemId);
             Item itemUpdated = itemRepo.update(userId, ItemMapper.makeItemForUpdate(itemFromRepo, itemDtoWithUpdate));
             return ItemMapper.makeDtoFromItem(itemUpdated);
