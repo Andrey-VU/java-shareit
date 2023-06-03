@@ -12,8 +12,8 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @NotBlank
-    @Column(name = "owner")
-    private long owner;
+    @Column(name = "owner_id")
+    private long ownerId;
     @NotBlank
     @Column(name = "name")
     private String name;
@@ -21,6 +21,9 @@ public class Item {
     @Column(name = "description")
     private String description;
     @NotBlank
-    @Column(name = "available")
-    private Boolean available;
+    @Column(name = "is_available")
+    private Boolean isAvailable;
+    @Column(name = "request_id")
+    private long requestId;
+
 }

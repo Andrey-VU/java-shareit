@@ -13,7 +13,7 @@ public final class ItemMapper {
         Item item = new Item();
         String name = itemDto.getName();
         String description = itemDto.getDescription();
-        item.setOwner(user.getId());
+        item.setOwnerId(user.getId());
 
         if (!StringUtils.isBlank(name)) {
             item.setName(itemDto.getName());
@@ -28,7 +28,7 @@ public final class ItemMapper {
             throw new IncorrectItemDtoException("Item's description is not found");
         }
         if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
+            item.setIsAvailable(itemDto.getAvailable());
         } else {
             log.warn("Available-status of item {} can't be null!", itemDto);
             throw new IncorrectItemDtoException("Available-status of item not found");
@@ -40,9 +40,9 @@ public final class ItemMapper {
     public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate) {
         Item itemUpd = new Item();
 
-        itemUpd.setAvailable(oldItemDto.getAvailable());
+        itemUpd.setIsAvailable(oldItemDto.getAvailable());
         itemUpd.setId(oldItemDto.getId());
-        itemUpd.setOwner(oldItemDto.getOwner());
+        itemUpd.setOwnerId(oldItemDto.getOwner());
         itemUpd.setDescription(oldItemDto.getDescription());
         itemUpd.setName(oldItemDto.getName());
 
@@ -55,7 +55,7 @@ public final class ItemMapper {
         }
 
         if (itemDtoWithUpdate.getAvailable() != null) {
-            itemUpd.setAvailable(itemDtoWithUpdate.getAvailable());
+            itemUpd.setIsAvailable(itemDtoWithUpdate.getAvailable());
         }
         return itemUpd;
     }
@@ -63,11 +63,11 @@ public final class ItemMapper {
     public static ItemDto makeDtoFromItem(Item item) {
         ItemDto itemDto = new ItemDto();
 
-        itemDto.setAvailable(item.getAvailable());
+        itemDto.setAvailable(item.getIsAvailable());
         itemDto.setDescription(item.getDescription());
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
-        itemDto.setOwner(item.getOwner());
+        itemDto.setOwner(item.getOwnerId());
 
         return itemDto;
     }
