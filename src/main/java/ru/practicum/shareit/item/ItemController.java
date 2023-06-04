@@ -3,9 +3,12 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.ItemService;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/items")
@@ -37,9 +40,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public Collection<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("GetItems for user id {} - Started", userId);
-        Collection<ItemDto> itemsOfUser = itemService.getItems(userId);
+        List<ItemDto> itemsOfUser = itemService.getItems(userId).stream()
+                .map(item -> ItemMapper.makeDtoFromItem(item))
+                .collect(Collectors.toList());
         log.info("Found {} items of user id {} - GetItems Finished", itemsOfUser.size(), userId);
         return itemsOfUser;
     }

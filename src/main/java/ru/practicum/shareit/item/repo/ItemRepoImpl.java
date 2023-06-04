@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated
 @Repository("itemRepo")
 @Slf4j
 public class ItemRepoImpl implements ItemRepo {

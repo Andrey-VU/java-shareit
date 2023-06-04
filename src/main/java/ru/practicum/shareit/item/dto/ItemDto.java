@@ -14,6 +14,6 @@ public class ItemDto {
     private String description;
     @NotBlank
     private Boolean available;
-    @NotBlank
-    private long owner;
+//    @NotBlank
+//    private long owner;
 }

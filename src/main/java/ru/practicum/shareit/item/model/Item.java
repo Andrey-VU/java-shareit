@@ -1,28 +1,38 @@
 package ru.practicum.shareit.item.model;
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
-@Data
+@Getter @Setter
 @Entity
 @Table(name = "items", schema = "public")
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @NotBlank
+
+    @NotNull(message = "Владелец вещи должен быть указан!")
+    @Positive
     @Column(name = "owner_id")
     private long ownerId;
-    @NotBlank
+
+    @NotBlank(message = "Название вещи не может быть пустым!")
     @Column(name = "name")
     private String name;
-    @NotBlank
+
+    @NotBlank(message = "Описание вещи не может быть пустым!")
     @Column(name = "description")
     private String description;
-    @NotBlank
+
+    @NotNull(message = "Статус вещи не может быть пустым!")
     @Column(name = "is_available")
     private Boolean isAvailable;
+
     @Column(name = "request_id")
     private long requestId;
 

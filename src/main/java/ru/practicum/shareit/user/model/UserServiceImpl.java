@@ -47,11 +47,10 @@ public class UserServiceImpl implements UserService {
         if (userDto.getName() != null) {
             userStorage.setName(userDto.getName());
         }
-        if (userDto.getEmail() != null && userDto.getEmail().equals(userStorage.getEmail())
-                || userDto.getEmail() != null && isEmailFree(userDto.getEmail())) {
+        if (userDto.getEmail() != null) {
             userStorage.setEmail(userDto.getEmail());
         }
-        User user = UserMapper.makeUser(userStorage);
+        User user = UserMapper.makeUserWithId(userStorage);
 
         return UserMapper.makeDto(userRepo.save(user));
     }
@@ -67,15 +66,4 @@ public class UserServiceImpl implements UserService {
     public void clearAll() {
         userRepo.deleteAll();
     }
-
-    private boolean isEmailFree(String email) {
-        if (getUsers().stream()
-                .filter(user1 -> user1.getEmail().equals(email))
-                .collect(Collectors.toList()).size() != 0) {
-            log.warn("email {} already exists", email);
-            throw new ConflictException("User with " + email + " already exists");
-        }
-        return true;
-    }
-
 }

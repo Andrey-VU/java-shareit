@@ -42,7 +42,7 @@ public final class ItemMapper {
 
         itemUpd.setIsAvailable(oldItemDto.getAvailable());
         itemUpd.setId(oldItemDto.getId());
-        itemUpd.setOwnerId(oldItemDto.getOwner());
+//        itemUpd.setOwnerId(oldItemDto.getOwner());
         itemUpd.setDescription(oldItemDto.getDescription());
         itemUpd.setName(oldItemDto.getName());
 
@@ -67,7 +67,7 @@ public final class ItemMapper {
         itemDto.setDescription(item.getDescription());
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
-        itemDto.setOwner(item.getOwnerId());
+//        itemDto.setOwner(item.getOwnerId());
 
         return itemDto;
     }
