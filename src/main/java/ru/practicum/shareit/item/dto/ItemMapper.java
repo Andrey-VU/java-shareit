@@ -4,45 +4,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
-
 
 @Slf4j
 public final class ItemMapper {
-    public static Item makeItem(ItemDto itemDto, User user) {
+    public static Item makeItem(ItemDto itemDto, long userId) {
         Item item = new Item();
-        String name = itemDto.getName();
-        String description = itemDto.getDescription();
-        item.setOwnerId(user.getId());
-
-        if (!StringUtils.isBlank(name)) {
-            item.setName(itemDto.getName());
-        } else {
-            log.warn("Item's name {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's name is not found");
-        }
-        if (!StringUtils.isBlank(description)) {
-            item.setDescription(itemDto.getDescription());
-        } else {
-            log.warn("Item's description {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's description is not found");
-        }
-        if (itemDto.getAvailable() != null) {
-            item.setIsAvailable(itemDto.getAvailable());
-        } else {
-            log.warn("Available-status of item {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Available-status of item not found");
-        }
-
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setIsAvailable(itemDto.getAvailable());
+        item.setOwnerId(userId);
         return item;
     }
 
-    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate) {
+    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, long idOwner) {
         Item itemUpd = new Item();
 
         itemUpd.setIsAvailable(oldItemDto.getAvailable());
         itemUpd.setId(oldItemDto.getId());
-//        itemUpd.setOwnerId(oldItemDto.getOwner());
+        itemUpd.setOwnerId(idOwner);
         itemUpd.setDescription(oldItemDto.getDescription());
         itemUpd.setName(oldItemDto.getName());
 
@@ -62,7 +41,6 @@ public final class ItemMapper {
 
     public static ItemDto makeDtoFromItem(Item item) {
         ItemDto itemDto = new ItemDto();
-
         itemDto.setAvailable(item.getIsAvailable());
         itemDto.setDescription(item.getDescription());
         itemDto.setName(item.getName());

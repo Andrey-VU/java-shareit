@@ -16,8 +16,8 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotNull(message = "Владелец вещи должен быть указан!")
-    @Positive
+//    @NotNull(message = "Владелец вещи должен быть указан!")
+//    @Positive
     @Column(name = "owner_id")
     private long ownerId;
 

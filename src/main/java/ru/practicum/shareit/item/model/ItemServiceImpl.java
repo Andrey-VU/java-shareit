@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.IncorrectIdException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.repo.ItemRepository;
@@ -30,13 +30,30 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addNewItem(long userId, ItemDto itemDto) {
-                User userOwner = UserMapper.makeUserWithId(userService.getUser(userId));
-                // здесь будет выбрасываться 404, когда юзер будет не найден, а нам в этом методе надо,
-        // чтобы было выброщено 400
-        // можно попробовать вначале проверить, что там с isAvailable - тогда должно вывалиться бэд реквест
 
-                Item item = itemRepo.save(ItemMapper.makeItem(itemDto, userOwner));
+        itemDtoValidate(userId, itemDto);
+        Item item = itemRepo.save(ItemMapper.makeItem(itemDto, userId));
+
         return ItemMapper.makeDtoFromItem(item);
+    }
+
+    private void itemDtoValidate(long userId, ItemDto itemDto) {
+        String name = itemDto.getName();
+        String description = itemDto.getDescription();
+
+        if (StringUtils.isBlank(name)) {
+            log.warn("Item's name {} can't be null!", itemDto);
+            throw new IncorrectItemDtoException("Item's name is not found");
+        }
+        if (StringUtils.isBlank(description)) {
+            log.warn("Item's description {} can't be null!", itemDto);
+            throw new IncorrectItemDtoException("Item's description is not found");
+        }
+        if (itemDto.getAvailable() == null) {
+            log.warn("Available-status of item {} can't be null!", itemDto);
+            throw new IncorrectItemDtoException("Available-status of item not found");
+        }
+        userService.getUser(userId);
     }
 
     @Override
@@ -56,32 +73,25 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItems(long userId) {
-        List<Long> listOfId = new ArrayList<>();
-        listOfId.add(userId);
-        return itemRepo.findAllById(listOfId);
+        return itemRepo.findAll().stream()
+                .filter(item -> item.getOwnerId() == userId)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto updateItem(long userId, long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         validateId(userId);
-        ItemDto itemFromRepo = getItem(itemId);
-
-            itemDtoWithUpdate.setId(itemId);
-            Item itemUpdated = itemRepo.save(ItemMapper.makeItemForUpdate(itemFromRepo,
-                    itemDtoWithUpdate));
-            return ItemMapper.makeDtoFromItem(itemUpdated);
-//        } else {
-//            log.error("User Id {} has not item", userId);
-//            throw new ItemNotFoundException("Item is not found");
-//        }
+        ItemDto itemDtoFromRepo = getItem(itemId);
+        Item item = ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, userId);
+        Item itemUpdated = itemRepo.save(item);
+        return ItemMapper.makeDtoFromItem(itemUpdated);
     }
 
     @Override
     public boolean deleteItem(long userId, long itemId) {
         userService.getUser(userId);
-        itemRepo.delete(ItemMapper.makeItem(getItem(itemId),
-                UserMapper.makeUserWithId(userService.getUser(userId))));
+        itemRepo.delete(ItemMapper.makeItem(getItem(itemId), userId));
         return true;
     }
 
