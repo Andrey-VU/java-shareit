@@ -7,8 +7,6 @@ import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.repo.ItemRepository;
-import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 
 import java.util.ArrayList;
@@ -102,15 +100,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> searchForItems(String text) {
-//        List<Long> searchResult = new ArrayList<>();
-//        if (!text.isBlank()) {
-//            searchResult = itemRepo.searchForItems(text);
-//        }
-
-        return itemRepo.findByNameContainingIgnoreCase(text).stream()
-                .map(item -> ItemMapper.makeDtoFromItem(item))
-                .collect(Collectors.toList());
+        List<ItemDto> searchResult = new ArrayList<>();
+        if (!text.isBlank()) {
+            searchResult = itemRepo.findByText(text).stream()
+                    .map(item -> ItemMapper.makeDtoFromItem(item))
+                    .collect(Collectors.toList());
+        }
+        return searchResult;
     }
-
-
 }
