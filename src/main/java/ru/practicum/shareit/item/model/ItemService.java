@@ -19,4 +19,6 @@ public interface ItemService {
     void clearAll();
 
     Collection<ItemDto> searchForItems(String text);
+
+
 }
