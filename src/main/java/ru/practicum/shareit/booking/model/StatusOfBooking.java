@@ -4,7 +4,9 @@ public enum StatusOfBooking {
     WAITING,
     APPROVED,
     REJECTED,
-    CANCELED
+    CANCELED,
+
+
 
 //    status — статус бронирования. Может принимать одно из следующих значений:
 //    WAITING — новое бронирование, ожидает одобрения,

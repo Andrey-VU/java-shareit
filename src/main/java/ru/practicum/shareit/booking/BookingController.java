@@ -2,10 +2,12 @@ package ru.practicum.shareit.booking;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.BookingService;
 import ru.practicum.shareit.booking.model.StatusOfBooking;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -13,18 +15,19 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 public class BookingController {
     BookingService bookingService;
-
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
 
     @PostMapping
-    public BookingDto add(@RequestHeader("X-Sharer-User-Id") long userId,
-                          @RequestBody BookingDto bookingDto) {
-        log.info("add booking: {} - Started", bookingDto);
-        BookingDto bookingDtoFromRepo = bookingService.addNewBooking(userId, bookingDto);
-        log.info("create booking: {} - Finished", bookingDtoFromRepo);
-        return bookingDtoFromRepo;  /*
+    public BookingResponseDto add(@RequestHeader("X-Sharer-User-Id") Long bookerId,
+                                  @Valid @RequestBody BookingRequestDto bookingDto) {
+        log.info("Add new booking: {} - Started", bookingDto);
+        BookingResponseDto bookingDtoFromRepo = bookingService.addNewBooking(bookerId, bookingDto);
+        log.info("Create booking: {} - Finished", bookingDtoFromRepo);
+        return bookingDtoFromRepo;
+
+        /*
     Добавление нового запроса на бронирование. Запрос может быть создан любым пользователем,
     а затем подтверждён владельцем вещи.
     Эндпоинт — POST /bookings. После создания запрос находится в статусе WAITING — «ожидает подтверждения».
@@ -32,11 +35,11 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto approve(@RequestHeader("X-Sharer-User-Id") long userId,
-                              @PathVariable long bookingId,
-                              @RequestBody BookingDto bookingDto) {
-        log.info("Set status {} for booking id: {} by user id {}  - Started", bookingDto, bookingId, userId);
-        BookingDto bookingDtoFromRepo = bookingService.approveBooking(userId, bookingId, bookingDto);
+    public BookingResponseDto approve(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                      @PathVariable Long bookingId,
+                                      @RequestParam Boolean approved) {
+        log.info("Set status {} for booking id: {} by user id {}  - Started", approved, bookingId, ownerId);
+        BookingResponseDto bookingDtoFromRepo = bookingService.approveBooking(ownerId, bookingId, approved);
         log.info("Set status: {} - Finished", bookingDtoFromRepo.getStatus());
         return bookingDtoFromRepo;
          /*
@@ -48,12 +51,12 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-                                 @PathVariable long bookingId) {
+    public BookingResponseDto getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                        @PathVariable Long bookingId) {
         log.info("Search for booking id {} - Started", bookingId);
-        BookingDto bookingDto = bookingService.getBooking(bookingId, userId);
-        log.info("Booking {} was found", bookingDto);
-        return bookingDto;
+        BookingResponseDto bookingResponseDto = bookingService.getBooking(bookingId);
+        log.info("Booking {} was found", bookingResponseDto);
+        return bookingResponseDto;
     /*
     Получение данных о конкретном бронировании (включая его статус). Может быть выполнено либо автором
     бронирования,
@@ -62,10 +65,10 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getBookings(@RequestHeader("X-Sharer-User-Id") long userId,
-                                        @RequestParam(defaultValue = "ALL", required = false) StatusOfBooking status) {
-        log.info("Search user's (id {}) bookings with status {} - Started", userId, status);
-        List<BookingDto> bookingsOfUser = bookingService.getBookings(userId, status);
+    public List<BookingResponseDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
+                                                @RequestParam(defaultValue = "ALL", required = false) String status) {
+        log.info("Search user's (id {}) bookings with status {} - Started", bookerId, status);
+        List<BookingResponseDto> bookingsOfUser = bookingService.getBookings(bookerId, status);
         log.info("{} bookings with status {} was found", bookingsOfUser.size(), status);
         return bookingsOfUser;
     /*
@@ -78,13 +81,14 @@ public class BookingController {
     }
 
 
-    @GetMapping("/owner")
-    public List<BookingDto> getBookingsOfItemsThisUser(@RequestHeader("X-Sharer-User-Id") long userId,
-                                        @RequestParam(defaultValue = "ALL", required = false) StatusOfBooking status) {
+    @GetMapping("/owner")   /// НАЧАТЬ ОТСЮДА ... здесь неправильно всё.
+    public List<BookingResponseDto> getBookingsOfItemsThisUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                              @RequestParam(defaultValue = "ALL", required = false) StatusOfBooking status) {
         log.info("Search user's (id {}) bookings with status {} - Started", userId, status);
-        List<BookingDto> bookingsOfUser = bookingService.getListOfBookingsOfItems(userId, status);
+        List<BookingResponseDto> bookingsOfUser = bookingService.getListOfBookingsOfItems(userId, status);
         log.info("{} bookings with status {} was found", bookingsOfUser.size(), status);
-        return bookingsOfUser;/*
+        return bookingsOfUser;
+        /*
     Получение списка бронирований для всех вещей текущего пользователя.
     Эндпоинт — GET /bookings/owner?state={state}.
     Этот запрос имеет смысл для владельца хотя бы одной вещи.
