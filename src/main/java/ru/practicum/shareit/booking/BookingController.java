@@ -67,9 +67,9 @@ public class BookingController {
     @GetMapping
     public List<BookingResponseDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
                                                 @RequestParam(defaultValue = "ALL", required = false) String status) {
-        log.info("Search user's (id {}) bookings with status {} - Started", bookerId, status);
+        log.info("Search user's (id {}) {} bookings - Started", bookerId, status);
         List<BookingResponseDto> bookingsOfUser = bookingService.getBookings(bookerId, status);
-        log.info("{} bookings with status {} was found", bookingsOfUser.size(), status);
+        log.info("{} {} bookings was found", bookingsOfUser.size(), status);
         return bookingsOfUser;
     /*
     Получение списка всех бронирований текущего пользователя. Эндпоинт — GET /bookings?state={state}.
@@ -81,13 +81,13 @@ public class BookingController {
     }
 
 
-    @GetMapping("/owner")   /// НАЧАТЬ ОТСЮДА ... здесь неправильно всё.
-    public List<BookingResponseDto> getBookingsOfItemsThisUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                              @RequestParam(defaultValue = "ALL", required = false) StatusOfBooking status) {
-        log.info("Search user's (id {}) bookings with status {} - Started", userId, status);
-        List<BookingResponseDto> bookingsOfUser = bookingService.getListOfBookingsOfItems(userId, status);
-        log.info("{} bookings with status {} was found", bookingsOfUser.size(), status);
-        return bookingsOfUser;
+    @GetMapping("/owner")
+    public List<BookingResponseDto> getBookingsOfOwnersItems(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                    @RequestParam(defaultValue = "ALL", required = false) String status) {
+        log.info("Search {} bookings of owner's (id {}) items - Started", status, ownerId);
+        List<BookingResponseDto> bookingsOfOwnerItems = bookingService.getListOfBookingsOfOwnersItems(ownerId,status);
+        log.info("{} {} bookings was found", status, bookingsOfOwnerItems.size());
+        return bookingsOfOwnerItems;
         /*
     Получение списка бронирований для всех вещей текущего пользователя.
     Эндпоинт — GET /bookings/owner?state={state}.
