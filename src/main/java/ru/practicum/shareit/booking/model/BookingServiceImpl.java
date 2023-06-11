@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -43,6 +44,13 @@ public class BookingServiceImpl implements BookingService {
         dateValidate(dto);
         dto.setStatus(StatusOfBooking.WAITING);
         UserDto userFromRepo = userService.getUser(bookerId);
+
+        if (userFromRepo.getId() == item.getOwnerId()) {
+            log.warn("Внимание! Попытка создать бронирование собственной вещи!");
+            throw new BookingNotFoundException("Owner of item can't book it!");
+        }
+
+
         User user = UserMapper.makeUserWithId(userFromRepo);
         Booking newBooking = bookingRepo.save(BookingMapper.requestDtoToEntity(dto, item, user));
         return BookingMapper.entityToResponseDto(newBooking);
@@ -51,14 +59,19 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDto approveBooking(Long ownerId, Long bookingId, Boolean approved) {
         UserDto owner = userService.getUser(ownerId);
+        if (!getBooking(bookingId, ownerId).getStatus().equals(StatusOfBooking.WAITING)) {
+            log.warn("Статус бронирования уже был установлен");
+            throw new ValidationException("Secondary approval is prohibited!");
+        }
+
         if (approved == null) {
             log.warn("статус подтверждения не может быть пустым");
             throw new ValidationException("Approve validation error. Status is null");
         }
-        BookingResponseDto bookingDtoFromRepo = getBooking(bookingId);
+        BookingResponseDto bookingDtoFromRepo = getBooking(bookingId, ownerId);
         if (bookingDtoFromRepo.getItem().getOwnerId() != ownerId) {
             log.warn("Подтверждение статуса бронирования доступно только владельцу вещи");
-            throw new ValidationException("Access error. Only Owner can approve booking");
+            throw new BookingNotFoundException("Access error. Only Owner can approve booking");
         }
 
         Booking bookingFromRepo = BookingMapper.responseDtoToEntity(bookingDtoFromRepo);
@@ -70,10 +83,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingResponseDto getBooking(Long bookingId) {
+    public BookingResponseDto getBooking(Long bookingId, Long userId) {
 
         Booking bookingFromRepo = bookingRepo.findById(bookingId).orElseThrow( () ->
                 new BookingNotFoundException("Бронирование id "  + bookingId + " не найдено") );
+
+        if (!(bookingFromRepo.getBooker().getId().equals(userId)
+                || bookingFromRepo.getItem().getOwnerId() == userId)) {
+            log.warn("Просмотр бронирования доступен только арендатору или владельцу вещи");
+            throw new BookingNotFoundException("Access error. Only for Owner or Booker");
+        }
 
         return BookingMapper.entityToResponseDto(bookingFromRepo);
     }
@@ -89,22 +108,22 @@ public class BookingServiceImpl implements BookingService {
         }
         else if (status.equals("FUTURE")) {
             responseBookingList =
-                    bookingRepo.findByBookerAndStartIsAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                    bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
         } else if (status.equals("CURRENT")) {
             responseBookingList =
-                    bookingRepo.findByBookerAndEndIsAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                    bookingRepo.findAllByBookerIdAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now());
         } else if (status.equals("PAST")){
             responseBookingList =
-                    bookingRepo.findByBookerAndEndIsBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
+                    bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
         }
         else if (status.equals("WAITING") || status.equals("REJECTED")) {
             responseBookingList =
-                    bookingRepo.findByBookerAndStatusOrderByStartDesc(bookerId, status);
+                    bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, status);
         }
 
         else {
             log.warn("Статус запроса {} не поддерживается", status);
-            throw new ValidationException("Status of request is wrong!");
+            throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
 
         responseDtoList = responseBookingList.stream()
@@ -126,33 +145,29 @@ public class BookingServiceImpl implements BookingService {
 
         switch (status) {
             case "ALL":
-                bookingsOfOwnersItems = bookingRepo.findAll().stream()
-                        .filter(booking -> booking.getItem().getOwnerId() == ownerId)
-                        .collect(Collectors.toList());
+                bookingsOfOwnersItems = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId);
                 break;
             case "FUTURE":
                 bookingsOfOwnersItems =
-                        bookingRepo.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(ownerId, LocalDateTime.now());
+                        bookingRepo.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
                 break;
             case "CURRENT":
                 bookingsOfOwnersItems =
-                        bookingRepo.findByItemOwnerIdAndEndIsAfterOrderByStartDesc(ownerId, LocalDateTime.now());
+                        bookingRepo.findAllByItemOwnerIdAndEndAfterOrderByStartDesc(ownerId, LocalDateTime.now());
                 break;
             case "PAST":
                 bookingsOfOwnersItems =
-                        bookingRepo.findByItemOwnerIdAndEndIsBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
+                        bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
                 break;
             case "WAITING":
             case "REJECTED":
                 bookingsOfOwnersItems =
-                        bookingRepo.findByItemOwnerIdAndStatusOrderByStartDesc(ownerId, status);
+                        bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, status);
                 break;
             default:
                 log.warn("Статус запроса {} не поддерживается", status);
-                throw new ValidationException("Status of request is wrong!");
+                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
-
-
 
          return bookingsOfOwnersItems.stream()
                  .map(booking -> BookingMapper.entityToResponseDto(booking))
