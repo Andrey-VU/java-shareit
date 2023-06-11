@@ -8,7 +8,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
-@Getter @Setter
+@Getter
+@Setter
 @Entity
 @Table(name = "users", schema = "public")
 public class User {

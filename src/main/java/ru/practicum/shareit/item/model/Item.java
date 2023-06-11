@@ -1,4 +1,5 @@
 package ru.practicum.shareit.item.model;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +8,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
-@Getter @Setter
+@Getter
+@Setter
 @Entity
 @Table(name = "items", schema = "public")
 public class Item {

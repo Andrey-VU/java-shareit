@@ -4,13 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.booking.model.StatusOfBooking;
-import ru.practicum.shareit.user.model.User;
-
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class BookingRequestDto {
 
     @NotNull(message = "Время начала бронирования не может быть пустым")

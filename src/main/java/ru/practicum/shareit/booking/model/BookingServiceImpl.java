@@ -8,7 +8,6 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
-import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -75,7 +74,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking bookingFromRepo = BookingMapper.responseDtoToEntity(bookingDtoFromRepo);
-           bookingFromRepo.setStatus(approved.equals(true) ? StatusOfBooking.APPROVED
+        bookingFromRepo.setStatus(approved.equals(true) ? StatusOfBooking.APPROVED
                 : StatusOfBooking.REJECTED);
 
         Booking updateBooking = bookingRepo.save(bookingFromRepo);
@@ -85,8 +84,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponseDto getBooking(Long bookingId, Long userId) {
 
-        Booking bookingFromRepo = bookingRepo.findById(bookingId).orElseThrow( () ->
-                new BookingNotFoundException("Бронирование id "  + bookingId + " не найдено") );
+        Booking bookingFromRepo = bookingRepo.findById(bookingId).orElseThrow(() ->
+                new BookingNotFoundException("Бронирование id " + bookingId + " не найдено"));
 
         if (!(bookingFromRepo.getBooker().getId().equals(userId)
                 || bookingFromRepo.getItem().getOwnerId() == userId)) {
@@ -105,23 +104,19 @@ public class BookingServiceImpl implements BookingService {
 
         if (status.equals("ALL")) {
             responseBookingList = bookingRepo.findByBookerIdOrderByStartDesc(bookerId);
-        }
-        else if (status.equals("FUTURE")) {
+        } else if (status.equals("FUTURE")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
         } else if (status.equals("CURRENT")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-        } else if (status.equals("PAST")){
+        } else if (status.equals("PAST")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
-        }
-        else if (status.equals("WAITING") || status.equals("REJECTED")) {
+        } else if (status.equals("WAITING") || status.equals("REJECTED")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, status);
-        }
-
-        else {
+        } else {
             log.warn("Статус запроса {} не поддерживается", status);
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
@@ -169,16 +164,17 @@ public class BookingServiceImpl implements BookingService {
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
 
-         return bookingsOfOwnersItems.stream()
-                 .map(booking -> BookingMapper.entityToResponseDto(booking))
-                 .collect(Collectors.toList());
+        return bookingsOfOwnersItems.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking))
+                .collect(Collectors.toList());
     }
 
     private void dateValidate(BookingRequestDto dto) {
         if (dto.getStart().isBefore(LocalDateTime.now())) {
             log.warn("Время начала бронирования не может быть в прошлом");
             throw new ValidationException("StartTime can't be from the past");
-        };
+        }
+        ;
         if (dto.getEnd().isBefore(dto.getStart()) || dto.getEnd().equals(dto.getStart())) {
             log.warn("Окончание бронирования должно быть позже начала бронирования");
             throw new ValidationException("EndTime can be later then StartDate");

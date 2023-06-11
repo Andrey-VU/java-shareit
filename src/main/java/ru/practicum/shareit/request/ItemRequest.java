@@ -11,7 +11,8 @@ import javax.validation.constraints.NotBlank;
  */
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @Table(name = "requests", schema = "public")
 public class ItemRequest {
     @Id

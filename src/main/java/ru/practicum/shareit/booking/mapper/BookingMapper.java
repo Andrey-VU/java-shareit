@@ -4,10 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
@@ -24,7 +22,7 @@ public final class BookingMapper {
             booking.setStatus(dto.getStatus());
             booking.setBooker(booker);
         }
-    return booking;
+        return booking;
     }
 
 
@@ -65,7 +63,7 @@ public final class BookingMapper {
             booking.setId(dto.getId());
             booking.setStart(dto.getStart());
             booking.setEnd(dto.getEnd());
-            booking.setItem(ItemMapper.makeItem(dto.getItem(),dto.getItem().getOwnerId()));
+            booking.setItem(ItemMapper.makeItem(dto.getItem(), dto.getItem().getOwnerId()));
             booking.setStatus(dto.getStatus());
             booking.setBooker(UserMapper.makeUserWithId(dto.getBooker()));
         }
