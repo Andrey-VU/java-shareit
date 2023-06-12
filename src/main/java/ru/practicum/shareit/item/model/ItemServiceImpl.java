@@ -9,6 +9,8 @@ import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 
 import java.util.ArrayList;
@@ -32,7 +34,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addNewItem(long userId, ItemDto itemDto) {
 
         itemDtoValidate(userId, itemDto);
-        Item item = itemRepo.save(ItemMapper.makeItem(itemDto, userId));
+        User user = UserMapper.makeUserWithId(userService.getUser(userId));
+        Item item = itemRepo.save(ItemMapper.makeItem(itemDto, user));
 
         return ItemMapper.makeDtoFromItem(item);
     }
@@ -74,24 +77,25 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> getItems(long userId) {
         return itemRepo.findAll().stream()
-                .filter(item -> item.getOwnerId() == userId)
+                .filter(item -> item.getOwner().getId() == userId)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public ItemDto updateItem(long userId, long itemId, ItemDto itemDtoWithUpdate) {
+    public ItemDto updateItem(long ownerId, long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
-        validateId(userId);
+        validateId(ownerId);
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
         ItemDto itemDtoFromRepo = getItem(itemId);
-        Item item = ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, userId);
+        Item item = ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner);
         Item itemUpdated = itemRepo.save(item);
         return ItemMapper.makeDtoFromItem(itemUpdated);
     }
 
     @Override
     public boolean deleteItem(long userId, long itemId) {
-        userService.getUser(userId);
-        itemRepo.delete(ItemMapper.makeItem(getItem(itemId), userId));
+        User user = UserMapper.makeUserWithId(userService.getUser(userId));
+        itemRepo.delete(ItemMapper.makeItem(getItem(itemId), user));
         return true;
     }
 

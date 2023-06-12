@@ -34,9 +34,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto addNewBooking(Long bookerId, BookingRequestDto dto) {
-        ItemDto itemFromRepo = itemService.getItem(dto.getItemId());
-        Item item = ItemMapper.makeItem(itemFromRepo, itemFromRepo.getOwnerId());
-        if (!itemFromRepo.getAvailable()) {
+        ItemDto itemDtoFromRepo = itemService.getItem(dto.getItemId());
+        User owner = UserMapper.makeUserWithId(userService.getUser(itemDtoFromRepo.getOwnerId()));
+        Item item = ItemMapper.makeItem(itemDtoFromRepo, owner);
+        if (!itemDtoFromRepo.getAvailable()) {
             log.warn("Вещь id {}, недоступна для бронирования", dto.getItemId());
             throw new ValidationException("Item  is not available for booking");
         }
@@ -44,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setStatus(StatusOfBooking.WAITING);
         UserDto userFromRepo = userService.getUser(bookerId);
 
-        if (userFromRepo.getId() == item.getOwnerId()) {
+        if (userFromRepo.getId() == item.getOwner().getId()) {
             log.warn("Внимание! Попытка создать бронирование собственной вещи!");
             throw new BookingNotFoundException("Owner of item can't book it!");
         }
@@ -57,7 +58,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto approveBooking(Long ownerId, Long bookingId, Boolean approved) {
-        UserDto owner = userService.getUser(ownerId);
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
         if (!getBooking(bookingId, ownerId).getStatus().equals(StatusOfBooking.WAITING)) {
             log.warn("Статус бронирования уже был установлен");
             throw new ValidationException("Secondary approval is prohibited!");
@@ -73,7 +74,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingNotFoundException("Access error. Only Owner can approve booking");
         }
 
-        Booking bookingFromRepo = BookingMapper.responseDtoToEntity(bookingDtoFromRepo);
+        Booking bookingFromRepo = BookingMapper.responseDtoToEntity(bookingDtoFromRepo, owner);
         bookingFromRepo.setStatus(approved.equals(true) ? StatusOfBooking.APPROVED
                 : StatusOfBooking.REJECTED);
 
@@ -88,7 +89,7 @@ public class BookingServiceImpl implements BookingService {
                 new BookingNotFoundException("Бронирование id " + bookingId + " не найдено"));
 
         if (!(bookingFromRepo.getBooker().getId().equals(userId)
-                || bookingFromRepo.getItem().getOwnerId() == userId)) {
+                || bookingFromRepo.getItem().getOwner().getId() == userId)) {
             log.warn("Просмотр бронирования доступен только арендатору или владельцу вещи");
             throw new BookingNotFoundException("Access error. Only for Owner or Booker");
         }

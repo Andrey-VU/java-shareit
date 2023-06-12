@@ -2,11 +2,12 @@ package ru.practicum.shareit.item.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 @Getter
 @Setter
@@ -18,9 +19,10 @@ public class Item {
     private long id;
 
     @NotNull(message = "Владелец вещи должен быть указан!")
-    @Positive
-    @Column(name = "owner_id")
-    private long ownerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    @ToString.Exclude
+    private User owner;
 
     @NotBlank(message = "Название вещи не может быть пустым!")
     @Column(name = "name")

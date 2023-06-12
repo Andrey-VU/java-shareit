@@ -55,7 +55,7 @@ public final class BookingMapper {
     }
 
 
-    public static Booking responseDtoToEntity(BookingResponseDto dto) {
+    public static Booking responseDtoToEntity(BookingResponseDto dto, User owner) {
         Booking booking = new Booking();
         if (dto == null) {
             return null;
@@ -63,7 +63,7 @@ public final class BookingMapper {
             booking.setId(dto.getId());
             booking.setStart(dto.getStart());
             booking.setEnd(dto.getEnd());
-            booking.setItem(ItemMapper.makeItem(dto.getItem(), dto.getItem().getOwnerId()));
+            booking.setItem(ItemMapper.makeItem(dto.getItem(), owner));
             booking.setStatus(dto.getStatus());
             booking.setBooker(UserMapper.makeUserWithId(dto.getBooker()));
         }

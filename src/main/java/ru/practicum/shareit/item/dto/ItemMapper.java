@@ -2,25 +2,26 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 @Slf4j
 public final class ItemMapper {
-    public static Item makeItem(ItemDto itemDto, long userId) {
+    public static Item makeItem(ItemDto itemDto, User user) {
         Item item = new Item();
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setIsAvailable(itemDto.getAvailable());
-        item.setOwnerId(userId);
+        item.setOwner(user);
         item.setId(itemDto.getId());
         return item;
     }
 
-    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, long idOwner) {
+    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, User owner) {
         Item itemUpd = new Item();
 
         itemUpd.setIsAvailable(oldItemDto.getAvailable());
         itemUpd.setId(oldItemDto.getId());
-        itemUpd.setOwnerId(idOwner);
+        itemUpd.setOwner(owner);
         itemUpd.setDescription(oldItemDto.getDescription());
         itemUpd.setName(oldItemDto.getName());
 
@@ -44,7 +45,7 @@ public final class ItemMapper {
         itemDto.setDescription(item.getDescription());
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
-        itemDto.setOwnerId(item.getOwnerId());
+        itemDto.setOwnerId(item.getOwner().getId());
 
         return itemDto;
     }
