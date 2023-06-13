@@ -6,15 +6,15 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ItemService {
-    ItemDto addNewItem(long userId, ItemDto itemDto);
+    ItemDto addNewItem(Long userId, ItemDto itemDto);
 
-    ItemDto getItem(long itemId);
+    ItemDto getItem(Long itemId, Long userId);
 
-    List<Item> getItems(long userId);
+    List<Item> getItems(Long userId);
 
-    ItemDto updateItem(long userId, long itemId, ItemDto itemDto);
+    ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto);
 
-    boolean deleteItem(long userId, long itemId);
+    boolean deleteItem(Long userId, Long itemId);
 
     void clearAll();
 

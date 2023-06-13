@@ -34,7 +34,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponseDto addNewBooking(Long bookerId, BookingRequestDto dto) {
-        ItemDto itemDtoFromRepo = itemService.getItem(dto.getItemId());
+        ItemDto itemDtoFromRepo = itemService.getItem(dto.getItemId(), bookerId);
         User owner = UserMapper.makeUserWithId(userService.getUser(itemDtoFromRepo.getOwnerId()));
         Item item = ItemMapper.makeItem(itemDtoFromRepo, owner);
         if (!itemDtoFromRepo.getAvailable()) {
@@ -49,7 +49,6 @@ public class BookingServiceImpl implements BookingService {
             log.warn("Внимание! Попытка создать бронирование собственной вещи!");
             throw new BookingNotFoundException("Owner of item can't book it!");
         }
-
 
         User user = UserMapper.makeUserWithId(userFromRepo);
         Booking newBooking = bookingRepo.save(BookingMapper.requestDtoToEntity(dto, item, user));

@@ -62,7 +62,7 @@ class ItemControllerTest {
         firstUpdateItemDto.setDescription("1stDescriptionUpdate");
         firstUpdateItemDto.setAvailable(true);
         ItemDto firstUpdateItemDtoFromRepo = controller.update(firstUser.getId(), firstUser.getId(), firstUpdateItemDto);
-        assertEquals(firstUpdateItemDtoFromRepo, controller.getItem(1, 1),
+        assertEquals(firstUpdateItemDtoFromRepo, controller.getItem(1L, 1L),
                 "Item не обновлено или не получено из хранилища");
     }
 }

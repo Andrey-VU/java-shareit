@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -46,6 +48,22 @@ public final class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
         itemDto.setOwnerId(item.getOwner().getId());
+
+        return itemDto;
+    }
+
+    public static ItemDto makeDtoFromItemWithBooking(Item item, User owner, BookingResponseDto lastBooking,
+                                                     BookingResponseDto nextBooking) {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setAvailable(item.getIsAvailable());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setName(item.getName());
+        itemDto.setId(item.getId());
+        itemDto.setOwnerId(item.getOwner().getId());
+       // itemDto.setOwner(owner);
+
+        itemDto.setLastBooking(lastBooking);
+        itemDto.setNextBooking(nextBooking);
 
         return itemDto;
     }
