@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.ToString;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 
+import java.util.List;
+
 @Data
 @ToString
 public class ItemDto {
@@ -12,6 +14,8 @@ public class ItemDto {
     private String description;
     private Boolean available;
     private long ownerId;
+
+    private List<CommentDto> comments;
 
     private BookingForItemDto lastBooking;
     private BookingForItemDto nextBooking;

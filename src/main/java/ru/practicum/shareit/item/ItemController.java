@@ -2,13 +2,14 @@ package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.ItemService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/items")
@@ -18,6 +19,20 @@ public class ItemController {
 
     public ItemController(ItemService itemService) {
         this.itemService = itemService;
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long authorId,
+                                 @PathVariable Long itemId,
+                                 @Valid @RequestBody CommentRequestDto requestDto) {
+        log.info("Add new comment {} to item: {} - Started", requestDto, itemId);
+
+        requestDto.setAuthorId(authorId);
+        requestDto.setItemId(itemId);
+
+        CommentDto commentDto = itemService.addNewCommentToItem(requestDto);
+        log.info("Comment {} added to item id: {} - Finished", commentDto.getText(), itemId);
+        return commentDto;
     }
 
     @PostMapping
@@ -38,6 +53,10 @@ public class ItemController {
         log.info("update: {} - Finished", itemDtoFromRepo);
         return itemDtoFromRepo;
     }
+
+//    Осталось разрешить пользователям просматривать комментарии других пользователей.
+//    Отзывы можно будет увидеть по двум эндпоинтам — по GET /items/{itemId}
+//    для одной конкретной вещи и по GET /items для всех вещей данного пользователя.
 
     @GetMapping
     public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long ownerId) {

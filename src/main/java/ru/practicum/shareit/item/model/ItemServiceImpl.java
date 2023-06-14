@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusOfBooking;
@@ -13,9 +12,11 @@ import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
@@ -32,6 +33,7 @@ public class ItemServiceImpl implements ItemService {
     ItemRepository itemRepo;
     UserService userService;
     BookingRepository bookingRepo;
+    CommentRepository commentRepo;
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
@@ -57,8 +59,13 @@ public class ItemServiceImpl implements ItemService {
         }
     }
     public ItemDto getItemDtoForUser(Item item) {
-        return ItemMapper.makeDtoFromItem(item);
+        List<Comment> commentsForItem = commentRepo.findAllByItemId(item.getId());
+        List<CommentDto> commentsForItemDto = commentsForItem.stream()
+                .map(comment -> CommentMapper.entityToDto(comment))
+                .collect(Collectors.toList());
+        return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto);
     }
+
     public ItemDto getItemDtoForOwner(Item item, Long userId ) {
         User owner = UserMapper.makeUserWithId(userService.getUser(userId));
         return ItemMapper.makeDtoFromItemWithBooking(item, owner, findLastBooking(item), findNextBooking(item));
@@ -145,6 +152,26 @@ public class ItemServiceImpl implements ItemService {
                     .collect(Collectors.toList());
         }
         return searchResult;
+    }
+
+    @Override
+    public CommentDto addNewCommentToItem(CommentRequestDto requestDto) {
+        User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()));
+        List<Booking> endedBookingOfAuthor =
+        bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now()).stream()
+                .filter(booking -> booking.getItem().getId().equals(requestDto.getItemId()))
+                .collect(Collectors.toList());
+        if (endedBookingOfAuthor.size() == 0) {
+            log.warn("Добавить отзыв можно только после завершения бронирования вещи!");
+            throw new ValidationException("User can't add comment without booking completed!");
+        }
+
+        Long ownerId = getItem(requestDto.getItemId(), author.getId()).getOwnerId();
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
+        Item item = ItemMapper.makeItem(getItem(requestDto.getItemId(), author.getId()), owner) ;
+        Comment newComment = CommentMapper.requestToEntity(item, author, requestDto.getText());
+
+        return CommentMapper.entityToDto(commentRepo.save(newComment));
     }
 
     private void itemDtoValidate(long userId, ItemDto itemDto) {
