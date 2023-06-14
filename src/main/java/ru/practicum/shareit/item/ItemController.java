@@ -42,9 +42,7 @@ public class ItemController {
     @GetMapping
     public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("GetItems for user id {} - Started", ownerId);
-        List<ItemDto> itemsOfUser = itemService.getItems(ownerId).stream()
-                .map(item -> ItemMapper.makeDtoFromItem(item))
-                .collect(Collectors.toList());
+        List<ItemDto> itemsOfUser = itemService.getItems(ownerId);
         log.info("Found {} items of user id {} - GetItems Finished", itemsOfUser.size(), ownerId);
         return itemsOfUser;
     }

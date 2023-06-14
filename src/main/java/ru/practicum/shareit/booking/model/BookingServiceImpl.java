@@ -97,39 +97,41 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponseDto> getBookings(Long bookerId, String status) {
+    public List<BookingResponseDto> getBookings(Long bookerId, String state) {
         userService.getUser(bookerId);
         List<BookingResponseDto> responseDtoList;
         List<Booking> responseBookingList = new ArrayList<>();
 
-        if (status.equals("ALL")) {
+        if (state.equals("ALL")) {
             responseBookingList = bookingRepo.findByBookerIdOrderByStartDesc(bookerId);
-        } else if (status.equals("FUTURE")) {
+        } else if (state.equals("FUTURE")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-        } else if (status.equals("CURRENT")) {
+        } else if (state.equals("CURRENT")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-        } else if (status.equals("PAST")) {
+        } else if (state.equals("PAST")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
-        } else if (status.equals("WAITING") || status.equals("REJECTED")) {
+        } else if (state.equals("WAITING") || state.equals("REJECTED")) {
             responseBookingList =
-                    bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, status);
+                    bookingRepo.findAllByBookerIdOrderByStartDesc(bookerId);
+            responseBookingList = responseBookingList.stream()
+                    .filter(booking -> booking.getStatus().equals(StatusOfBooking.valueOf(state)))
+                    .collect(Collectors.toList());
         } else {
-            log.warn("Статус запроса {} не поддерживается", status);
+            log.warn("Статус запроса {} не поддерживается", state);
             throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
 
         responseDtoList = responseBookingList.stream()
                 .map(booking -> BookingMapper.entityToResponseDto(booking))
                 .collect(Collectors.toList());
-
         return responseDtoList;
     }
 
     @Override
-    public List<BookingResponseDto> getListOfBookingsOfOwnersItems(Long ownerId, String status) {
+    public List<BookingResponseDto> getListOfBookingsOfOwnersItems(Long ownerId, String state) {
         userService.getUser(ownerId);
         if (itemService.getItems(ownerId).size() == 0) {
             log.warn("Пользователь {} не владеет вещами", ownerId);
@@ -138,7 +140,7 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookingsOfOwnersItems = new ArrayList<>();
 
-        switch (status) {
+        switch (state) {
             case "ALL":
                 bookingsOfOwnersItems = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId);
                 break;
@@ -157,10 +159,14 @@ public class BookingServiceImpl implements BookingService {
             case "WAITING":
             case "REJECTED":
                 bookingsOfOwnersItems =
-                        bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, status);
+                        bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId);
+                bookingsOfOwnersItems = bookingsOfOwnersItems.stream()
+                        .filter(booking -> booking.getStatus().equals(StatusOfBooking.valueOf(state)))
+                        .collect(Collectors.toList());
+
                 break;
             default:
-                log.warn("Статус запроса {} не поддерживается", status);
+                log.warn("Статус запроса {} не поддерживается", state);
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
 

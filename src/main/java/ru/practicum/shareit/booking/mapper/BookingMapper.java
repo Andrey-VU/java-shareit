@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.mapper;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -70,4 +71,18 @@ public final class BookingMapper {
         return booking;
     }
 
+    public static BookingForItemDto entityToBookingForItemDto(Booking booking) {
+        BookingForItemDto dto = new BookingForItemDto();
+        if (booking == null) {
+            return null;
+        } else {
+            dto.setStart(booking.getStart());
+            dto.setEnd(booking.getEnd());
+            dto.setItem(ItemMapper.makeDtoFromItem(booking.getItem()));
+            dto.setStatus(booking.getStatus());
+            dto.setId(booking.getId());
+            dto.setBookerId(booking.getBooker().getId());
+        }
+        return dto;
+    }
 }
