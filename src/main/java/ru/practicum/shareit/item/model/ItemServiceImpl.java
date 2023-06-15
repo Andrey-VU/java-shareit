@@ -16,7 +16,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
@@ -52,23 +51,31 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepo.findById(itemId).orElseThrow(() ->
                 new ItemNotFoundException("Item is not found"));
 
+        List<CommentDto> commentsForItemDto = findCommentsToItem(item);
+
         if (item.getOwner().getId().equals(userId)) {
-            return getItemDtoForOwner(item, userId);
+            return getItemDtoForOwner(item, userId, commentsForItemDto);
         } else {
-            return getItemDtoForUser(item);
+            return getItemDtoForUser(item, commentsForItemDto);
         }
     }
-    public ItemDto getItemDtoForUser(Item item) {
-        List<Comment> commentsForItem = commentRepo.findAllByItemId(item.getId());
+
+    private List<CommentDto> findCommentsToItem(Item item) {
+        List<Comment> commentsForItem = commentRepo.findAllByItemIdOrderById(item.getId());
         List<CommentDto> commentsForItemDto = commentsForItem.stream()
                 .map(comment -> CommentMapper.entityToDto(comment))
                 .collect(Collectors.toList());
+        return commentsForItemDto;
+    }
+
+    public ItemDto getItemDtoForUser(Item item, List<CommentDto> commentsForItemDto) {
+
         return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto);
     }
 
-    public ItemDto getItemDtoForOwner(Item item, Long userId ) {
+    public ItemDto getItemDtoForOwner(Item item, Long userId, List<CommentDto> commentsForItemDto) {
         User owner = UserMapper.makeUserWithId(userService.getUser(userId));
-        return ItemMapper.makeDtoFromItemWithBooking(item, owner, findLastBooking(item), findNextBooking(item));
+        return ItemMapper.makeDtoFromItemWithBooking(item, commentsForItemDto, findLastBooking(item), findNextBooking(item));
     }
 
     private BookingForItemDto findNextBooking(Item item) {
@@ -85,14 +92,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingForItemDto findLastBooking(Item item) {
-        List<Booking> allLastBooking = bookingRepo.findAllByItemIdAndStartBeforeOrderByStartAsc(item.getId(),
+        List<Booking> allLastBooking = bookingRepo.findAllByItemIdAndStartBeforeOrderByStart(item.getId(),
                 LocalDateTime.now());
         allLastBooking = allLastBooking.stream()
                 .filter(booking -> booking.getStatus().equals(StatusOfBooking.APPROVED))
                 .collect(Collectors.toList());
         BookingForItemDto lastBooking = new BookingForItemDto();
         if (allLastBooking.size() > 0){
-            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(0));
+            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1));
         } else lastBooking = null;
         return lastBooking;
     }
@@ -109,7 +116,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> allItems = itemRepo.findAllByOwnerIdOrderById(userId);
         User owner = UserMapper.makeUserWithId(userService.getUser(userId));
         return allItems.stream()
-                .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, owner,
+                .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, findCommentsToItem(item),
                         findLastBooking(item), findNextBooking(item)))
                 .collect(Collectors.toList());
     }
@@ -128,7 +135,7 @@ public class ItemServiceImpl implements ItemService {
     private ItemDto getItemForUpdate(Long itemId) {
         Item item = itemRepo.findById(itemId).orElseThrow(() ->
                 new ItemNotFoundException("Item is not found"));
-        return getItemDtoForUser(item);
+        return getItemDtoForUser(item, findCommentsToItem(item));
     }
 
     @Override

@@ -53,7 +53,7 @@ public final class ItemMapper {
         return itemDto;
     }
 
-    public static ItemDto makeDtoFromItemWithBooking(Item item, User owner, BookingForItemDto lastBooking,
+    public static ItemDto makeDtoFromItemWithBooking(Item item, List<CommentDto> commentsForItemDto, BookingForItemDto lastBooking,
                                                      BookingForItemDto nextBooking) {
         ItemDto itemDto = new ItemDto();
         itemDto.setAvailable(item.getIsAvailable());
@@ -61,6 +61,7 @@ public final class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
         itemDto.setOwnerId(item.getOwner().getId());
+        itemDto.setComments(commentsForItemDto);
 
         itemDto.setLastBooking(lastBooking);
         itemDto.setNextBooking(nextBooking);

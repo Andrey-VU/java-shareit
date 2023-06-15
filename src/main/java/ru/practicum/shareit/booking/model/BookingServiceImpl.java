@@ -109,7 +109,8 @@ public class BookingServiceImpl implements BookingService {
                     bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
         } else if (state.equals("CURRENT")) {
             responseBookingList =
-                    bookingRepo.findAllByBookerIdAndEndAfterOrderByStartDesc(bookerId, LocalDateTime.now());
+                    bookingRepo.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
+                            LocalDateTime.now(), LocalDateTime.now());
         } else if (state.equals("PAST")) {
             responseBookingList =
                     bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
@@ -150,7 +151,8 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case "CURRENT":
                 bookingsOfOwnersItems =
-                        bookingRepo.findAllByItemOwnerIdAndEndAfterOrderByStartDesc(ownerId, LocalDateTime.now());
+                        bookingRepo.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
+                                LocalDateTime.now(), LocalDateTime.now());
                 break;
             case "PAST":
                 bookingsOfOwnersItems =
