@@ -62,7 +62,7 @@ public class ItemRepoImpl implements ItemRepo {
             throw new ItemNotFoundException("Item is not found");
         }
         List<Item> newItemList = itemsOfUsers.get(userId).stream()
-                .filter(item1 -> item1.getId() != item.getId())
+                .filter(item1 -> !item1.getId().equals(item.getId()))
                 .collect(Collectors.toList());
         newItemList.add(item);
         itemsOfUsers.put(userId, newItemList);

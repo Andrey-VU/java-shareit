@@ -45,7 +45,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setStatus(StatusOfBooking.WAITING);
         UserDto userFromRepo = userService.getUser(bookerId);
 
-        if (userFromRepo.getId() == item.getOwner().getId()) {
+        if (userFromRepo.getId().equals(item.getOwner().getId())) {
             log.warn("Внимание! Попытка создать бронирование собственной вещи!");
             throw new BookingNotFoundException("Owner of item can't book it!");
         }
@@ -88,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
                 new BookingNotFoundException("Бронирование id " + bookingId + " не найдено"));
 
         if (!(bookingFromRepo.getBooker().getId().equals(userId)
-                || bookingFromRepo.getItem().getOwner().getId() == userId)) {
+                || bookingFromRepo.getItem().getOwner().getId().equals(userId))) {
             log.warn("Просмотр бронирования доступен только арендатору или владельцу вещи");
             throw new BookingNotFoundException("Access error. Only for Owner or Booker");
         }
