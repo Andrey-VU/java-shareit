@@ -6,7 +6,9 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class CommentRequestDto {
     private Long authorId;
     private Long itemId;

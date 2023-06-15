@@ -1,4 +1,5 @@
 package ru.practicum.shareit.booking.model;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,7 +10,10 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity @Getter @Setter @ToString
+@Entity
+@Getter
+@Setter
+@ToString
 @Table(name = "bookings", schema = "public")
 public class Booking {
     @Id

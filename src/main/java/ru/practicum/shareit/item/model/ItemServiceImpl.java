@@ -98,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
                 .filter(booking -> booking.getStatus().equals(StatusOfBooking.APPROVED))
                 .collect(Collectors.toList());
         BookingForItemDto lastBooking = new BookingForItemDto();
-        if (allLastBooking.size() > 0){
+        if (allLastBooking.size() > 0) {
             lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1));
         } else lastBooking = null;
         return lastBooking;
@@ -165,9 +165,9 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto addNewCommentToItem(CommentRequestDto requestDto) {
         User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()));
         List<Booking> endedBookingOfAuthor =
-        bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now()).stream()
-                .filter(booking -> booking.getItem().getId().equals(requestDto.getItemId()))
-                .collect(Collectors.toList());
+                bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now()).stream()
+                        .filter(booking -> booking.getItem().getId().equals(requestDto.getItemId()))
+                        .collect(Collectors.toList());
         if (endedBookingOfAuthor.size() == 0) {
             log.warn("Добавить отзыв можно только после завершения бронирования вещи!");
             throw new ValidationException("User can't add comment without booking completed!");
@@ -175,7 +175,7 @@ public class ItemServiceImpl implements ItemService {
 
         Long ownerId = getItem(requestDto.getItemId(), author.getId()).getOwnerId();
         User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
-        Item item = ItemMapper.makeItem(getItem(requestDto.getItemId(), author.getId()), owner) ;
+        Item item = ItemMapper.makeItem(getItem(requestDto.getItemId(), author.getId()), owner);
         Comment newComment = CommentMapper.requestToEntity(item, author, requestDto.getText());
 
         return CommentMapper.entityToDto(commentRepo.save(newComment));

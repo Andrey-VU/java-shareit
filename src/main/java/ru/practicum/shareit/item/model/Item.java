@@ -1,15 +1,16 @@
 package ru.practicum.shareit.item.model;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
-@Getter @Setter @Entity
+@Getter
+@Setter
+@Entity
 @ToString
 @Table(name = "items", schema = "public")
 public class Item {
