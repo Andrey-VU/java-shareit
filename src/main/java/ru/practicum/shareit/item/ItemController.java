@@ -54,10 +54,6 @@ public class ItemController {
         return itemDtoFromRepo;
     }
 
-//    Осталось разрешить пользователям просматривать комментарии других пользователей.
-//    Отзывы можно будет увидеть по двум эндпоинтам — по GET /items/{itemId}
-//    для одной конкретной вещи и по GET /items для всех вещей данного пользователя.
-
     @GetMapping
     public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         log.info("GetItems for user id {} - Started", ownerId);

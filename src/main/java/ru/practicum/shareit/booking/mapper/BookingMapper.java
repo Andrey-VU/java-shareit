@@ -26,7 +26,6 @@ public final class BookingMapper {
         return booking;
     }
 
-
     public static Booking updateEntity(Booking booking, BookingRequestDto dto) {
         if (dto.getStatus() != null) {
             booking.setStatus(dto.getStatus());
@@ -54,7 +53,6 @@ public final class BookingMapper {
         }
         return dto;
     }
-
 
     public static Booking responseDtoToEntity(BookingResponseDto dto, User owner) {
         Booking booking = new Booking();

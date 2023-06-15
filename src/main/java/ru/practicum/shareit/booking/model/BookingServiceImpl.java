@@ -182,7 +182,7 @@ public class BookingServiceImpl implements BookingService {
             log.warn("Время начала бронирования не может быть в прошлом");
             throw new ValidationException("StartTime can't be from the past");
         }
-        ;
+
         if (dto.getEnd().isBefore(dto.getStart()) || dto.getEnd().equals(dto.getStart())) {
             log.warn("Окончание бронирования должно быть позже начала бронирования");
             throw new ValidationException("EndTime can be later then StartDate");
