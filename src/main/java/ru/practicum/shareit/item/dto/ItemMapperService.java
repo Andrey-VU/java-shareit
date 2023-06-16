@@ -15,8 +15,6 @@ import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemService;
-import ru.practicum.shareit.item.model.ItemServiceImpl;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
 import ru.practicum.shareit.user.dto.UserMapper;

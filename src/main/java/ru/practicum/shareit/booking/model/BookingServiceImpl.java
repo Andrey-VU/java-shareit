@@ -9,15 +9,8 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.model.ItemServiceImpl;
-import ru.practicum.shareit.user.model.UserServiceImpl;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor

@@ -59,7 +59,7 @@ public final class ItemMapper {
     }
 
     public static Optional<ItemDto> makeDtoFromItemWithBooking(Item item, List<CommentDto> commentsForItemDto, BookingForItemDto lastBooking,
-                                                     BookingForItemDto nextBooking) {
+                                                               BookingForItemDto nextBooking) {
         ItemDto itemDto = new ItemDto();
         itemDto.setAvailable(item.getIsAvailable());
         itemDto.setDescription(item.getDescription());

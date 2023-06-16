@@ -36,7 +36,7 @@ public class BookingMapperService {
         User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
                 .orElseThrow(() -> new NullPointerException("объект не найден"));
 
-        if (! bookingRepo.findById(bookingId)
+        if (!bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new NullPointerException("Объект не найден"))
                 .getStatus().equals(StatusOfBooking.WAITING)) {
             log.info("Статус бронирования уже был установлен");

@@ -2,17 +2,9 @@ package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingForItemDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.StatusOfBooking;
-import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.IncorrectIdException;
-import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
@@ -20,7 +12,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
