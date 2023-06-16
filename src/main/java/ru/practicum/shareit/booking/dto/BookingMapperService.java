@@ -33,8 +33,6 @@ public class BookingMapperService {
     BookingRepository bookingRepo;
 
     public Booking addStatusToBooking(Long ownerId, Long bookingId, Boolean approved) {
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
 
         if (!bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new NullPointerException("Объект не найден"))
@@ -49,7 +47,7 @@ public class BookingMapperService {
         }
         Booking bookingFromRepo = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new NullPointerException("Объект не найден"));
-        if (bookingFromRepo.getItem().getOwner().getId() != ownerId) {
+        if (!bookingFromRepo.getItem().getOwner().getId().equals(ownerId)) {
             log.info("Подтверждение статуса бронирования доступно только владельцу вещи");
             throw new BookingNotFoundException("Access error. Only Owner can approve booking");
         }
