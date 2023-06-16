@@ -31,20 +31,13 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private ItemRepository itemRepo;
     private UserService userService;
-    private BookingRepository bookingRepo;
     private CommentRepository commentRepo;
+    private ItemMapperService itemMapperService;
 
     @Override
-    public ItemDto addNewItem(Long userId, ItemDto itemDto) {
-
-        itemDtoValidate(userId, itemDto);
-
-        User user =  UserMapper.makeUserWithId(userService.getUser(userId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-
-        Item item = itemRepo.save(ItemMapper.makeItem(itemDto, user)
-                .orElseThrow(() -> new NullPointerException("объект не найден")));
-
+    public ItemDto addNewItem(Long ownerId, ItemDto itemDto) {
+        Item itemForSave = itemMapperService.addNewItem(ownerId, itemDto);
+        Item item = itemRepo.save(itemForSave);
         return ItemMapper.makeDtoFromItem(item)
                 .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
@@ -55,102 +48,39 @@ public class ItemServiceImpl implements ItemService {
         validateId(userId);
         Item item = itemRepo.findById(itemId).orElseThrow(() ->
                 new ItemNotFoundException("Item is not found"));
-
-        List<CommentDto> commentsForItemDto = findCommentsToItem(item);
-
-        if (item.getOwner().getId().equals(userId)) {
-            return getItemDtoForOwner(item, userId, commentsForItemDto);
-        } else {
-            return getItemDtoForUser(item, commentsForItemDto);
-        }
-    }
-
-    private List<CommentDto> findCommentsToItem(Item item) {
-        List<Comment> commentsForItem = commentRepo.findAllByItemIdOrderById(item.getId());
-        List<CommentDto> commentsForItemDto = commentsForItem.stream()
-                .map(comment -> CommentMapper.entityToDto(comment))
-                .collect(Collectors.toList());
-        return commentsForItemDto;
-    }
-
-    public ItemDto getItemDtoForUser(Item item, List<CommentDto> commentsForItemDto) {
-        return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
-    }
-
-    public ItemDto getItemDtoForOwner(Item item, Long userId, List<CommentDto> commentsForItemDto) {
-        User owner = UserMapper.makeUserWithId(userService.getUser(userId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        return ItemMapper.makeDtoFromItemWithBooking(item, commentsForItemDto,
-                findLastBooking(item), findNextBooking(item))
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
-    }
-
-    private BookingForItemDto findNextBooking(Item item) {
-        List<Booking> allNextBooking = bookingRepo.findAllByItemIdAndStartAfterOrderByStartAsc(item.getId(),
-                LocalDateTime.now());
-        allNextBooking = allNextBooking.stream()
-                .filter(booking -> booking.getStatus().equals(StatusOfBooking.APPROVED))
-                .collect(Collectors.toList());
-        BookingForItemDto nextBooking = new BookingForItemDto();
-        if (allNextBooking.size() > 0) {
-            nextBooking = BookingMapper.entityToBookingForItemDto(allNextBooking.get(0))
-                    .orElseThrow(() -> new NullPointerException("dto объект не найден"));
-        } else nextBooking = null;
-        return nextBooking;
-    }
-
-    private BookingForItemDto findLastBooking(Item item) {
-        List<Booking> allLastBooking = bookingRepo.findAllByItemIdAndStartBeforeOrderByStart(item.getId(),
-                LocalDateTime.now());
-        allLastBooking = allLastBooking.stream()
-                .filter(booking -> booking.getStatus().equals(StatusOfBooking.APPROVED))
-                .collect(Collectors.toList());
-        BookingForItemDto lastBooking = new BookingForItemDto();
-        if (allLastBooking.size() > 0) {
-            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1))
-                    .orElseThrow(() -> new NullPointerException("dto объект не найден"));
-        } else lastBooking = null;
-        return lastBooking;
-    }
-
-    private void validateId(Long id) {
-        if (id < 1) {
-            log.warn("id {} incorrect", id);
-            throw new IncorrectIdException("id can't be less then 1");
-        }
+        return itemMapperService.getItemDto(item, userId);
     }
 
     @Override
     public List<ItemDto> getItems(Long userId) {
         List<Item> allItems = itemRepo.findAllByOwnerIdOrderById(userId);
-        User owner = UserMapper.makeUserWithId(userService.getUser(userId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        return allItems.stream()
-                .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, findCommentsToItem(item),
-                        findLastBooking(item), findNextBooking(item))
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
-                .collect(Collectors.toList());
+        return itemMapperService.getItems(allItems);
     }
 
     @Override
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
-        validateId(itemId);
-        validateId(ownerId);
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        ItemDto itemDtoFromRepo = getItemForUpdate(itemId);
-        Item item = ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        Item itemUpdated = itemRepo.save(item);
+        Item itemForUpdate = itemMapperService.prepareItemToUpdate(ownerId, itemId, itemDtoWithUpdate);
+        Item itemUpdated = itemRepo.save(itemForUpdate);
         return ItemMapper.makeDtoFromItem(itemUpdated)
                 .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
-    private ItemDto getItemForUpdate(Long itemId) {
-        Item item = itemRepo.findById(itemId).orElseThrow(() ->
-                new ItemNotFoundException("Item is not found"));
-        return getItemDtoForUser(item, findCommentsToItem(item));
+    @Override
+    public List<ItemDto> searchForItems(String text) {
+        List<ItemDto> searchResult = new ArrayList<>();
+        if (!text.isBlank()) {
+            searchResult = itemRepo.findByText(text).stream()
+                    .map(item -> ItemMapper.makeDtoFromItem(item)
+                            .orElseThrow(() -> new NullPointerException("dto объект не найден")))
+                    .collect(Collectors.toList());
+        }
+        return searchResult;
+    }
+
+    @Override
+    public CommentDto addNewCommentToItem(CommentRequestDto requestDto) {
+        return CommentMapper
+                .entityToDto(commentRepo.save(itemMapperService.prepareCommentToSave(requestDto)));
     }
 
     @Override
@@ -167,57 +97,10 @@ public class ItemServiceImpl implements ItemService {
         itemRepo.deleteAll();
     }
 
-    @Override
-    public List<ItemDto> searchForItems(String text) {
-        List<ItemDto> searchResult = new ArrayList<>();
-        if (!text.isBlank()) {
-            searchResult = itemRepo.findByText(text).stream()
-                    .map(item -> ItemMapper.makeDtoFromItem(item)
-                    .orElseThrow(() -> new NullPointerException("dto объект не найден")))
-                    .collect(Collectors.toList());
+    private void validateId(Long id) {
+        if (id < 1) {
+            log.warn("id {} incorrect", id);
+            throw new IncorrectIdException("id can't be less then 1");
         }
-        return searchResult;
-    }
-
-    @Override
-    public CommentDto addNewCommentToItem(CommentRequestDto requestDto) {
-        User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        List<Booking> endedBookingOfAuthor =
-                bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now()).stream()
-                        .filter(booking -> booking.getItem().getId().equals(requestDto.getItemId()))
-                        .collect(Collectors.toList());
-        if (endedBookingOfAuthor.size() == 0) {
-            log.info("Добавить отзыв можно только после завершения бронирования вещи!");
-            throw new ValidationException("User can't add comment without booking completed!");
-        }
-
-        Long ownerId = getItem(requestDto.getItemId(), author.getId()).getOwnerId();
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        Item item = ItemMapper.makeItem(getItem(requestDto.getItemId(), author.getId()), owner)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-        Comment newComment = CommentMapper.requestToEntity(item, author, requestDto.getText());
-
-        return CommentMapper.entityToDto(commentRepo.save(newComment));
-    }
-
-    private void itemDtoValidate(long userId, ItemDto itemDto) {
-        String name = itemDto.getName();
-        String description = itemDto.getDescription();
-
-        if (StringUtils.isBlank(name)) {
-            log.warn("Item's name {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's name is not found");
-        }
-        if (StringUtils.isBlank(description)) {
-            log.warn("Item's description {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's description is not found");
-        }
-        if (itemDto.getAvailable() == null) {
-            log.warn("Available-status of item {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Available-status of item not found");
-        }
-        userService.getUser(userId);
     }
 }

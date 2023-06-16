@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -9,16 +10,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@AllArgsConstructor
 public final class ItemMapper {
 
-
-    public static Optional<Item> makeItem(ItemDto itemDto, User user) {
+    public static Optional<Item> makeItem(ItemDto itemDto, User owner) {
 
         Item item = new Item();
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setIsAvailable(itemDto.getAvailable());
-        item.setOwner(user);
+        item.setOwner(owner);
         item.setId(itemDto.getId());
         return Optional.of(item);
     }
