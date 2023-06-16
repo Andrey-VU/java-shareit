@@ -29,19 +29,24 @@ import java.util.stream.Collectors;
 @Service("itemService")
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    ItemRepository itemRepo;
-    UserService userService;
-    BookingRepository bookingRepo;
-    CommentRepository commentRepo;
+    private ItemRepository itemRepo;
+    private UserService userService;
+    private BookingRepository bookingRepo;
+    private CommentRepository commentRepo;
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
 
         itemDtoValidate(userId, itemDto);
-        User user = UserMapper.makeUserWithId(userService.getUser(userId));
-        Item item = itemRepo.save(ItemMapper.makeItem(itemDto, user));
 
-        return ItemMapper.makeDtoFromItem(item);
+        User user =  UserMapper.makeUserWithId(userService.getUser(userId))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
+
+        Item item = itemRepo.save(ItemMapper.makeItem(itemDto, user)
+                .orElseThrow(() -> new NullPointerException("объект не найден")));
+
+        return ItemMapper.makeDtoFromItem(item)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
@@ -69,13 +74,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDto getItemDtoForUser(Item item, List<CommentDto> commentsForItemDto) {
-
-        return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto);
+        return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     public ItemDto getItemDtoForOwner(Item item, Long userId, List<CommentDto> commentsForItemDto) {
-        User owner = UserMapper.makeUserWithId(userService.getUser(userId));
-        return ItemMapper.makeDtoFromItemWithBooking(item, commentsForItemDto, findLastBooking(item), findNextBooking(item));
+        User owner = UserMapper.makeUserWithId(userService.getUser(userId))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
+        return ItemMapper.makeDtoFromItemWithBooking(item, commentsForItemDto,
+                findLastBooking(item), findNextBooking(item))
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     private BookingForItemDto findNextBooking(Item item) {
@@ -86,7 +94,8 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
         BookingForItemDto nextBooking = new BookingForItemDto();
         if (allNextBooking.size() > 0) {
-            nextBooking = BookingMapper.entityToBookingForItemDto(allNextBooking.get(0));
+            nextBooking = BookingMapper.entityToBookingForItemDto(allNextBooking.get(0))
+                    .orElseThrow(() -> new NullPointerException("dto объект не найден"));
         } else nextBooking = null;
         return nextBooking;
     }
@@ -99,7 +108,8 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
         BookingForItemDto lastBooking = new BookingForItemDto();
         if (allLastBooking.size() > 0) {
-            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1));
+            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1))
+                    .orElseThrow(() -> new NullPointerException("dto объект не найден"));
         } else lastBooking = null;
         return lastBooking;
     }
@@ -114,10 +124,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItems(Long userId) {
         List<Item> allItems = itemRepo.findAllByOwnerIdOrderById(userId);
-        User owner = UserMapper.makeUserWithId(userService.getUser(userId));
+        User owner = UserMapper.makeUserWithId(userService.getUser(userId))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
         return allItems.stream()
                 .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, findCommentsToItem(item),
-                        findLastBooking(item), findNextBooking(item)))
+                        findLastBooking(item), findNextBooking(item))
+                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 
@@ -125,11 +137,14 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         validateId(ownerId);
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
         ItemDto itemDtoFromRepo = getItemForUpdate(itemId);
-        Item item = ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner);
+        Item item = ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner)
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
         Item itemUpdated = itemRepo.save(item);
-        return ItemMapper.makeDtoFromItem(itemUpdated);
+        return ItemMapper.makeDtoFromItem(itemUpdated)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     private ItemDto getItemForUpdate(Long itemId) {
@@ -140,8 +155,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public boolean deleteItem(Long ownerId, Long itemId) {
-        User user = UserMapper.makeUserWithId(userService.getUser(ownerId));
-        itemRepo.delete(ItemMapper.makeItem(getItem(itemId, ownerId), user));
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+        itemRepo.delete(ItemMapper.makeItem(getItem(itemId, ownerId), owner)
+                .orElseThrow(() -> new NullPointerException("объект не найден")));
         return true;
     }
 
@@ -155,7 +172,8 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> searchResult = new ArrayList<>();
         if (!text.isBlank()) {
             searchResult = itemRepo.findByText(text).stream()
-                    .map(item -> ItemMapper.makeDtoFromItem(item))
+                    .map(item -> ItemMapper.makeDtoFromItem(item)
+                    .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                     .collect(Collectors.toList());
         }
         return searchResult;
@@ -163,19 +181,22 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addNewCommentToItem(CommentRequestDto requestDto) {
-        User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()));
+        User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
         List<Booking> endedBookingOfAuthor =
                 bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now()).stream()
                         .filter(booking -> booking.getItem().getId().equals(requestDto.getItemId()))
                         .collect(Collectors.toList());
         if (endedBookingOfAuthor.size() == 0) {
-            log.warn("Добавить отзыв можно только после завершения бронирования вещи!");
+            log.info("Добавить отзыв можно только после завершения бронирования вещи!");
             throw new ValidationException("User can't add comment without booking completed!");
         }
 
         Long ownerId = getItem(requestDto.getItemId(), author.getId()).getOwnerId();
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
-        Item item = ItemMapper.makeItem(getItem(requestDto.getItemId(), author.getId()), owner);
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
+        Item item = ItemMapper.makeItem(getItem(requestDto.getItemId(), author.getId()), owner)
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
         Comment newComment = CommentMapper.requestToEntity(item, author, requestDto.getText());
 
         return CommentMapper.entityToDto(commentRepo.save(newComment));

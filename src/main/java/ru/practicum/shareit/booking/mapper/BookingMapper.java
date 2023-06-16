@@ -10,12 +10,14 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.Optional;
+
 @Slf4j
 public final class BookingMapper {
-    public static Booking requestDtoToEntity(BookingRequestDto dto, Item item, User booker) {
+    public static Optional<Booking> requestDtoToEntity(BookingRequestDto dto, Item item, User booker) {
         Booking booking = new Booking();
         if (dto == null) {
-            return null;
+            return Optional.empty();
         } else {
             booking.setStart(dto.getStart());
             booking.setEnd(dto.getEnd());
@@ -23,10 +25,10 @@ public final class BookingMapper {
             booking.setStatus(dto.getStatus());
             booking.setBooker(booker);
         }
-        return booking;
+        return Optional.of(booking);
     }
 
-    public static Booking updateEntity(Booking booking, BookingRequestDto dto) {
+    public static Optional<Booking> updateEntity(Booking booking, BookingRequestDto dto) {
         if (dto.getStatus() != null) {
             booking.setStatus(dto.getStatus());
         }
@@ -36,51 +38,56 @@ public final class BookingMapper {
         if (dto.getEnd() != null) {
             booking.setEnd(dto.getEnd());
         }
-        return booking;
+        return Optional.ofNullable(booking);
     }
 
-    public static BookingResponseDto entityToResponseDto(Booking entity) {
+    public static Optional<BookingResponseDto> entityToResponseDto(Booking entity) {
         BookingResponseDto dto = new BookingResponseDto();
         if (entity == null) {
-            return null;
+            return Optional.empty();
         } else {
             dto.setStart(entity.getStart());
             dto.setEnd(entity.getEnd());
-            dto.setItem(ItemMapper.makeDtoFromItem(entity.getItem()));
+            dto.setItem(ItemMapper.makeDtoFromItem(entity.getItem())
+                    .orElseThrow(() -> new NullPointerException("dto объект не найден")));
             dto.setStatus(entity.getStatus());
             dto.setId(entity.getId());
-            dto.setBooker(UserMapper.makeDto(entity.getBooker()));
+            dto.setBooker(UserMapper.makeDto(entity.getBooker())
+                    .orElseThrow(() -> new NullPointerException("dto объект не найден")));
         }
-        return dto;
+        return Optional.of(dto);
     }
 
-    public static Booking responseDtoToEntity(BookingResponseDto dto, User owner) {
+    public static Optional<Booking> responseDtoToEntity(BookingResponseDto dto, User owner) {
         Booking booking = new Booking();
         if (dto == null) {
-            return null;
+            return Optional.empty();
         } else {
             booking.setId(dto.getId());
             booking.setStart(dto.getStart());
             booking.setEnd(dto.getEnd());
-            booking.setItem(ItemMapper.makeItem(dto.getItem(), owner));
+            booking.setItem(ItemMapper.makeItem(dto.getItem(), owner)
+                    .orElseThrow(() -> new NullPointerException("объект не найден")));
             booking.setStatus(dto.getStatus());
-            booking.setBooker(UserMapper.makeUserWithId(dto.getBooker()));
+            booking.setBooker(UserMapper.makeUserWithId(dto.getBooker())
+                    .orElseThrow(() -> new NullPointerException("объект не найден")));
         }
-        return booking;
+        return Optional.of(booking);
     }
 
-    public static BookingForItemDto entityToBookingForItemDto(Booking booking) {
+    public static Optional<BookingForItemDto> entityToBookingForItemDto(Booking booking) {
         BookingForItemDto dto = new BookingForItemDto();
         if (booking == null) {
-            return null;
+            return Optional.empty();
         } else {
             dto.setStart(booking.getStart());
             dto.setEnd(booking.getEnd());
-            dto.setItem(ItemMapper.makeDtoFromItem(booking.getItem()));
+            dto.setItem(ItemMapper.makeDtoFromItem(booking.getItem())
+                    .orElseThrow(() -> new NullPointerException("dto объект не найден")));
             dto.setStatus(booking.getStatus());
             dto.setId(booking.getId());
             dto.setBookerId(booking.getBooker().getId());
         }
-        return dto;
+        return Optional.of(dto);
     }
 }

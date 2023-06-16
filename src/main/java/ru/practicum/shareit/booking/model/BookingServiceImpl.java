@@ -28,38 +28,49 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Service("BookingService")
 public class BookingServiceImpl implements BookingService {
-    BookingRepository bookingRepo;
-    UserServiceImpl userService;
-    ItemServiceImpl itemService;
+    private BookingRepository bookingRepo;
+    private UserServiceImpl userService;
+    private ItemServiceImpl itemService;
 
     @Override
     public BookingResponseDto addNewBooking(Long bookerId, BookingRequestDto dto) {
         ItemDto itemDtoFromRepo = itemService.getItem(dto.getItemId(), bookerId);
-        User owner = UserMapper.makeUserWithId(userService.getUser(itemDtoFromRepo.getOwnerId()));
-        Item item = ItemMapper.makeItem(itemDtoFromRepo, owner);
+
         if (!itemDtoFromRepo.getAvailable()) {
-            log.warn("Вещь id {}, недоступна для бронирования", dto.getItemId());
+            log.info("Вещь id {}, недоступна для бронирования", dto.getItemId());
             throw new ValidationException("Item  is not available for booking");
         }
         dateValidate(dto);
         dto.setStatus(StatusOfBooking.WAITING);
-        UserDto userFromRepo = userService.getUser(bookerId);
 
-        if (userFromRepo.getId().equals(item.getOwner().getId())) {
-            log.warn("Внимание! Попытка создать бронирование собственной вещи!");
+        UserDto userBooker = userService.getUser(bookerId);
+        User owner = UserMapper.makeUserWithId(userService.getUser(itemDtoFromRepo.getOwnerId()))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
+
+        Item item = ItemMapper.makeItem(itemDtoFromRepo, owner)
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
+
+        if (userBooker.getId().equals(item.getOwner().getId())) {
+            log.info("Внимание! Попытка создать бронирование собственной вещи!");
             throw new BookingNotFoundException("Owner of item can't book it!");
         }
 
-        User user = UserMapper.makeUserWithId(userFromRepo);
-        Booking newBooking = bookingRepo.save(BookingMapper.requestDtoToEntity(dto, item, user));
-        return BookingMapper.entityToResponseDto(newBooking);
+        User user = UserMapper.makeUserWithId(userBooker)
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
+        Booking newBooking = bookingRepo.save(BookingMapper.requestDtoToEntity(dto, item, user)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден")
+
+        ));
+        return BookingMapper.entityToResponseDto(newBooking)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
     public BookingResponseDto approveBooking(Long ownerId, Long bookingId, Boolean approved) {
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId));
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
         if (!getBooking(bookingId, ownerId).getStatus().equals(StatusOfBooking.WAITING)) {
-            log.warn("Статус бронирования уже был установлен");
+            log.info("Статус бронирования уже был установлен");
             throw new ValidationException("Secondary approval is prohibited!");
         }
 
@@ -69,16 +80,18 @@ public class BookingServiceImpl implements BookingService {
         }
         BookingResponseDto bookingDtoFromRepo = getBooking(bookingId, ownerId);
         if (bookingDtoFromRepo.getItem().getOwnerId() != ownerId) {
-            log.warn("Подтверждение статуса бронирования доступно только владельцу вещи");
+            log.info("Подтверждение статуса бронирования доступно только владельцу вещи");
             throw new BookingNotFoundException("Access error. Only Owner can approve booking");
         }
 
-        Booking bookingFromRepo = BookingMapper.responseDtoToEntity(bookingDtoFromRepo, owner);
+        Booking bookingFromRepo = BookingMapper.responseDtoToEntity(bookingDtoFromRepo, owner)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
         bookingFromRepo.setStatus(approved.equals(true) ? StatusOfBooking.APPROVED
                 : StatusOfBooking.REJECTED);
 
         Booking updateBooking = bookingRepo.save(bookingFromRepo);
-        return BookingMapper.entityToResponseDto(updateBooking);
+        return BookingMapper.entityToResponseDto(updateBooking)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
@@ -89,11 +102,12 @@ public class BookingServiceImpl implements BookingService {
 
         if (!(bookingFromRepo.getBooker().getId().equals(userId)
                 || bookingFromRepo.getItem().getOwner().getId().equals(userId))) {
-            log.warn("Просмотр бронирования доступен только арендатору или владельцу вещи");
+            log.info("Просмотр бронирования доступен только арендатору или владельцу вещи");
             throw new BookingNotFoundException("Access error. Only for Owner or Booker");
         }
 
-        return BookingMapper.entityToResponseDto(bookingFromRepo);
+        return BookingMapper.entityToResponseDto(bookingFromRepo)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
@@ -126,7 +140,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         responseDtoList = responseBookingList.stream()
-                .map(booking -> BookingMapper.entityToResponseDto(booking))
+                .map(booking -> BookingMapper.entityToResponseDto(booking)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
         return responseDtoList;
     }
@@ -135,7 +150,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponseDto> getListOfBookingsOfOwnersItems(Long ownerId, String state) {
         userService.getUser(ownerId);
         if (itemService.getItems(ownerId).size() == 0) {
-            log.warn("Пользователь {} не владеет вещами", ownerId);
+            log.info("Пользователь {} не владеет вещами", ownerId);
             throw new ItemNotFoundException("Items of user is not found!");
         }
 
@@ -173,7 +188,8 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookingsOfOwnersItems.stream()
-                .map(booking -> BookingMapper.entityToResponseDto(booking))
+                .map(booking -> BookingMapper.entityToResponseDto(booking)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 

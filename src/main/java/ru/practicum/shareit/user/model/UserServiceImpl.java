@@ -15,12 +15,14 @@ import java.util.stream.Collectors;
 @Slf4j
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
-    UserRepository userRepo;
+    private UserRepository userRepo;
 
     @Override
     public UserDto create(UserDto userDto) {
-        User user = userRepo.save(UserMapper.makeUser(userDto));
-        return UserMapper.makeDto(user);
+        User user = userRepo.save(UserMapper.makeUser(userDto)
+                .orElseThrow(() -> new NullPointerException("User объект не создан")));
+        return UserMapper.makeDto(user)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
@@ -30,13 +32,15 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Пользователь id "
                 + id + " не найден"));
-        return UserMapper.makeDto(user);
+        return UserMapper.makeDto(user)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
     public List<UserDto> getUsers() {
         return userRepo.findAll().stream()
-                .map(user -> UserMapper.makeDto(user))
+                .map(user -> UserMapper.makeDto(user)
+                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 
@@ -49,9 +53,11 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null) {
             userStorage.setEmail(userDto.getEmail());
         }
-        User user = UserMapper.makeUserWithId(userStorage);
+        User user = UserMapper.makeUserWithId(userStorage)
+                .orElseThrow(() -> new NullPointerException("объект не найден"));
 
-        return UserMapper.makeDto(userRepo.save(user));
+        return UserMapper.makeDto(userRepo.save(user))
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override

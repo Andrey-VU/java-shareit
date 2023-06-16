@@ -6,20 +6,24 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public final class ItemMapper {
-    public static Item makeItem(ItemDto itemDto, User user) {
+
+
+    public static Optional<Item> makeItem(ItemDto itemDto, User user) {
+
         Item item = new Item();
         item.setName(itemDto.getName());
         item.setDescription(itemDto.getDescription());
         item.setIsAvailable(itemDto.getAvailable());
         item.setOwner(user);
         item.setId(itemDto.getId());
-        return item;
+        return Optional.of(item);
     }
 
-    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, User owner) {
+    public static Optional<Item> makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, User owner) {
         Item itemUpd = new Item();
 
         itemUpd.setIsAvailable(oldItemDto.getAvailable());
@@ -39,10 +43,10 @@ public final class ItemMapper {
         if (itemDtoWithUpdate.getAvailable() != null) {
             itemUpd.setIsAvailable(itemDtoWithUpdate.getAvailable());
         }
-        return itemUpd;
+        return Optional.of(itemUpd);
     }
 
-    public static ItemDto makeDtoFromItem(Item item) {
+    public static Optional<ItemDto> makeDtoFromItem(Item item) {
         ItemDto itemDto = new ItemDto();
         itemDto.setAvailable(item.getIsAvailable());
         itemDto.setDescription(item.getDescription());
@@ -50,10 +54,10 @@ public final class ItemMapper {
         itemDto.setId(item.getId());
         itemDto.setOwnerId(item.getOwner().getId());
 
-        return itemDto;
+        return Optional.of(itemDto);
     }
 
-    public static ItemDto makeDtoFromItemWithBooking(Item item, List<CommentDto> commentsForItemDto, BookingForItemDto lastBooking,
+    public static Optional<ItemDto> makeDtoFromItemWithBooking(Item item, List<CommentDto> commentsForItemDto, BookingForItemDto lastBooking,
                                                      BookingForItemDto nextBooking) {
         ItemDto itemDto = new ItemDto();
         itemDto.setAvailable(item.getIsAvailable());
@@ -66,10 +70,10 @@ public final class ItemMapper {
         itemDto.setLastBooking(lastBooking);
         itemDto.setNextBooking(nextBooking);
 
-        return itemDto;
+        return Optional.of(itemDto);
     }
 
-    public static ItemDto makeDtoFromItemWithComment(Item item, List<CommentDto> commentsForItemDto) {
+    public static Optional<ItemDto> makeDtoFromItemWithComment(Item item, List<CommentDto> commentsForItemDto) {
         ItemDto itemDto = new ItemDto();
         itemDto.setAvailable(item.getIsAvailable());
         itemDto.setDescription(item.getDescription());
@@ -78,6 +82,6 @@ public final class ItemMapper {
         itemDto.setOwnerId(item.getOwner().getId());
         itemDto.setComments(commentsForItemDto);
 
-        return itemDto;
+        return Optional.of(itemDto);
     }
 }

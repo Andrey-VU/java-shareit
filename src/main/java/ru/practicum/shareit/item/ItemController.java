@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping(path = "/items")
 @Slf4j
 public class ItemController {
-    ItemService itemService;
+    private ItemService itemService;
 
     public ItemController(ItemService itemService) {
         this.itemService = itemService;

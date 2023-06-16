@@ -32,7 +32,8 @@ class ItemControllerTest {
         controller = new ItemController(itemService);
         userDto.setName("First");
         userDto.setEmail("a1@a.mail.ru");
-        firstUser = UserMapper.makeUserWithId(userService.create(userDto));
+        firstUser = UserMapper.makeUserWithId(userService.create(userDto))
+                .orElseThrow(() -> new NullPointerException("User объект не создан"));
     }
 
     @AfterEach

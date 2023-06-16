@@ -80,7 +80,8 @@ public class ItemRepoImpl implements ItemRepo {
     public List<ItemDto> getItemsOfUser(long userId) {
         if (itemsOfUsers.containsKey(userId)) {
             return itemsOfUsers.get(userId).stream()
-                    .map(item -> ItemMapper.makeDtoFromItem(item))
+                    .map(item -> ItemMapper.makeDtoFromItem(item)
+                            .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                     .collect(Collectors.toList());
         } else {
             log.warn("User {} has not items ", userId);
@@ -91,7 +92,8 @@ public class ItemRepoImpl implements ItemRepo {
     @Override
     public List<ItemDto> getAllItems() {
         return itemStorageInMemory.values().stream()
-                .map(item -> ItemMapper.makeDtoFromItem(item))
+                .map(item -> ItemMapper.makeDtoFromItem(item)
+                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 
