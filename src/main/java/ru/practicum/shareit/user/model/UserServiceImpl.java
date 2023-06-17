@@ -27,9 +27,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(long id) {
-        if (userRepo.findById(id).isEmpty()) {
-            log.warn("User {} is not found", id);
-        }
         User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Пользователь id "
                 + id + " не найден"));
         return UserMapper.makeDto(user)
