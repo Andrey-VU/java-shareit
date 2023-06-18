@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Deprecated
 @Repository("itemRepo")
 @Slf4j
 public class ItemRepoImpl implements ItemRepo {
@@ -61,7 +62,7 @@ public class ItemRepoImpl implements ItemRepo {
             throw new ItemNotFoundException("Item is not found");
         }
         List<Item> newItemList = itemsOfUsers.get(userId).stream()
-                .filter(item1 -> item1.getId() != item.getId())
+                .filter(item1 -> !item1.getId().equals(item.getId()))
                 .collect(Collectors.toList());
         newItemList.add(item);
         itemsOfUsers.put(userId, newItemList);
@@ -79,7 +80,8 @@ public class ItemRepoImpl implements ItemRepo {
     public List<ItemDto> getItemsOfUser(long userId) {
         if (itemsOfUsers.containsKey(userId)) {
             return itemsOfUsers.get(userId).stream()
-                    .map(item -> ItemMapper.makeDtoFromItem(item))
+                    .map(item -> ItemMapper.makeDtoFromItem(item)
+                            .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                     .collect(Collectors.toList());
         } else {
             log.warn("User {} has not items ", userId);
@@ -90,7 +92,8 @@ public class ItemRepoImpl implements ItemRepo {
     @Override
     public List<ItemDto> getAllItems() {
         return itemStorageInMemory.values().stream()
-                .map(item -> ItemMapper.makeDtoFromItem(item))
+                .map(item -> ItemMapper.makeDtoFromItem(item)
+                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 

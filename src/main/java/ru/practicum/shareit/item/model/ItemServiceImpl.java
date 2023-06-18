@@ -1,96 +1,97 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.repo.ItemRepo;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.repo.CommentRepository;
+import ru.practicum.shareit.item.repo.ItemRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @Service("itemService")
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    ItemRepo itemRepo;
-    UserService userService;
+    private ItemRepository itemRepo;
+    private UserService userService;
+    private CommentRepository commentRepo;
+    private ItemMapperService itemMapperService;
 
-    public ItemServiceImpl(
-            ItemRepo itemRepo,
-            UserService userService) {
-        this.itemRepo = itemRepo;
-        this.userService = userService;
+    @Override
+    public ItemDto addNewItem(Long ownerId, ItemDto itemDto) {
+        Item itemForSave = itemMapperService.addNewItem(ownerId, itemDto);
+        Item item = itemRepo.save(itemForSave);
+        return ItemMapper.makeDtoFromItem(item)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
-    public ItemDto addNewItem(long userId, ItemDto itemDto) {
-        Item item = itemRepo.save(userId, ItemMapper.makeItem(itemDto,
-                UserMapper.makeUserWithId(userService.getUser(userId))));
-        return ItemMapper.makeDtoFromItem(item);
-    }
-
-    @Override
-    public ItemDto getItem(long itemId) {
+    public ItemDto getItem(Long itemId, Long userId) {
         validateId(itemId);
-        Item item = itemRepo.getItem(itemId);
-        return ItemMapper.makeDtoFromItem(item);
-    }
-
-    private void validateId(long id) {
-        if (id < 1) {
-            log.warn("id {} incorrect", id);
-            throw new IncorrectIdException("id can't be less then 1");
-        }
+        validateId(userId);
+        Item item = itemRepo.findById(itemId).orElseThrow(() ->
+                new ItemNotFoundException("Item is not found"));
+        return itemMapperService.getItemDto(item, userId);
     }
 
     @Override
-    public Collection<ItemDto> getItems(long userId) {
-        userService.getUser(userId);
-        return itemRepo.getItemsOfUser(userId);
+    public List<ItemDto> getItems(Long userId) {
+        List<Item> allItems = itemRepo.findAllByOwnerIdOrderById(userId);
+        return itemMapperService.getItems(allItems);
     }
 
     @Override
-    public ItemDto updateItem(long userId, long itemId, ItemDto itemDtoWithUpdate) {
-        validateId(itemId);
-        ItemDto itemFromRepo = getItem(itemId);
-        if (itemFromRepo.getOwner().getId() != null && itemFromRepo.getOwner().getId() == userId) {
-            itemDtoWithUpdate.setId(itemId);
-            Item itemUpdated = itemRepo.update(userId, ItemMapper.makeItemForUpdate(itemFromRepo, itemDtoWithUpdate));
-            return ItemMapper.makeDtoFromItem(itemUpdated);
-        } else {
-            log.error("User Id {} has not item", userId);
-            throw new ItemNotFoundException("Item is not found");
-        }
-    }
-
-    @Override
-    public boolean deleteItem(long userId, long itemId) {
-        userService.getUser(userId);
-        itemRepo.delete(userId, itemId);
-        return true;
-    }
-
-    @Override
-    public void clearAll() {
-        itemRepo.clearAll();
+    public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
+        Item itemForUpdate = itemMapperService.prepareItemToUpdate(ownerId, itemId, itemDtoWithUpdate);
+        Item itemUpdated = itemRepo.save(itemForUpdate);
+        return ItemMapper.makeDtoFromItem(itemUpdated)
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
     }
 
     @Override
     public List<ItemDto> searchForItems(String text) {
         List<ItemDto> searchResult = new ArrayList<>();
         if (!text.isBlank()) {
-            searchResult = itemRepo.getAllItems().stream()
-                    .filter(itemDto -> itemDto.getAvailable().equals(true))
-                    .filter(item -> item.getName().toLowerCase().contains(text.toLowerCase()) ||
-                            item.getDescription().toLowerCase().contains(text.toLowerCase()))
+            searchResult = itemRepo.findByText(text).stream()
+                    .map(item -> ItemMapper.makeDtoFromItem(item)
+                            .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                     .collect(Collectors.toList());
         }
         return searchResult;
+    }
+
+    @Override
+    public CommentDto addNewCommentToItem(CommentRequestDto requestDto) {
+        return CommentMapper
+                .entityToDto(commentRepo.save(itemMapperService.prepareCommentToSave(requestDto)));
+    }
+
+    @Override
+    public boolean deleteItem(Long ownerId, Long itemId) {
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
+                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+        itemRepo.delete(ItemMapper.makeItem(getItem(itemId, ownerId), owner)
+                .orElseThrow(() -> new NullPointerException("объект не найден")));
+        return true;
+    }
+
+    @Override
+    public void clearAll() {
+        itemRepo.deleteAll();
+    }
+
+    private void validateId(Long id) {
+        if (id < 1) {
+            log.warn("id {} incorrect", id);
+            throw new IncorrectIdException("id can't be less then 1");
+        }
     }
 }

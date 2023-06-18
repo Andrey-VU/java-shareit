@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Deprecated
 @Repository("UserStorage")
 @Slf4j
 public class UserRepoInMemory implements UserRepo {
@@ -60,7 +61,8 @@ public class UserRepoInMemory implements UserRepo {
     public List<UserDto> findAll() {
         log.info("Количество пользователей составляет: " + users.size());
         return users.values().stream()
-                .map(user -> UserMapper.makeDto(user))
+                .map(user -> UserMapper.makeDto(user)
+                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 

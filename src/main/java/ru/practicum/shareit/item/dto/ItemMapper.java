@@ -1,48 +1,35 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import ru.practicum.shareit.exception.IncorrectItemDtoException;
+import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
+@AllArgsConstructor
 public final class ItemMapper {
-    public static Item makeItem(ItemDto itemDto, User user) {
+
+    public static Optional<Item> makeItem(ItemDto itemDto, User owner) {
+
         Item item = new Item();
-        String name = itemDto.getName();
-        String description = itemDto.getDescription();
-        item.setOwner(user);
-
-        if (!StringUtils.isBlank(name)) {
-            item.setName(itemDto.getName());
-        } else {
-            log.warn("Item's name {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's name is not found");
-        }
-        if (!StringUtils.isBlank(description)) {
-            item.setDescription(itemDto.getDescription());
-        } else {
-            log.warn("Item's description {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's description is not found");
-        }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
-        } else {
-            log.warn("Available-status of item {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Available-status of item not found");
-        }
-
-        return item;
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setIsAvailable(itemDto.getAvailable());
+        item.setOwner(owner);
+        item.setId(itemDto.getId());
+        return Optional.of(item);
     }
 
-    public static Item makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate) {
+    public static Optional<Item> makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, User owner) {
         Item itemUpd = new Item();
 
-        itemUpd.setAvailable(oldItemDto.getAvailable());
+        itemUpd.setIsAvailable(oldItemDto.getAvailable());
         itemUpd.setId(oldItemDto.getId());
-        itemUpd.setOwner(oldItemDto.getOwner());
+        itemUpd.setOwner(owner);
         itemUpd.setDescription(oldItemDto.getDescription());
         itemUpd.setName(oldItemDto.getName());
 
@@ -55,20 +42,47 @@ public final class ItemMapper {
         }
 
         if (itemDtoWithUpdate.getAvailable() != null) {
-            itemUpd.setAvailable(itemDtoWithUpdate.getAvailable());
+            itemUpd.setIsAvailable(itemDtoWithUpdate.getAvailable());
         }
-        return itemUpd;
+        return Optional.of(itemUpd);
     }
 
-    public static ItemDto makeDtoFromItem(Item item) {
+    public static Optional<ItemDto> makeDtoFromItem(Item item) {
         ItemDto itemDto = new ItemDto();
-
-        itemDto.setAvailable(item.getAvailable());
+        itemDto.setAvailable(item.getIsAvailable());
         itemDto.setDescription(item.getDescription());
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
-        itemDto.setOwner(item.getOwner());
+        itemDto.setOwnerId(item.getOwner().getId());
 
-        return itemDto;
+        return Optional.of(itemDto);
+    }
+
+    public static Optional<ItemDto> makeDtoFromItemWithBooking(Item item, List<CommentDto> commentsForItemDto, BookingForItemDto lastBooking,
+                                                               BookingForItemDto nextBooking) {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setAvailable(item.getIsAvailable());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setName(item.getName());
+        itemDto.setId(item.getId());
+        itemDto.setOwnerId(item.getOwner().getId());
+        itemDto.setComments(commentsForItemDto);
+
+        itemDto.setLastBooking(lastBooking);
+        itemDto.setNextBooking(nextBooking);
+
+        return Optional.of(itemDto);
+    }
+
+    public static Optional<ItemDto> makeDtoFromItemWithComment(Item item, List<CommentDto> commentsForItemDto) {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setAvailable(item.getIsAvailable());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setName(item.getName());
+        itemDto.setId(item.getId());
+        itemDto.setOwnerId(item.getOwner().getId());
+        itemDto.setComments(commentsForItemDto);
+
+        return Optional.of(itemDto);
     }
 }
