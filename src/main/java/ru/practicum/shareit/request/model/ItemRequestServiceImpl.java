@@ -42,11 +42,13 @@ public class ItemRequestServiceImpl implements ItemRequestService{
         Page<ItemRequest> answerPage = itemRequestRepo.findAll(PageRequest.of(from, size));
         List<ItemRequest> answerList = answerPage
                 .stream()
-                
-//                .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
-//                        .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
-//                .collect(Collectors.toList());
-        return answerList;
+                .collect(Collectors.toList());
+        List<ItemRequestDto> answerDtoList = answerList.stream()
+                .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
+                        .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
+                .collect(Collectors.toList());
+
+        return answerDtoList;
     }
 
     @Override
