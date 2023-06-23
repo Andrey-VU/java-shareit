@@ -3,6 +3,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.platform.engine.TestExecutionResult;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -10,10 +11,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestService;
 
+import javax.print.attribute.standard.Media;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -23,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@SpringJUnitWebConfig({ ItemRequestController.class})
 class ItemRequestControllerTest {
 
     @Mock
@@ -42,8 +46,16 @@ class ItemRequestControllerTest {
         ResponseEntity<ItemRequestDto> response = ResponseEntity.ok(responseDto);
 
         mvc.perform(post("/requests")
-                        
-                .Expect(status().isOk());
+                        .header("X-Sharer-User-Id", 1L)
+                        .content(mapper.writeValueAsString(itemRequestDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+
+
+  //              .Expect(status().isOk());
 //                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
 //                .andExpect(jsonPath("$.firstName", is(userDto.getFirstName())))
 //                .andExpect(jsonPath("$.lastName", is(userDto.getLastName())))

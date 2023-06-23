@@ -125,9 +125,6 @@ class ItemRequestServiceImplTest {
         verify(itemRequestRepo, never()).save(itemRequest);
     }
 
-
-
-
     @Test //получить список своих запросов вместе с данными об ответах на них
     void getItemRequests_whenRequestIsFound_thenReturnListWithDto() {
         when(itemRequestRepo.findAllByRequesterIdOrderByCreatedDesc(requesterId1)).thenReturn(expectedList);
@@ -145,13 +142,10 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequests() {
-
-//        Page<ItemRequest> expectedPage = expectedList.stream()
-//                        .map(itemRequest1 -> createPageRequestUsing)
-//
-//        when(itemRequestRepo.findAll(PageRequest.of(1, 1)))
-//                .thenReturn((Page<ItemRequest>) expectedList);
-//        List<ItemRequestDto> actual = itemRequestService.getAllItemRequests(requesterId1, 1, 1);
-//        assertEquals(expectedListDto, actual);
+        when()
+        when(itemRequestRepo.findAll(PageRequest.of(1, 1)))
+                .thenReturn((Page<ItemRequest>) expectedList);
+        List<ItemRequestDto> actual = itemRequestService.getAllItemRequests(requesterId1, 1, 1);
+        assertEquals(expectedListDto, actual);
     }
 }

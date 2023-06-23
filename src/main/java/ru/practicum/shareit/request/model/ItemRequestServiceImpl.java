@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
@@ -37,10 +38,14 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId, Integer from, Integer size) {
-        List<ItemRequestDto> answerList = itemRequestRepo.findAll(PageRequest.of(from, size))
-                .stream().map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
-                        .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
-                .collect(Collectors.toList());
+
+        Page<ItemRequest> answerPage = itemRequestRepo.findAll(PageRequest.of(from, size));
+        List<ItemRequest> answerList = answerPage
+                .stream()
+                
+//                .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
+//                        .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
+//                .collect(Collectors.toList());
         return answerList;
     }
 
