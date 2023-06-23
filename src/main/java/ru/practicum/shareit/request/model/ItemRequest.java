@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -28,4 +29,27 @@ public class ItemRequest {
     private User requester;
 
     private LocalDateTime created;
+
+    @Override
+    public String toString() {
+        return "ItemRequest{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", requester=" + requester +
+                ", created=" + created +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemRequest)) return false;
+        ItemRequest that = (ItemRequest) o;
+        return description.equals(that.description) && requester.equals(that.requester) && created.equals(that.created);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(description, requester, created);
+    }
 }

@@ -17,7 +17,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(value = {UserNotFoundException.class, ItemNotFoundException.class,
-            IncorrectIdException.class, BookingNotFoundException.class})
+            IncorrectIdException.class, BookingNotFoundException.class, ItemRequestNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final RuntimeException e) {
         return new ErrorResponse(

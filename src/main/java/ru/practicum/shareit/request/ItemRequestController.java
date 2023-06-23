@@ -38,10 +38,11 @@ public class ItemRequestController {
 //    Запросы должны возвращаться в отсортированном порядке от более новых к более старым.
     @GetMapping
     List<ItemRequestDto> getItemRequests (@RequestHeader("X-Sharer-User-Id") Long requesterId){
-        itemRequestService.getItemRequests(requesterId);
-        return null;
+        log.info("Get requests for user id: {} - Started", requesterId);
+        List<ItemRequestDto> listOfRequestsDto = itemRequestService.getItemRequests(requesterId);
+        log.info("Size of founded List of requests is {} - Finished", listOfRequestsDto.size());
+        return listOfRequestsDto;
     }
-
     /*
     GET /requests/all?from={from}&size={size} — получить список запросов, созданных другими пользователями.
     С помощью этого эндпоинта пользователи смогут просматривать существующие запросы, на которые они могли
@@ -54,8 +55,10 @@ public class ItemRequestController {
                         (@RequestHeader("X-Sharer-User-Id") Long userId,
                          @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
                          @RequestParam(required = false, defaultValue = "1") @Min(1) Integer size){
-        itemRequestService.getAllItemRequests(userId, from, size);
-        return null;
+        log.info("Get All requests - Started");
+        List<ItemRequestDto> listOfRequestsDto = itemRequestService.getAllItemRequests(userId, from, size);
+        log.info("Size of founded List of requests is {} - Finished", listOfRequestsDto.size());
+        return listOfRequestsDto;
     }
 
     /*
@@ -64,10 +67,13 @@ public class ItemRequestController {
     может любой пользователь.
      */
     @GetMapping("/{requestId}")
-    List<ItemRequestDto> getItemRequests (@RequestHeader("X-Sharer-User-Id") Long userId,
+    ItemRequestDto getItemRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @PathVariable Long requestId){
+        log.info("Get request id: {} - Started", requestId);
         ItemRequestDto requestItemDto = itemRequestService.getItemRequest(userId, requestId);
-        return null;
+        log.info("Request id {} was found - Finished", requestId);
+
+        return requestItemDto;
     }
 
 
