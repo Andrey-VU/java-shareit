@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.model;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +52,6 @@ class ItemRequestServiceImplTest {
 
     @BeforeEach
     void setUp() {
-
         user.setId(requesterId1);
         user.setName("testUser");
         user.setEmail("test@test.ru");
@@ -72,6 +72,16 @@ class ItemRequestServiceImplTest {
 
         expectedList.add(expectedItemRequest);
         expectedListDto.add(expectedItemRequestDto);
+    }
+
+    @AfterEach
+    void afterEach() {
+        if (!expectedList.isEmpty()) {
+            expectedList.clear();
+        }
+        if (!expectedListDto.isEmpty()) {
+            expectedListDto.clear();
+        }
     }
 
     @Test

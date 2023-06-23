@@ -9,14 +9,16 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusOfBooking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
-import ru.practicum.shareit.exception.IncorrectIdException;
-import ru.practicum.shareit.exception.IncorrectItemDtoException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequestService;
+import ru.practicum.shareit.request.repo.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
@@ -33,14 +35,27 @@ public class ItemMapperService {
     private CommentRepository commentRepo;
     private BookingRepository bookingRepo;
     private ItemRepository itemRepo;
+    private ItemRequestRepository itemRequestRepo;
 
     public Item addNewItem(Long ownerId, ItemDto itemDto) {
         itemDtoValidate(ownerId, itemDto);
         User user = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("User не найден"));
 
-        return ItemMapper.makeItem(itemDto, user)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+        Item item = new Item();
+
+        if (itemDto.getRequestId() == null) {
+            item = ItemMapper.makeItem(itemDto, user)
+                    .orElseThrow(() -> new UserNotFoundException("User не найден"));
+        }
+        else {
+            ItemRequest request = itemRequestRepo.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest Not Found!"));
+            item = ItemMapper.makeItemWithRequest(itemDto, user, request)
+                    .orElseThrow(() -> new UserNotFoundException("User не найден"));
+        }
+
+        return item;
     }
 
     public ItemDto getItemDto(Item item, Long userId) {

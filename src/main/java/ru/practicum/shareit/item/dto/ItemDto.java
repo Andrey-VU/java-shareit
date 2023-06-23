@@ -9,11 +9,13 @@ import java.util.List;
 @Data
 @ToString
 public class ItemDto {
-    private long id;
+    private Long id;
     private String name;
     private String description;
     private Boolean available;
-    private long ownerId;
+    private Long ownerId;
+    private Long requestId;
+
 
     private List<CommentDto> comments;
 

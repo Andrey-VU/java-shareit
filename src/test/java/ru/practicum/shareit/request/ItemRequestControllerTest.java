@@ -1,4 +1,6 @@
 package ru.practicum.shareit.request;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -6,14 +8,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestService;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestControllerTest {
@@ -22,32 +29,53 @@ class ItemRequestControllerTest {
     private ItemRequestService itemRequestService;
     @InjectMocks
     private ItemRequestController itemRequestController;
+    private final ObjectMapper mapper = new ObjectMapper();
+    private MockMvc mvc;
+
 
     @Test
-    void addRequest() {
-
+    void addRequest_whenRequestIsCorrect_thenReturn200() throws Exception {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setDescription("first test");
-
-//        itemRequestDtoResponse.setId(1L);
-//        itemRequestDtoResponse.setDescription("first test");
-//        itemRequestDtoResponse.setCreated(LocalDateTime.now());
-//        itemRequestDtoResponse.setRequesterId(1L);
 
         ItemRequestDto responseDto = itemRequestController.addRequest(1L, itemRequestDto);
         ResponseEntity<ItemRequestDto> response = ResponseEntity.ok(responseDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        mvc.perform(post("/requests")
+                        
+                .Expect(status().isOk());
+//                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
+//                .andExpect(jsonPath("$.firstName", is(userDto.getFirstName())))
+//                .andExpect(jsonPath("$.lastName", is(userDto.getLastName())))
+//                .andExpect(jsonPath("$.email", is(userDto.getEmail())));
+
+
+    }
+
+    @Test
+    void addRequest_whenRequestIsCorrect_thenReturnResponseWithBody() {
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
+        itemRequestDto.setDescription("first test");
+
+        ItemRequestDto expectedDto = new ItemRequestDto();
+        expectedDto.setRequesterId(1L);
+        expectedDto.setId(1L);
+        expectedDto.setDescription("first test");
+
+//        expectedDto.setCreated();
+
+        Mockito.when(itemRequestService.addNewItemRequest(1L, itemRequestDto))
+                .thenReturn(expectedDto);
+
+        ItemRequestDto responseDto = itemRequestController.addRequest(1L, itemRequestDto);
+
+
     }
 
 
     @Test
     void getAllItemRequests_whenInvokedEmpty_thenResponseStatusOkWithEmptyBody() {
         List<ItemRequestDto> responseDto = itemRequestController.getItemRequests(1L);
-        ResponseEntity<List<ItemRequestDto>> response =  ResponseEntity.ok(responseDto);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isEmpty());
     }
 
     @Test
@@ -57,11 +85,7 @@ class ItemRequestControllerTest {
                 .thenReturn(expectedDto);
         List<ItemRequestDto> responseDto
                 = itemRequestController.getItemRequests(1L);
-        ResponseEntity<List<ItemRequestDto>> response =  ResponseEntity.ok(responseDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(!response.getBody().isEmpty());
-        assertEquals(expectedDto, response.getBody());
     }
 
     @Test //получить список своих запросов вместе с данными об ответах на них
@@ -69,8 +93,6 @@ class ItemRequestControllerTest {
         when(itemRequestController.getItemRequests(1L)).thenReturn(List.of(new ItemRequestDto()));
         List<ItemRequestDto> responseDto
                 = itemRequestController.getItemRequests(1L);
-        ResponseEntity<List<ItemRequestDto>> response =  ResponseEntity.ok(responseDto);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test

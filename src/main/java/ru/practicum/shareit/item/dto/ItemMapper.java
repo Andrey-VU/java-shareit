@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dto;
 import lombok.AllArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -19,8 +20,24 @@ public final class ItemMapper {
         item.setIsAvailable(itemDto.getAvailable());
         item.setOwner(owner);
         item.setId(itemDto.getId());
+
         return Optional.of(item);
     }
+
+    public static Optional<Item> makeItemWithRequest(ItemDto itemDto, User owner, ItemRequest request) {
+
+        Item item = new Item();
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setIsAvailable(itemDto.getAvailable());
+        item.setOwner(owner);
+        item.setId(itemDto.getId());
+        item.setRequest(request);
+
+        return Optional.of(item);
+    }
+
+
 
     public static Optional<Item> makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, User owner) {
         Item itemUpd = new Item();
@@ -52,6 +69,9 @@ public final class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setId(item.getId());
         itemDto.setOwnerId(item.getOwner().getId());
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
+        }
 
         return Optional.of(itemDto);
     }
@@ -69,6 +89,10 @@ public final class ItemMapper {
         itemDto.setLastBooking(lastBooking);
         itemDto.setNextBooking(nextBooking);
 
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
+        }
+
         return Optional.of(itemDto);
     }
 
@@ -80,6 +104,10 @@ public final class ItemMapper {
         itemDto.setId(item.getId());
         itemDto.setOwnerId(item.getOwner().getId());
         itemDto.setComments(commentsForItemDto);
+
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
+        }
 
         return Optional.of(itemDto);
     }

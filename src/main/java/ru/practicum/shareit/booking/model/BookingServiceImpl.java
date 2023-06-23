@@ -24,7 +24,7 @@ public class BookingServiceImpl implements BookingService {
         Booking bookingForSave = bookingMapperService.bookingRequestPrepareForAdd(bookerId, dto);
         Booking newBooking = bookingRepo.save(bookingForSave);
         return BookingMapper.entityToResponseDto(newBooking)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new BookingNotFoundException("dto объект Booking не найден"));
     }
 
     @Override

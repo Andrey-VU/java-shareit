@@ -38,7 +38,6 @@ public class ItemRequestServiceImpl implements ItemRequestService{
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId, Integer from, Integer size) {
         List<ItemRequestDto> answerList = itemRequestRepo.findAll(PageRequest.of(from, size))
-
                 .stream().map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
                         .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
                 .collect(Collectors.toList());
