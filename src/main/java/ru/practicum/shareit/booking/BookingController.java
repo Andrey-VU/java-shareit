@@ -1,14 +1,18 @@
 package ru.practicum.shareit.booking;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
@@ -49,18 +53,23 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                                @RequestParam(defaultValue = "ALL") String state) {
+                                                @RequestParam(defaultValue = "ALL") String state,
+                                                @Valid @RequestParam(required = false) @Min(0) Integer from,
+                                                @Valid @RequestParam(required = false) @Min(1) Integer size) {
         log.info("Search user's (id {}) {} bookings - Started", bookerId, state);
-        List<BookingResponseDto> bookingsOfUser = bookingService.getBookings(bookerId, state);
+        List<BookingResponseDto> bookingsOfUser = bookingService.getBookings(bookerId, state, from, size);
         log.info("{} {} bookings was found", bookingsOfUser.size(), state);
         return bookingsOfUser;
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getBookingsOfOwnersItems(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                             @RequestParam(defaultValue = "ALL") String state) {
+                                                             @RequestParam(defaultValue = "ALL") String state,
+                                                             @Valid @RequestParam(required = false) @Min(0) Integer from,
+                                                @Valid @RequestParam(required = false) @Min(1) Integer size) {
         log.info("Search {} bookings of owner's (id {}) items - Started", state, ownerId);
-        List<BookingResponseDto> bookingsOfOwnerItems = bookingService.getListOfBookingsOfOwnersItems(ownerId, state);
+        List<BookingResponseDto> bookingsOfOwnerItems =
+                bookingService.getListOfBookingsOfOwnersItems(ownerId, state, from, size);
         log.info("{} {} bookings was found", state, bookingsOfOwnerItems.size());
         return bookingsOfOwnerItems;
     }
