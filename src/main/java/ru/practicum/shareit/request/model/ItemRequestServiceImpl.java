@@ -7,7 +7,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestMapperService;
 import ru.practicum.shareit.request.repo.ItemRequestRepository;
 
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
-public class ItemRequestServiceImpl implements ItemRequestService{
+public class ItemRequestServiceImpl implements ItemRequestService {
     ItemRequestMapperService itemRequestMapperService;
     ItemRequestRepository itemRequestRepo;
 
@@ -25,25 +24,16 @@ public class ItemRequestServiceImpl implements ItemRequestService{
         ItemRequest itemRequestForSave = itemRequestMapperService.prepareForSaveItemRequest(requesterId, dto);
         ItemRequest itemRequest = itemRequestRepo.save(itemRequestForSave);
 
-        ItemRequestDto itemRequestDto = itemRequestMapperService.prepareForReturnDto(itemRequest);
-
-                ItemRequestMapper.makeItemRequestDto(itemRequest).orElseThrow(() ->
-                new ItemRequestNotFoundException("ItemRequest not found"));
-
-        return itemRequestDto;
+        return itemRequestMapperService.prepareForReturnDto(itemRequest);
     }
 
     @Override
     public List<ItemRequestDto> getItemRequests(Long requesterId) {
         itemRequestMapperService.prepareForReturnListDto(requesterId);
-
-        List<ItemRequest> itemRequests = itemRequestRepo.findAllByRequesterId(requesterId);  // нашли все itemRequest, которые делал этот парень
-
-        List<ItemRequestDto> itemRequestsDtoList = itemRequests.stream()
-                    .map(itemRequest -> itemRequestMapperService.prepareForReturnDto(itemRequest))
-                    .collect(Collectors.toList());
-
-        return itemRequestsDtoList;
+        List<ItemRequest> itemRequests = itemRequestRepo.findAllByRequesterId(requesterId);
+        return itemRequests.stream()
+                .map(itemRequest -> itemRequestMapperService.prepareForReturnDto(itemRequest))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -64,6 +54,6 @@ public class ItemRequestServiceImpl implements ItemRequestService{
     public ItemRequestDto getItemRequest(Long userId, Long requestId) {
         itemRequestMapperService.requesterValidate(userId);
         return itemRequestMapperService.prepareForReturnDto(itemRequestRepo.findById(requestId)
-                        .orElseThrow(() -> new ItemRequestNotFoundException("Item is not found!")));
-        }
+                .orElseThrow(() -> new ItemRequestNotFoundException("Item is not found!")));
+    }
 }

@@ -49,9 +49,9 @@ public class ItemRequestMapperService {
     public ItemRequestDto prepareForReturnDto(ItemRequest itemRequest) {
         List<Item> itemsForRequest = itemRepo.findAllByRequestId(itemRequest.getId());
         List<ItemDto> itemsDtoForRequest = itemsForRequest.stream()
-                        .map(item -> ItemMapper.makeDtoFromItem(item)
+                .map(item -> ItemMapper.makeDtoFromItem(item)
                         .orElseThrow(() -> new ItemNotFoundException("ItemDto is not created")))
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         log.info("Размер списка вещей, которые предложены в ответ на запрос {}, составляет: {}",
                 itemRequest.getId(), itemsForRequest.size());

@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -15,7 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class ItemRequestDto {
     private Long id;

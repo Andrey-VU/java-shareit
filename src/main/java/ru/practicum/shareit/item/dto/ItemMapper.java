@@ -38,7 +38,6 @@ public final class ItemMapper {
     }
 
 
-
     public static Optional<Item> makeItemForUpdate(ItemDto oldItemDto, ItemDto itemDtoWithUpdate, User owner) {
         Item itemUpd = new Item();
 

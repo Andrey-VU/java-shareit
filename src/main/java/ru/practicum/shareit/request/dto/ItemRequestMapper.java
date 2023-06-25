@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.dto;
 
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
@@ -37,7 +36,7 @@ public final class ItemRequestMapper {
         return Optional.of(itemRequestDto);
     }
 
-    public static Optional<ItemRequestDto >makeItemRequestDtoWithItemsList(ItemRequest itemRequest, List<ItemDto> itemsDtoForRequest) {
+    public static Optional<ItemRequestDto> makeItemRequestDtoWithItemsList(ItemRequest itemRequest, List<ItemDto> itemsDtoForRequest) {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         if (itemRequest.getId() != null) {
             itemRequestDto.setId(itemRequest.getId());

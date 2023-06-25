@@ -13,6 +13,7 @@ import java.util.List;
 @Slf4j
 public class ItemRequestController {
     ItemRequestService itemRequestService;
+
     public ItemRequestController(ItemRequestService itemRequestService) {
         this.itemRequestService = itemRequestService;
     }
@@ -28,13 +29,13 @@ public class ItemRequestController {
         return itemRequestDtoFromRepo;
     }
 
-//    GET /requests — получить список своих запросов вместе с данными об ответах на них.
+    //    GET /requests — получить список своих запросов вместе с данными об ответах на них.
 //    Для каждого запроса должны указываться описание, дата и время создания и список ответов в формате:
 //    id вещи, название, id владельца. Так в дальнейшем, используя указанные id вещей, можно будет получить
 //    подробную информацию о каждой вещи.
 //    Запросы должны возвращаться в отсортированном порядке от более новых к более старым.
     @GetMapping
-    List<ItemRequestDto> getItemRequests (@RequestHeader("X-Sharer-User-Id") Long requesterId){
+    List<ItemRequestDto> getItemRequests(@RequestHeader("X-Sharer-User-Id") Long requesterId) {
         log.info("Get requests for user id: {} - Started", requesterId);
         List<ItemRequestDto> listOfRequestsDto = itemRequestService.getItemRequests(requesterId);
         log.info("Size of founded List of requests is {} - Finished", listOfRequestsDto.size());
@@ -49,10 +50,9 @@ public class ItemRequestController {
      */
 
     @GetMapping("/all")
-    List<ItemRequestDto> getAllItemRequests
-                        (@RequestHeader("X-Sharer-User-Id") Long userId,
-                         @RequestParam(required = false, defaultValue = "0") String from,
-                         @RequestParam(required = false, defaultValue = "1") String size){
+    List<ItemRequestDto> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
+             @RequestParam(required = false, defaultValue = "0") String from,
+             @RequestParam(required = false, defaultValue = "1") String size) {
 
         log.info("Get All requests - Started");
         List<ItemRequestDto> listOfRequestsDto = itemRequestService.getAllItemRequests(userId,
@@ -68,14 +68,13 @@ public class ItemRequestController {
      */
     @GetMapping("/{requestId}")
     ItemRequestDto getItemRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @PathVariable Long requestId){
+                                  @PathVariable Long requestId) {
         log.info("Get request id: {} - Started", requestId);
         ItemRequestDto requestItemDto = itemRequestService.getItemRequest(userId, requestId);
         log.info("Request id {} was found - Finished", requestId);
 
         return requestItemDto;
     }
-
 
 
 }

@@ -14,10 +14,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.model.ItemRequestService;
 import ru.practicum.shareit.request.repo.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -47,8 +44,7 @@ public class ItemMapperService {
         if (itemDto.getRequestId() == null) {
             item = ItemMapper.makeItem(itemDto, user)
                     .orElseThrow(() -> new UserNotFoundException("User не найден"));
-        }
-        else {
+        } else {
             ItemRequest request = itemRequestRepo.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest Not Found!"));
             item = ItemMapper.makeItemWithRequest(itemDto, user, request)
