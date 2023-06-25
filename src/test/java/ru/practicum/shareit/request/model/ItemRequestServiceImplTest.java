@@ -6,12 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -28,6 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
@@ -127,18 +123,19 @@ class ItemRequestServiceImplTest {
 
     @Test //получить список своих запросов вместе с данными об ответах на них
     void getItemRequests_whenRequestIsFound_thenReturnListWithDto() {
-        when(itemRequestRepo.findAllByRequesterIdOrderByCreatedDesc(requesterId1)).thenReturn(expectedList);
+        when(itemRequestRepo.findAllByRequesterId(requesterId1)).thenReturn(expectedList);
         List<ItemRequestDto> actual = itemRequestService.getItemRequests(requesterId1);
         assertEquals(expectedListDto, actual);
     }
 
-    @Test //получить список своих запросов вместе с данными об ответах на них
+    @Test
     void getItemRequests_whenUserHasNoRequests_thenReturnEmptyList() {
-        when(itemRequestRepo.findAllByRequesterIdOrderByCreatedDesc(requesterId1))
+        when(itemRequestRepo.findAllByRequesterId(requesterId1))
                 .thenReturn(List.of(new ItemRequest()));
         List<ItemRequestDto> actual = itemRequestService.getItemRequests(requesterId1);
         assertEquals(List.of(new ItemRequestDto()), actual);
     }
+
 
     @Test
     void getAllItemRequests() {

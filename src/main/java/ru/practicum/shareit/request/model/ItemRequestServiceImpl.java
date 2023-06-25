@@ -3,6 +3,7 @@ package ru.practicum.shareit.request.model;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestMapperService;
 import ru.practicum.shareit.request.repo.ItemRequestRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,23 +25,36 @@ public class ItemRequestServiceImpl implements ItemRequestService{
     public ItemRequestDto addNewItemRequest(Long requesterId, ItemRequestDto dto) {
         ItemRequest itemRequestForSave = itemRequestMapperService.prepareForSaveItemRequest(requesterId, dto);
         ItemRequest itemRequest = itemRequestRepo.save(itemRequestForSave);
-        return ItemRequestMapper.makeItemRequestDto(itemRequest).orElseThrow(() ->
-                new NullPointerException("ItemRequest not found"));
+
+        ItemRequestDto itemRequestDto = itemRequestMapperService.prepareForReturnDto(itemRequest);
+
+                ItemRequestMapper.makeItemRequestDto(itemRequest).orElseThrow(() ->
+                new ItemRequestNotFoundException("ItemRequest not found"));
+
+        return itemRequestDto;
     }
 
     @Override
     public List<ItemRequestDto> getItemRequests(Long requesterId) {
-        List<ItemRequest> itemRequests = itemRequestRepo.findAllByRequesterIdOrderByCreatedDesc(requesterId);
-        return itemRequests.stream()
-                .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
-                        .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
-                .collect(Collectors.toList());
+        itemRequestMapperService.prepareForReturnListDto(requesterId);
+
+        List<ItemRequest> itemRequests = itemRequestRepo.findAllByRequesterId(requesterId);  // нашли все itemRequest, которые делал этот парень
+
+        List<ItemRequestDto> itemRequestsDtoList = new ArrayList<>();
+
+        //if (!itemRequests.isEmpty()) {
+            itemRequestsDtoList = itemRequests.stream()
+                    .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
+                            .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
+                    .collect(Collectors.toList());
+        //}
+        return itemRequestsDtoList;
     }
 
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId, Integer from, Integer size) {
 
-        Page<ItemRequest> answerPage = itemRequestRepo.findAll(PageRequest.of(from, size));
+        Page<ItemRequest> answerPage = itemRequestRepo.findAll(PageRequest.of(from, size, Sort.by("created")));
         List<ItemRequest> answerList = answerPage
                 .stream()
                 .collect(Collectors.toList());

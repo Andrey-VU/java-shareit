@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request.model;
 
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;

@@ -1,9 +1,10 @@
 package ru.practicum.shareit.request.dto;
 
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public final class ItemRequestMapper {
@@ -13,11 +14,8 @@ public final class ItemRequestMapper {
         if (dto.getId() != null) {
             itemRequest.setId(itemRequest.getId());
         }
-
         itemRequest.setRequester(requester);
         itemRequest.setDescription(dto.getDescription());
-        itemRequest.setCreated(LocalDateTime.now());
-
         return Optional.of(itemRequest);
     }
 
@@ -35,7 +33,26 @@ public final class ItemRequestMapper {
         if (itemRequest.getCreated() != null) {
             itemRequestDto.setCreated(itemRequest.getCreated());
         }
+        return Optional.of(itemRequestDto);
+    }
 
+    public static Optional<ItemRequestDto >makeItemRequestDtoWithItemsList(ItemRequest itemRequest, List<Item> itemsForRequest) {
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
+        if (itemRequest.getId() != null) {
+            itemRequestDto.setId(itemRequest.getId());
+        }
+        if (itemRequest.getRequester() != null) {
+            itemRequestDto.setRequesterId(itemRequest.getRequester().getId());
+        }
+        if (itemRequest.getDescription() != null) {
+            itemRequestDto.setDescription(itemRequest.getDescription());
+        }
+        if (itemRequest.getCreated() != null) {
+            itemRequestDto.setCreated(itemRequest.getCreated());
+        }
+        if (itemsForRequest != null) {
+            itemRequestDto.setItems(itemsForRequest);
+        }
         return Optional.of(itemRequestDto);
     }
 }

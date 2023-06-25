@@ -1,14 +1,11 @@
 package ru.practicum.shareit.request;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -50,13 +47,16 @@ public class ItemRequestController {
     возвращаться постранично. Для этого нужно передать два параметра: from — индекс первого элемента,
     начиная с 0, и size — количество элементов для отображения.
      */
-    @GetMapping("/all/{from}&{size}")
+
+    @GetMapping("/all")
     List<ItemRequestDto> getAllItemRequests
                         (@RequestHeader("X-Sharer-User-Id") Long userId,
-                         @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                         @RequestParam(required = false, defaultValue = "1") @Min(1) Integer size){
+                         @RequestParam(required = false, defaultValue = "0") String from,
+                         @RequestParam(required = false, defaultValue = "1") String size){
+
         log.info("Get All requests - Started");
-        List<ItemRequestDto> listOfRequestsDto = itemRequestService.getAllItemRequests(userId, from, size);
+        List<ItemRequestDto> listOfRequestsDto = itemRequestService.getAllItemRequests(userId,
+                Integer.parseInt(from), Integer.parseInt(size));
         log.info("Size of founded List of requests is {} - Finished", listOfRequestsDto.size());
         return listOfRequestsDto;
     }

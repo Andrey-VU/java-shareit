@@ -23,10 +23,13 @@ public class Item {
     @JoinColumn(name = "owner_id")
     @ToString.Exclude
     private User owner;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "description")
     private String description;
+
     @Column(name = "is_available")
     private Boolean isAvailable;
 
