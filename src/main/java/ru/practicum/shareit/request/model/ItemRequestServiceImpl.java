@@ -11,7 +11,6 @@ import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestMapperService;
 import ru.practicum.shareit.request.repo.ItemRequestRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,27 +39,22 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
         List<ItemRequest> itemRequests = itemRequestRepo.findAllByRequesterId(requesterId);  // нашли все itemRequest, которые делал этот парень
 
-        List<ItemRequestDto> itemRequestsDtoList = new ArrayList<>();
-
-        //if (!itemRequests.isEmpty()) {
-            itemRequestsDtoList = itemRequests.stream()
-                    .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
-                            .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
+        List<ItemRequestDto> itemRequestsDtoList = itemRequests.stream()
+                    .map(itemRequest -> itemRequestMapperService.prepareForReturnDto(itemRequest))
                     .collect(Collectors.toList());
-        //}
+
         return itemRequestsDtoList;
     }
 
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId, Integer from, Integer size) {
-
         Page<ItemRequest> answerPage = itemRequestRepo.findAll(PageRequest.of(from, size, Sort.by("created")));
         List<ItemRequest> answerList = answerPage
                 .stream()
                 .collect(Collectors.toList());
         List<ItemRequestDto> answerDtoList = answerList.stream()
-                .map(itemRequest -> ItemRequestMapper.makeItemRequestDto(itemRequest)
-                        .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found")))
+                .filter(itemRequest -> !itemRequest.getRequester().getId().equals(userId))
+                .map(itemRequest -> itemRequestMapperService.prepareForReturnDto(itemRequest))
                 .collect(Collectors.toList());
 
         return answerDtoList;
@@ -68,8 +62,8 @@ public class ItemRequestServiceImpl implements ItemRequestService{
 
     @Override
     public ItemRequestDto getItemRequest(Long userId, Long requestId) {
-        return ItemRequestMapper.makeItemRequestDto(itemRequestRepo.findById(requestId)
-                        .orElseThrow(() -> new ItemRequestNotFoundException("Item is not found!")))
-                .orElseThrow(() -> new ItemRequestNotFoundException("ItemDto is not found!"));
+        itemRequestMapperService.requesterValidate(userId);
+        return itemRequestMapperService.prepareForReturnDto(itemRequestRepo.findById(requestId)
+                        .orElseThrow(() -> new ItemRequestNotFoundException("Item is not found!")));
         }
 }

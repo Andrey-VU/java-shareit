@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.constraints.NotBlank;
@@ -25,7 +26,7 @@ public class ItemRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime created;
 
-    private List<Item> items = new ArrayList<>();
+    private List<ItemDto> items = new ArrayList<>();
 
     @Override
     public String toString() {
