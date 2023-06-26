@@ -42,24 +42,16 @@ public class BookingServiceImpl implements BookingService {
         bookingMapperService.accessVerification(bookingFromRepo, userId);
 
         return BookingMapper.entityToResponseDto(bookingFromRepo)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
     }
 
     @Override
     public List<BookingResponseDto> getBookings(Long bookerId, String state, Integer from, Integer size) {
-        if (from == null & size == null) {
-            return bookingMapperService.prepareResponseDtoList(bookerId, state);
-        } else {
-            return bookingMapperService.prepareResponseDtoListWithPagination(bookerId, state, from, size);
-        }
+            return bookingMapperService.prepareResponseDtoList(bookerId, state, from, size);
     }
 
     @Override
-    public List<BookingResponseDto> getListOfBookingsOfOwnersItems(Long ownerId, String state, Integer from, Integer size) {
-        if (from == null & size == null) {
-            return bookingMapperService.prepareResponseDtoListForOwner(ownerId, state);
-        } else {
-            return bookingMapperService.prepareResponseDtoListForOwnerWithPagination(ownerId, state, from, size);
-        }
+    public List<BookingResponseDto> getListOfBookingsOfOwnersItems(Long ownerId, String state, int from, int size) {
+            return bookingMapperService.prepareResponseDtoListForOwner(ownerId, state, from, size);
     }
 }

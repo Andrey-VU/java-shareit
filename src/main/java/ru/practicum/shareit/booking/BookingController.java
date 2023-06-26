@@ -54,8 +54,8 @@ public class BookingController {
     @GetMapping
     public List<BookingResponseDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
                                                 @RequestParam(defaultValue = "ALL") String state,
-                                                @Valid @RequestParam(required = false) @Min(0) Integer from,
-                                                @Valid @RequestParam(required = false) @Min(1) Integer size) {
+                                                @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                                @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
         log.info("Search user's (id {}) {} bookings - Started", bookerId, state);
         List<BookingResponseDto> bookingsOfUser = bookingService.getBookings(bookerId, state, from, size);
         log.info("{} {} bookings was found", bookingsOfUser.size(), state);
@@ -65,8 +65,8 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingResponseDto> getBookingsOfOwnersItems(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                                                              @RequestParam(defaultValue = "ALL") String state,
-                                                             @Valid @RequestParam(required = false) @Min(0) Integer from,
-                                                @Valid @RequestParam(required = false) @Min(1) Integer size) {
+                                                @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                                @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
         log.info("Search {} bookings of owner's (id {}) items - Started", state, ownerId);
         List<BookingResponseDto> bookingsOfOwnerItems =
                 bookingService.getListOfBookingsOfOwnersItems(ownerId, state, from, size);

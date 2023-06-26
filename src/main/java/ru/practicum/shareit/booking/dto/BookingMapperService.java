@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -17,14 +16,13 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.model.ItemService;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,95 +106,7 @@ public class BookingMapperService {
         }
     }
 
-    public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, String state) {
-        userService.getUser(bookerId);
-        List<Booking> responseBookingList = new ArrayList<>();
-
-        switch (state) {
-            case "ALL":
-                responseBookingList = bookingRepo.findByBookerIdOrderByStartDesc(bookerId);
-                break;
-            case "FUTURE":
-                responseBookingList =
-                        bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now());
-                break;
-            case "CURRENT":
-                responseBookingList =
-                        bookingRepo.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
-                                LocalDateTime.now(), LocalDateTime.now());
-                break;
-            case "PAST":
-                responseBookingList =
-                        bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now());
-                break;
-            case "WAITING":
-            case "REJECTED":
-                responseBookingList =
-                        bookingRepo.findAllByBookerIdOrderByStartDesc(bookerId);
-                responseBookingList = responseBookingList.stream()
-                        .filter(booking -> booking.getStatus().equals(StatusOfBooking.valueOf(state)))
-                        .collect(Collectors.toList());
-                break;
-            default:
-                log.warn("Статус запроса {} не поддерживается", state);
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
-        }
-
-
-        return responseBookingList.stream()
-                .map(booking -> BookingMapper.entityToResponseDto(booking)
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
-                .collect(Collectors.toList());
-    }
-
-    public List<BookingResponseDto> prepareResponseDtoListForOwner(Long ownerId, String state) {
-        userService.getUser(ownerId);
-        if (itemService.getItems(ownerId).size() == 0) {
-            log.info("Пользователь {} не владеет вещами", ownerId);
-            throw new ItemNotFoundException("Items of user is not found!");
-        }
-
-        List<Booking> bookingsOfOwnersItems = new ArrayList<>();
-
-        switch (state) {
-            case "ALL":
-                bookingsOfOwnersItems = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId);
-                break;
-            case "FUTURE":
-                bookingsOfOwnersItems =
-                        bookingRepo.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now());
-                break;
-            case "CURRENT":
-                bookingsOfOwnersItems =
-                        bookingRepo.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
-                                LocalDateTime.now(), LocalDateTime.now());
-                break;
-            case "PAST":
-                bookingsOfOwnersItems =
-                        bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId, LocalDateTime.now());
-                break;
-            case "WAITING":
-            case "REJECTED":
-                bookingsOfOwnersItems =
-                        bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId);
-                bookingsOfOwnersItems = bookingsOfOwnersItems.stream()
-                        .filter(booking -> booking.getStatus().equals(StatusOfBooking.valueOf(state)))
-                        .collect(Collectors.toList());
-
-                break;
-            default:
-                log.warn("Статус запроса {} не поддерживается", state);
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
-        }
-
-        return bookingsOfOwnersItems.stream()
-                .map(booking -> BookingMapper.entityToResponseDto(booking)
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
-                .collect(Collectors.toList());
-    }
-
-    public List<BookingResponseDto> prepareResponseDtoListWithPagination(Long bookerId,
-                                                                         String state, Integer from, Integer size) {
+    public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, String state, Integer from, Integer size) {
         userService.getUser(bookerId);
         Page<Booking> answerPage = null;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -220,8 +130,10 @@ public class BookingMapperService {
                 break;
             case "WAITING":
             case "REJECTED":
-                answerPage = bookingRepo.findAllByBookerIdOrderByStartDesc(bookerId, pageRequest);
+                answerPage = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId,
+                        pageRequest, StatusOfBooking.valueOf(state));
                 break;
+
             default:
                 log.warn("Статус запроса {} не поддерживается", state);
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
@@ -233,12 +145,11 @@ public class BookingMapperService {
 
         return responseBookingList.stream()
                 .map(booking -> BookingMapper.entityToResponseDto(booking)
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
+                        .orElseThrow(() -> new BookingNotFoundException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 
-    public List<BookingResponseDto> prepareResponseDtoListForOwnerWithPagination(Long ownerId, String state,
-                                                                                 Integer from, Integer size) {
+    public List<BookingResponseDto> prepareResponseDtoListForOwner(Long ownerId, String state, Integer from, Integer size) {
         userService.getUser(ownerId);
         Page<Booking> answerPage = null;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -248,13 +159,15 @@ public class BookingMapperService {
             throw new ItemNotFoundException("Items of user is not found!");
         }
 
-        List<Booking> bookingsOfOwnersItems = new ArrayList<>();
-
         switch (state) {
             case "ALL":
+                answerPage = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
+                break;
+
             case "WAITING":
             case "REJECTED":
-                answerPage = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
+                answerPage = bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, pageRequest,
+                        StatusOfBooking.valueOf(state));
                 break;
             case "FUTURE":
                 answerPage =
@@ -280,9 +193,10 @@ public class BookingMapperService {
         List<Booking> responseBookingList = answerPage.stream()
                 .collect(Collectors.toList());
 
-        return bookingsOfOwnersItems.stream()
-                .map(booking -> BookingMapper.entityToResponseDto(booking)
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
-                .collect(Collectors.toList());
-    }
+        return responseBookingList != null ?
+                responseBookingList.stream()
+                        .map(booking -> BookingMapper.entityToResponseDto(booking)
+                        .orElseThrow(() -> new BookingNotFoundException("dto объект не найден")))
+                        .collect(Collectors.toList()) : Collections.emptyList();
+        }
 }

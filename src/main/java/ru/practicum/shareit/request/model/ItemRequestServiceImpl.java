@@ -38,7 +38,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId, Integer from, Integer size) {
-        Page<ItemRequest> answerPage = itemRequestRepo.findAll(PageRequest.of(from, size, Sort.by("created")));
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created"));
+        Page<ItemRequest> answerPage = itemRequestRepo.findAll(pageRequest);
         List<ItemRequest> answerList = answerPage
                 .stream()
                 .collect(Collectors.toList());
