@@ -5,6 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -70,7 +71,7 @@ public final class BookingMapper {
                     .orElseThrow(() -> new NullPointerException("объект не найден")));
             booking.setStatus(dto.getStatus());
             booking.setBooker(UserMapper.makeUserWithId(dto.getBooker())
-                    .orElseThrow(() -> new NullPointerException("объект не найден")));
+                    .orElseThrow(() -> new BookingNotFoundException("объект не найден")));
         }
         return Optional.of(booking);
     }
@@ -83,7 +84,7 @@ public final class BookingMapper {
             dto.setStart(booking.getStart());
             dto.setEnd(booking.getEnd());
             dto.setItem(ItemMapper.makeDtoFromItem(booking.getItem())
-                    .orElseThrow(() -> new NullPointerException("dto объект не найден")));
+                    .orElseThrow(() -> new BookingNotFoundException("dto объект не найден")));
             dto.setStatus(booking.getStatus());
             dto.setId(booking.getId());
             dto.setBookerId(booking.getBooker().getId());

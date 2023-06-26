@@ -1,9 +1,7 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.constraints.NotBlank;
@@ -12,10 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class ItemRequestDto {
     private Long id;
 

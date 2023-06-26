@@ -135,9 +135,11 @@ class ItemRequestControllerTest {
     void getAllItemRequests_whenCorrect_thenReturn200 () throws Exception  {
         when(itemRequestService.getAllItemRequests(1L, 1, 1)).thenReturn(expectedListRequestDto);
 
-        mvc.perform(get("/requests/all/{from}&{size}")
+        mvc.perform(get("/requests/all/")
                         .header("X-Sharer-User-Id", 1L)
-              //          .param("{from}&{size}")
+                        .param("from", String.valueOf(1))
+                        .param("size", String.valueOf(1))
+
                         .content(mapper.writeValueAsString(itemRequestDto))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

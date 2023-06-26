@@ -32,7 +32,7 @@ public class BookingServiceImpl implements BookingService {
         Booking bookingWithStatus = bookingMapperService.addStatusToBooking(ownerId, bookingId, approved);
         Booking updateBooking = bookingRepo.save(bookingWithStatus);
         return BookingMapper.entityToResponseDto(updateBooking)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
     }
 
     @Override

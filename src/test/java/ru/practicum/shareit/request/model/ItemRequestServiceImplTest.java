@@ -57,13 +57,12 @@ class ItemRequestServiceImplTest {
 
         itemRequestDtoResponse.setId(1L);
         itemRequestDtoResponse.setDescription("first test");
-        itemRequestDtoResponse.setCreated(LocalDateTime.now());
         itemRequestDtoResponse.setRequesterId(1L);
 
         expectedItemRequest.setId(itemRequestId1);
         expectedItemRequest.setRequester(user);
         expectedItemRequest.setDescription("first test");
-        expectedItemRequest.setCreated(LocalDateTime.now());
+
         expectedItemRequestDto = ItemRequestMapper.makeItemRequestDto(expectedItemRequest).orElseThrow();
 
         expectedList.add(expectedItemRequest);
@@ -82,21 +81,25 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getItemRequest_whenEntityFound_thenReturnDto() {
-        when(itemRequestRepo.findById(itemRequestId1)).thenReturn(Optional.of(expectedItemRequest));
+        when(itemRequestMapperService.prepareForReturnDto(itemRequest)).thenReturn(expectedItemRequestDto);
         ItemRequestDto actualRequestDto = itemRequestService.getItemRequest(requesterId1, itemRequestId1);
+        //actualRequestDto.setCreated(null);
         assertEquals(expectedItemRequestDto, actualRequestDto);
     }
 
     @Test
     void addNewItemRequest_whenRequestIsCorrect_thenReturnDto() {
-        when(itemRequestMapperService.prepareForSaveItemRequest(requesterId1, itemRequestDto))
-                .thenReturn(expectedItemRequest);
-        ItemRequest expectedItemRequestForSave = expectedItemRequest;
-        expectedItemRequestForSave.setId(null);
+        ItemRequest expectedItemRequestForSave =  ItemRequest.builder()
+                .description("first test")
+                .requester(user)
+                .build();
 
+        when(itemRequestMapperService.prepareForSaveItemRequest(requesterId1, itemRequestDto))
+                .thenReturn(expectedItemRequestForSave);
         when(itemRequestRepo.save(expectedItemRequestForSave)).thenReturn(expectedItemRequest);
 
         ItemRequestDto actualRequestDto = itemRequestService.addNewItemRequest(requesterId1, itemRequestDto);
+
         assertEquals(expectedItemRequestDto, actualRequestDto);
     }
 

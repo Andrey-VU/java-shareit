@@ -69,7 +69,6 @@ public class ItemRequestMapperService {
     }
 
     public void prepareForReturnListDto(Long requesterId) {
-        requesterValidate(requesterId);   // проверили, что с тем, кто запрашивает всё в порядке
-
+        requesterValidate(requesterId);
     }
 }

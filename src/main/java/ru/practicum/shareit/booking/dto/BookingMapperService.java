@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.model.StatusOfBooking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
@@ -70,10 +71,10 @@ public class BookingMapperService {
 
         UserDto userBooker = userService.getUser(bookerId);
         User owner = UserMapper.makeUserWithId(userService.getUser(itemDtoFromRepo.getOwnerId()))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
 
         Item item = ItemMapper.makeItem(itemDtoFromRepo, owner)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new ItemNotFoundException("объект не найден"));
 
         if (userBooker.getId().equals(item.getOwner().getId())) {
             log.info("Внимание! Попытка создать бронирование собственной вещи!");
@@ -81,10 +82,10 @@ public class BookingMapperService {
         }
 
         User user = UserMapper.makeUserWithId(userBooker)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
 
         return BookingMapper.requestDtoToEntity(dto, item, user)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
     }
 
     private void dateValidate(BookingRequestDto dto) {

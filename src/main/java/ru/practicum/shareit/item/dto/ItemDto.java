@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 
 import java.util.List;
@@ -9,6 +8,9 @@ import java.util.Objects;
 
 @Data
 @ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
     private Long id;
     private String name;
