@@ -11,21 +11,24 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.repo.BookingRepository;
+import ru.practicum.shareit.exception.BookingNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
     BookingRequestDto newBookingRequestDto;
+    BookingResponseDto bookingResponseDtoFromRepo;
     final static Long ID_1 = 1L;
     final static Long ID_2 = 2L;
     private LocalDateTime start = LocalDateTime.now();
@@ -81,9 +84,11 @@ class BookingServiceImplTest {
                 .end(end)
                 .item(item)
                 .build();
+
+        bookingResponseDtoFromRepo = BookingMapper.entityToResponseDto(newBooking).orElseThrow();
     }
 
-        @Test
+    @Test
     void addNewBooking_whenAddNewCorrectBookingDto_thenReturnBookingDto() {
         when(bookingMapperService.bookingRequestPrepareForAdd(ID_1, newBookingRequestDto)).thenReturn(bookingForSave);
         when(bookingRepo.save(bookingForSave)).thenReturn(newBooking);
@@ -143,17 +148,59 @@ class BookingServiceImplTest {
                 () -> bookingService.approveBooking(ID_1, ID_2, null));
     }
 
-        @Test
-    void getBooking() {
+    @Test
+    void getBooking_whenRequestCorrect_thenReturnDto() {
+        when(bookingRepo.findById(ID_1)).thenReturn(Optional.ofNullable(newBooking));
+        when(bookingMapperService.accessVerification(newBooking, ID_1)).thenReturn(true);
+
+        BookingResponseDto expected = bookingResponseDtoFromRepo;
+
+        assertEquals(expected, bookingService.getBooking(ID_1, ID_1));
     }
 
     @Test
-    void getBookings() {
-        List<BookingResponseDto>
-        when(bookingMapperService.prepareResponseDtoList(ID_2, , from, size)).thenReturn();
+    void getBooking_whenRequestWithIncorrectBookingId_thenThrowException() {
+        when(bookingRepo.findById(999L)).thenThrow(BookingNotFoundException.class);
+        when(bookingRepo.findById(-999L)).thenThrow(BookingNotFoundException.class);
+        assertThrows(BookingNotFoundException.class, () -> bookingService.getBooking(999L, ID_1));
+        assertThrows(BookingNotFoundException.class, () -> bookingService.getBooking(-999L, ID_1));
     }
 
     @Test
-    void getListOfBookingsOfOwnersItems() {
+    void getBookings_whenRequestStateIsAll_thenReturnListWithDto() {
+        List<BookingResponseDto> expectedListBookingResponseDtoAll = List.of(bookingResponseDtoFromRepo);
+        when(bookingMapperService.prepareResponseDtoList(ID_2, StateForBooking.ALL, 0, 20))
+                .thenReturn(expectedListBookingResponseDtoAll);
+
+        List<BookingResponseDto> actualList = bookingService.getBookings(ID_2, StateForBooking.ALL, 0, 20);
+
+        assertEquals(expectedListBookingResponseDtoAll, actualList);
     }
+
+    @Test
+    void getBookings_whenRequestStatusIsRejected_thenReturnListWithRejectedDto() {
+        BookingResponseDto withRejectedState = bookingResponseDtoFromRepo;
+        withRejectedState.setStatus(StatusOfBooking.REJECTED);
+        List<BookingResponseDto> expectedListBookingResponseDtoRejected = List.of(withRejectedState);
+        when(bookingMapperService.prepareResponseDtoList(ID_2, StateForBooking.REJECTED, 0, 20))
+                .thenReturn(expectedListBookingResponseDtoRejected);
+
+        List<BookingResponseDto> actualList = bookingService.getBookings(ID_2, StateForBooking.REJECTED, 0, 20);
+
+        assertEquals(expectedListBookingResponseDtoRejected, actualList);
+    }
+
+    @Test
+    void getBookingsForOwner_whenRequestStateIsAll_thenReturnListWithDto() {
+        List<BookingResponseDto> expectedListBookingResponseDtoAll = List.of(bookingResponseDtoFromRepo);
+        when(bookingMapperService.prepareResponseDtoListForOwner(ID_1, StateForBooking.ALL, 0, 20))
+                .thenReturn(expectedListBookingResponseDtoAll);
+
+        List<BookingResponseDto> actualList = bookingService.getBookingsForOwner(ID_1, StateForBooking.ALL, 0, 20);
+
+        assertEquals(expectedListBookingResponseDtoAll, actualList);
+    }
+
+
+
 }

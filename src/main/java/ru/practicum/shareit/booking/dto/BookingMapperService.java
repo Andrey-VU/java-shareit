@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.StateForBooking;
 import ru.practicum.shareit.booking.model.StatusOfBooking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.BookingNotFoundException;
@@ -99,40 +100,43 @@ public class BookingMapperService {
         }
     }
 
-    public void accessVerification(Booking bookingFromRepo, Long userId) {
+    public boolean accessVerification(Booking bookingFromRepo, Long userId) {
         if (!(bookingFromRepo.getBooker().getId().equals(userId)
                 || bookingFromRepo.getItem().getOwner().getId().equals(userId))) {
             log.info("Просмотр бронирования доступен только арендатору или владельцу вещи");
             throw new BookingNotFoundException("Access error. Only for Owner or Booker");
         }
+        return true;
     }
 
-    public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, String state, Integer from, Integer size) {
+    public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, StateForBooking state,
+                                                           Integer from, Integer size) {
         userService.getUser(bookerId);
         Page<Booking> answerPage = null;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
 
         switch (state) {
-            case "ALL":
+            case ALL:
                 answerPage = bookingRepo
                         .findByBookerIdOrderByStartDesc(bookerId, pageRequest);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 answerPage = bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now(),
                         pageRequest);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 answerPage = bookingRepo.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(bookerId,
                         LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
-            case "PAST":
+            case PAST:
                 answerPage = bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(bookerId, LocalDateTime.now(),
                         pageRequest);
                 break;
-            case "WAITING":
-            case "REJECTED":
-                answerPage = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId,
-                        pageRequest, StatusOfBooking.valueOf(state));
+            case WAITING:
+            case REJECTED:
+                StatusOfBooking status
+                        = state.equals(StateForBooking.WAITING) ? StatusOfBooking.WAITING : StatusOfBooking.REJECTED;
+                answerPage = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId,pageRequest, status);
                 break;
 
             default:
@@ -150,7 +154,7 @@ public class BookingMapperService {
                 .collect(Collectors.toList());
     }
 
-    public List<BookingResponseDto> prepareResponseDtoListForOwner(Long ownerId, String state, Integer from, Integer size) {
+    public List<BookingResponseDto> prepareResponseDtoListForOwner(Long ownerId, StateForBooking state, Integer from, Integer size) {
         userService.getUser(ownerId);
         Page<Booking> answerPage = null;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
@@ -161,26 +165,27 @@ public class BookingMapperService {
         }
 
         switch (state) {
-            case "ALL":
+            case ALL:
                 answerPage = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
                 break;
 
-            case "WAITING":
-            case "REJECTED":
-                answerPage = bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, pageRequest,
-                        StatusOfBooking.valueOf(state));
+            case WAITING:
+            case REJECTED:
+                StatusOfBooking status
+                        = state.equals(StateForBooking.WAITING) ? StatusOfBooking.WAITING : StatusOfBooking.REJECTED;
+                answerPage = bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, pageRequest, status);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 answerPage =
                         bookingRepo.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId,
                                 LocalDateTime.now(), pageRequest);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 answerPage =
                         bookingRepo.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
                                 LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
-            case "PAST":
+            case PAST:
                 answerPage =
                         bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId,
                                 LocalDateTime.now(), pageRequest);

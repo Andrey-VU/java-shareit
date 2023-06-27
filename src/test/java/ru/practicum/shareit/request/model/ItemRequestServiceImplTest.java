@@ -44,8 +44,7 @@ class ItemRequestServiceImplTest {
     private ItemRequestRepository itemRequestRepo;
     @InjectMocks
     private ItemRequestServiceImpl itemRequestService;
-
-
+    
     @BeforeEach
     void setUp() {
         user.setId(requesterId1);
@@ -81,7 +80,9 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getItemRequest_whenEntityFound_thenReturnDto() {
-        when(itemRequestMapperService.prepareForReturnDto(itemRequest)).thenReturn(expectedItemRequestDto);
+        when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
+        when(itemRequestMapperService.prepareForReturnDto(itemRequestRepo.findById(1L).orElseThrow()))
+                .thenReturn(expectedItemRequestDto);
         ItemRequestDto actualRequestDto = itemRequestService.getItemRequest(requesterId1, itemRequestId1);
         //actualRequestDto.setCreated(null);
         assertEquals(expectedItemRequestDto, actualRequestDto);

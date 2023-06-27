@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exception;
 
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -14,6 +15,13 @@ public class ErrorHandler {
         return new ErrorResponse(
                 e.getMessage()
         );
+    }
+
+    @ExceptionHandler(ConversionFailedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConversionFailedException(final RuntimeException e) {
+
+        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS");
     }
 
     @ExceptionHandler(value = {UserNotFoundException.class, ItemNotFoundException.class,

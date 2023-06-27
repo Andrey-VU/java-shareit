@@ -20,9 +20,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User user = userRepo.save(UserMapper.makeUser(userDto)
-                .orElseThrow(() -> new NullPointerException("User объект не создан")));
+                .orElseThrow(() -> new UserNotFoundException("User объект не создан")));
         return UserMapper.makeDto(user)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
     }
 
     @Override
@@ -30,14 +30,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Пользователь id "
                 + id + " не найден"));
         return UserMapper.makeDto(user)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
     }
 
     @Override
     public List<UserDto> getUsers() {
         return userRepo.findAll().stream()
                 .map(user -> UserMapper.makeDto(user)
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
+                        .orElseThrow(() -> new UserNotFoundException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 
@@ -51,10 +51,10 @@ public class UserServiceImpl implements UserService {
             userStorage.setEmail(userDto.getEmail());
         }
         User user = UserMapper.makeUserWithId(userStorage)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
 
         return UserMapper.makeDto(userRepo.save(user))
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
     }
 
     @Override

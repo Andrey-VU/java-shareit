@@ -33,9 +33,10 @@ public class ItemRequestMapperService {
                 new NullPointerException("ItemRequest not found"));
     }
 
-    public void requesterValidate(Long requesterId) {
+    public boolean requesterValidate(Long requesterId) {
         validateId(requesterId);
         userService.getUser(requesterId);
+        return true;
     }
 
 
