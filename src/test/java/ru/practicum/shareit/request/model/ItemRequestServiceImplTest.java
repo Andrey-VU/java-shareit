@@ -44,7 +44,7 @@ class ItemRequestServiceImplTest {
     private ItemRequestRepository itemRequestRepo;
     @InjectMocks
     private ItemRequestServiceImpl itemRequestService;
-    
+
     @BeforeEach
     void setUp() {
         user.setId(requesterId1);
@@ -81,10 +81,10 @@ class ItemRequestServiceImplTest {
     @Test
     void getItemRequest_whenEntityFound_thenReturnDto() {
         when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
-        when(itemRequestMapperService.prepareForReturnDto(itemRequestRepo.findById(1L).orElseThrow()))
-                .thenReturn(expectedItemRequestDto);
+        when(itemRequestRepo.findById(1L)).thenReturn(Optional.of(expectedItemRequest));
+        when(itemRequestMapperService.prepareForReturnDto(expectedItemRequest)).thenReturn(expectedItemRequestDto);
+
         ItemRequestDto actualRequestDto = itemRequestService.getItemRequest(requesterId1, itemRequestId1);
-        //actualRequestDto.setCreated(null);
         assertEquals(expectedItemRequestDto, actualRequestDto);
     }
 
@@ -98,6 +98,7 @@ class ItemRequestServiceImplTest {
         when(itemRequestMapperService.prepareForSaveItemRequest(requesterId1, itemRequestDto))
                 .thenReturn(expectedItemRequestForSave);
         when(itemRequestRepo.save(expectedItemRequestForSave)).thenReturn(expectedItemRequest);
+        when(itemRequestMapperService.prepareForReturnDto(expectedItemRequest)).thenReturn(expectedItemRequestDto);
 
         ItemRequestDto actualRequestDto = itemRequestService.addNewItemRequest(requesterId1, itemRequestDto);
 
@@ -117,7 +118,6 @@ class ItemRequestServiceImplTest {
         itemRequestDto.setDescription(null);
         when(itemRequestMapperService.prepareForSaveItemRequest(requesterId1, itemRequestDto))
                 .thenThrow(ValidationException.class);
-        // когда void, нужно делать doThrow
 
         assertThrows(ValidationException.class,
                 () -> itemRequestService.addNewItemRequest(requesterId1, itemRequestDto));
@@ -127,15 +127,20 @@ class ItemRequestServiceImplTest {
 
     @Test //получить список своих запросов вместе с данными об ответах на них
     void getItemRequests_whenRequestIsFound_thenReturnListWithDto() {
+        when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
         when(itemRequestRepo.findAllByRequesterId(requesterId1)).thenReturn(expectedList);
+        when(itemRequestMapperService.prepareForReturnListDto(expectedList))
+                .thenReturn(List.of(itemRequestDtoResponse));
         List<ItemRequestDto> actual = itemRequestService.getItemRequests(requesterId1);
         assertEquals(expectedListDto, actual);
     }
 
     @Test
     void getItemRequests_whenUserHasNoRequests_thenReturnEmptyList() {
-        when(itemRequestRepo.findAllByRequesterId(requesterId1))
-                .thenReturn(List.of(new ItemRequest()));
+        when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
+        when(itemRequestRepo.findAllByRequesterId(requesterId1)).thenReturn(List.of(new ItemRequest()));
+        when(itemRequestMapperService.prepareForReturnListDto(List.of(new ItemRequest())))
+                .thenReturn(List.of(new ItemRequestDto()));
         List<ItemRequestDto> actual = itemRequestService.getItemRequests(requesterId1);
         assertEquals(List.of(new ItemRequestDto()), actual);
     }

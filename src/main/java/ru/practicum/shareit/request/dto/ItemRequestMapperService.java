@@ -69,7 +69,9 @@ public class ItemRequestMapperService {
         return itemRequestDto;
     }
 
-    public void prepareForReturnListDto(Long requesterId) {
-        requesterValidate(requesterId);
+    public List<ItemRequestDto> prepareForReturnListDto(List<ItemRequest> itemRequests) {
+        return itemRequests.stream()
+                .map(itemRequest -> prepareForReturnDto(itemRequest))
+                .collect(Collectors.toList());
     }
 }

@@ -29,11 +29,10 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public List<ItemRequestDto> getItemRequests(Long requesterId) {
-        itemRequestMapperService.prepareForReturnListDto(requesterId);
+        itemRequestMapperService.requesterValidate(requesterId);
         List<ItemRequest> itemRequests = itemRequestRepo.findAllByRequesterId(requesterId);
-        return itemRequests.stream()
-                .map(itemRequest -> itemRequestMapperService.prepareForReturnDto(itemRequest))
-                .collect(Collectors.toList());
+        List<ItemRequestDto> itemRequestsDto = itemRequestMapperService.prepareForReturnListDto(itemRequests);
+        return itemRequestsDto;
     }
 
     @Override
