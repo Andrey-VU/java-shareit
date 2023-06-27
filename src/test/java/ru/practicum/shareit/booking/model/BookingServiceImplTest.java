@@ -17,6 +17,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -109,13 +110,26 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void approveBooking_whenCorrectBookingAndStatus_thenReturnDtoWithApprovedStatus() {
+    void approveBooking_whenCorrectBookingAndTrueIsApprove_thenReturnDtoWithApprovedStatus() {
         Booking bookingWithStatus = newBooking;
         bookingWithStatus.setStatus(StatusOfBooking.APPROVED);
         when(bookingMapperService.addStatusToBooking(ID_1, ID_2, Boolean.TRUE)).thenReturn(bookingWithStatus);
         when(bookingRepo.save(bookingWithStatus)).thenReturn(bookingWithStatus);
 
         BookingResponseDto actualDto = bookingService.approveBooking(ID_1, ID_2, Boolean.TRUE);
+        BookingResponseDto expectedDto = BookingMapper.entityToResponseDto(bookingWithStatus).orElseThrow();
+
+        assertEquals(expectedDto, actualDto);
+    }
+
+    @Test
+    void approveBooking_whenCorrectBookingAndFalseIsApprove_thenReturnDtoWithRejectedStatus() {
+        Booking bookingWithStatus = newBooking;
+        bookingWithStatus.setStatus(StatusOfBooking.REJECTED);
+        when(bookingMapperService.addStatusToBooking(ID_1, ID_2, Boolean.FALSE)).thenReturn(bookingWithStatus);
+        when(bookingRepo.save(bookingWithStatus)).thenReturn(bookingWithStatus);
+
+        BookingResponseDto actualDto = bookingService.approveBooking(ID_1, ID_2, Boolean.FALSE);
         BookingResponseDto expectedDto = BookingMapper.entityToResponseDto(bookingWithStatus).orElseThrow();
 
         assertEquals(expectedDto, actualDto);
@@ -135,6 +149,8 @@ class BookingServiceImplTest {
 
     @Test
     void getBookings() {
+        List<BookingResponseDto>
+        when(bookingMapperService.prepareResponseDtoList(ID_2, , from, size)).thenReturn();
     }
 
     @Test
