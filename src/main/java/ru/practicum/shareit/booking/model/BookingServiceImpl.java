@@ -47,12 +47,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingResponseDto> getBookings(Long bookerId, StateForBooking state, Integer from, Integer size) {
-            return bookingMapperService.prepareResponseDtoList(bookerId, state, from, size);
+        return bookingMapperService.prepareResponseDtoList(bookerId, state, from, size);
     }
 
     @Override
     public List<BookingResponseDto> getBookingsForOwner(Long ownerId, StateForBooking state,
                                                         int from, int size) {
-            return bookingMapperService.prepareResponseDtoListForOwner(ownerId, state, from, size);
+        return bookingMapperService.prepareResponseDtoListForOwner(ownerId, state, from, size);
     }
 }

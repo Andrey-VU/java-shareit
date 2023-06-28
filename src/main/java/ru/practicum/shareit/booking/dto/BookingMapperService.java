@@ -136,7 +136,7 @@ public class BookingMapperService {
             case REJECTED:
                 StatusOfBooking status
                         = state.equals(StateForBooking.WAITING) ? StatusOfBooking.WAITING : StatusOfBooking.REJECTED;
-                answerPage = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId,pageRequest, status);
+                answerPage = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, pageRequest, status);
                 break;
 
             default:
@@ -202,7 +202,7 @@ public class BookingMapperService {
         return responseBookingList != null ?
                 responseBookingList.stream()
                         .map(booking -> BookingMapper.entityToResponseDto(booking)
-                        .orElseThrow(() -> new BookingNotFoundException("dto объект не найден")))
+                                .orElseThrow(() -> new BookingNotFoundException("dto объект не найден")))
                         .collect(Collectors.toList()) : Collections.emptyList();
-        }
+    }
 }

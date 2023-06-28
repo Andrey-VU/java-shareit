@@ -53,7 +53,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable("userId") Integer userId) {
-        log.info("deleteUser: {} userId - Started",  userId);
+        log.info("deleteUser: {} userId - Started", userId);
         boolean isDel = userService.delete(userId);
         log.info("deleteUser: {} userId - Finished {} ", userId, isDel);
     }
