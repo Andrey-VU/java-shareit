@@ -162,7 +162,7 @@ public class ItemMapperService {
 
     public Comment prepareCommentToSave(CommentRequestDto requestDto) {
         User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("User не найден"));
         List<Booking> endedBookingOfAuthor =
                 bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now())
                         .stream()

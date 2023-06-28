@@ -30,9 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    ItemRequestDto itemRequestDto = new ItemRequestDto();
-    ItemRequestDto expectedRequestDto = new ItemRequestDto();
-    List<ItemRequestDto> expectedListRequestDto = new ArrayList<>();
+    private ItemRequestDto itemRequestDto = new ItemRequestDto();
+    private ItemRequestDto expectedRequestDto = new ItemRequestDto();
+    private List<ItemRequestDto> expectedListRequestDto = new ArrayList<>();
     @MockBean
     private ItemRequestServiceImpl itemRequestService;
     @MockBean
