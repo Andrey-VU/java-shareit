@@ -43,16 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(UserDto userDto, long id) {
-        UserDto userStorage = getUser(id);
-        if (userDto.getName() != null) {
-            userStorage.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            userStorage.setEmail(userDto.getEmail());
-        }
-        User user = UserMapper.makeUserWithId(userStorage)
-                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
-
+        User user = prepareForUpdate(userDto, id);
         return UserMapper.makeDto(userRepo.save(user))
                 .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
     }
@@ -68,4 +59,19 @@ public class UserServiceImpl implements UserService {
     public void clearAll() {
         userRepo.deleteAll();
     }
+
+    private User prepareForUpdate(UserDto userDto, long id) {
+        UserDto userStorage = getUser(id);
+        if (userDto.getName() != null) {
+            userStorage.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            userStorage.setEmail(userDto.getEmail());
+        }
+
+        return UserMapper.makeUserWithId(userStorage)
+                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
+    }
+
+
 }
