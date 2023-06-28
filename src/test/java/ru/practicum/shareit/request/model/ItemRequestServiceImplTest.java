@@ -15,7 +15,6 @@ import ru.practicum.shareit.request.dto.ItemRequestMapperService;
 import ru.practicum.shareit.request.repo.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,21 +22,19 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestServiceImplTest {
-    private List<ItemRequest> expectedList = new ArrayList<>();
-    private List<ItemRequestDto> expectedListDto = new ArrayList<>();
+    final long itemRequestId1 = 1L;
+    final long requesterId1 = 1L;
     private final ItemRequestDto itemRequestDto = new ItemRequestDto();
     private final ItemRequestDto itemRequestDtoResponse = new ItemRequestDto();
-    private ItemRequestDto expectedItemRequestDto = new ItemRequestDto();
     private final ItemRequest itemRequest = new ItemRequest();
     private final ItemRequest expectedItemRequest = new ItemRequest();
     private final User user = new User();
-    final long itemRequestId1 = 1L;
-    final long requesterId1 = 1L;
-
+    private List<ItemRequest> expectedList = new ArrayList<>();
+    private List<ItemRequestDto> expectedListDto = new ArrayList<>();
+    private ItemRequestDto expectedItemRequestDto = new ItemRequestDto();
     @Mock
     private ItemRequestMapperService itemRequestMapperService;
     @Mock
@@ -90,7 +87,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void addNewItemRequest_whenRequestIsCorrect_thenReturnDto() {
-        ItemRequest expectedItemRequestForSave =  ItemRequest.builder()
+        ItemRequest expectedItemRequestForSave = ItemRequest.builder()
                 .description("first test")
                 .requester(user)
                 .build();
@@ -125,7 +122,8 @@ class ItemRequestServiceImplTest {
         verify(itemRequestRepo, never()).save(itemRequest);
     }
 
-    @Test //получить список своих запросов вместе с данными об ответах на них
+    @Test
+        //получить список своих запросов вместе с данными об ответах на них
     void getItemRequests_whenRequestIsFound_thenReturnListWithDto() {
         when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
         when(itemRequestRepo.findAllByRequesterId(requesterId1)).thenReturn(expectedList);

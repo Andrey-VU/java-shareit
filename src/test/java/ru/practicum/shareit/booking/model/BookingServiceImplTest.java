@@ -18,19 +18,23 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
-    BookingRequestDto newBookingRequestDto;
-    BookingResponseDto bookingResponseDtoFromRepo;
     final static Long ID_1 = 1L;
     final static Long ID_2 = 2L;
+    BookingRequestDto newBookingRequestDto;
+    BookingResponseDto bookingResponseDtoFromRepo;
+    @Mock
+    BookingRepository bookingRepo;
+    @Mock
+    BookingMapperService bookingMapperService;
     private LocalDateTime start = LocalDateTime.now();
     private LocalDateTime end = start.plusDays(1);
     private User userOwner;
@@ -38,11 +42,6 @@ class BookingServiceImplTest {
     private Item item;
     private Booking bookingForSave;
     private Booking newBooking;
-
-    @Mock
-    BookingRepository bookingRepo;
-    @Mock
-    BookingMapperService bookingMapperService;
     @InjectMocks
     private BookingServiceImpl bookingService;
 
@@ -200,7 +199,6 @@ class BookingServiceImplTest {
 
         assertEquals(expectedListBookingResponseDtoAll, actualList);
     }
-
 
 
 }

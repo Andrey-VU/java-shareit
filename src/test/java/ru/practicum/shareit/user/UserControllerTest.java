@@ -1,28 +1,23 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.model.UserService;
 import ru.practicum.shareit.user.model.UserServiceImpl;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @WebMvcTest(UserController.class)
 class UserControllerTest {
@@ -48,8 +43,8 @@ class UserControllerTest {
         when(userService.create(userDtoToCreate)).thenReturn(afterSave);
 
         String result = mockMvc.perform(post("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDtoToCreate)))  // здесь тело запроса
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDtoToCreate)))  // здесь тело запроса
                 .andExpect(status().isOk())
                 .andReturn()                    // проверяем возвращаемое значение
                 .getResponse()                  //
@@ -67,9 +62,9 @@ class UserControllerTest {
         when(userService.create(userDtoToCreate)).thenReturn(afterSave);
 
         mockMvc.perform(post("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDtoToCreate)))  // здесь тело запроса
-        .andExpect(status().isBadRequest());
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDtoToCreate)))  // здесь тело запроса
+                .andExpect(status().isBadRequest());
     }
 
     @SneakyThrows
@@ -79,8 +74,8 @@ class UserControllerTest {
         when(userService.getUsers()).thenReturn(emptyList);
 
         mockMvc.perform(get("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(emptyList)))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(emptyList)))
                 .andExpect(status().isOk());
     }
 
@@ -140,8 +135,8 @@ class UserControllerTest {
         when(userService.update(userDtoToUpdate, userId)).thenReturn(updatedUser);
 
         String result = mockMvc.perform(patch("/users/{userId}", userId)
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDtoToUpdate)))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDtoToUpdate)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()

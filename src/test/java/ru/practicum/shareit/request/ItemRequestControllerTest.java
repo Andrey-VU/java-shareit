@@ -1,4 +1,5 @@
 package ru.practicum.shareit.request;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.AfterEach;
@@ -15,29 +16,27 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequestServiceImpl;
 import ru.practicum.shareit.request.repo.ItemRequestRepository;
 
-import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ItemRequestController.class)
 class ItemRequestControllerTest {
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     ItemRequestDto itemRequestDto = new ItemRequestDto();
     ItemRequestDto expectedRequestDto = new ItemRequestDto();
     List<ItemRequestDto> expectedListRequestDto = new ArrayList<>();
-
     @MockBean
     private ItemRequestServiceImpl itemRequestService;
     @MockBean
     private ItemRequestRepository itemRequestRepository;
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     @Autowired
     private MockMvc mvc;
 
@@ -78,7 +77,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequests_whenUserHasRequest_thenReturn200 () throws Exception  {
+    void getItemRequests_whenUserHasRequest_thenReturn200() throws Exception {
         when(itemRequestService.getItemRequests(1L)).thenReturn(expectedListRequestDto);
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 1L)
@@ -90,7 +89,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequests_whenUserNotFound_thenReturn404 () throws Exception  {
+    void getItemRequests_whenUserNotFound_thenReturn404() throws Exception {
         when(itemRequestService.getItemRequests(999L)).thenThrow(UserNotFoundException.class);
 
         mvc.perform(get("/requests")
@@ -98,8 +97,9 @@ class ItemRequestControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test  //
-    void getItemRequests_whenUserHasNotRequests_thenReturn404 () throws Exception  {
+    @Test
+        //
+    void getItemRequests_whenUserHasNotRequests_thenReturn404() throws Exception {
         when(itemRequestService.getItemRequests(10L)).thenThrow(ItemRequestNotFoundException.class);
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 10L))
@@ -107,7 +107,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequests_whenUserWithIncorrectId_thenReturn404 () throws Exception  {
+    void getItemRequests_whenUserWithIncorrectId_thenReturn404() throws Exception {
         when(itemRequestService.getItemRequests(-1L)).thenThrow(UserNotFoundException.class);
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", -1L))
@@ -115,7 +115,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequest_whenUserAndRequestAreCorrect_thenReturn200 () throws Exception  {
+    void getItemRequest_whenUserAndRequestAreCorrect_thenReturn200() throws Exception {
         when(itemRequestService.getItemRequest(1L, 1L)).thenReturn(expectedRequestDto);
         Long requestId = expectedRequestDto.getId();
 
@@ -126,13 +126,13 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
 
-                        .andExpect(status().isOk())
+                .andExpect(status().isOk())
 //                        .andExpect(jsonPath("$.requestId").value(1L))
         ;
     }
 
     @Test
-    void getAllItemRequests_whenCorrect_thenReturn200 () throws Exception  {
+    void getAllItemRequests_whenCorrect_thenReturn200() throws Exception {
         when(itemRequestService.getAllItemRequests(1L, 1, 1)).thenReturn(expectedListRequestDto);
 
         mvc.perform(get("/requests/all/")
@@ -147,8 +147,6 @@ class ItemRequestControllerTest {
 
                 .andExpect(status().isOk());
     }
-
-
 
 
 //    @Test
@@ -177,7 +175,6 @@ class ItemRequestControllerTest {
 //    void testGetItemRequests() {
 //    }
 }
-
 
 
 //    @MockBean
@@ -228,7 +225,7 @@ class ItemRequestControllerTest {
     }
      */
 
-    //    User user = new User();
+//    User user = new User();
 //    ItemRequestDto itemRequestDto = new ItemRequestDto();
 //    ItemRequest itemRequest = new ItemRequest();
 //    ItemRequestDto itemRequestDtoResponse = new ItemRequestDto();

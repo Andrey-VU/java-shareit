@@ -9,19 +9,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.item.model.ItemService;
-import ru.practicum.shareit.request.ItemRequestController;
-import ru.practicum.shareit.request.model.ItemRequestService;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ItemControllerMockitoTest {
 
+    private final ObjectMapper mapper = new ObjectMapper();
     @Mock
     private ItemService itemService;
     @InjectMocks
     private ItemController itemController;
-    private final ObjectMapper mapper = new ObjectMapper();
     @Autowired
     private MockMvc mvc;
 
