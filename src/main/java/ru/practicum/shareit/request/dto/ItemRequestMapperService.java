@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.exception.ItemRequestNotFoundException;
-import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -27,10 +26,8 @@ public class ItemRequestMapperService {
     ItemRepository itemRepo;
 
     public ItemRequest prepareForSaveItemRequest(Long requesterId, ItemRequestDto dto) {
-        User requester = UserMapper.makeUserWithId(userService.getUser(requesterId)).orElseThrow(() ->
-                new UserNotFoundException("Пользователь не обнаружен"));
-        return ItemRequestMapper.makeItemRequest(dto, requester).orElseThrow(() ->
-                new NullPointerException("ItemRequest not found"));
+        User requester = UserMapper.makeUserWithId(userService.getUser(requesterId)).get();
+        return ItemRequestMapper.makeItemRequest(dto, requester).get();
     }
 
     public boolean requesterValidate(Long requesterId) {
@@ -38,7 +35,6 @@ public class ItemRequestMapperService {
         userService.getUser(requesterId);
         return true;
     }
-
 
     private void validateId(Long id) {
         if (id < 1) {

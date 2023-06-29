@@ -145,6 +145,9 @@ class BookingServiceImplTest {
                 .thenThrow(ValidationException.class);
         assertThrows(ValidationException.class,
                 () -> bookingService.approveBooking(id1, id2, null));
+
+        verify(bookingMapperService, times(1))
+                .addStatusToBooking(id1, id2, null);
     }
 
     @Test

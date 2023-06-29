@@ -146,6 +146,12 @@ class ItemRequestServiceImplTest {
 
     @Test
     void getAllItemRequests() {
+//        Integer from = 0;
+//        Integer size = 1;
+//
+//        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created"));
+//        List<ItemRequest> answerPage = List.of(itemRequest);
+//        when(itemRequestRepo.findAll(pageRequest)).thenReturn((Page<ItemRequest>) answerPage);
 //
 //        when(itemRequestRepo.findAll(PageRequest.of(1, 1)))
 //                .thenReturn((Page<ItemRequest>) expectedPage);

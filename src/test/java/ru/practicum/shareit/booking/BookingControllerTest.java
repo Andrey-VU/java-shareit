@@ -142,6 +142,7 @@ class BookingControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isOk())
+//                .andExpect(content().json(objectMapper.writeValueAsString(bookingResponseDto))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -159,6 +160,7 @@ class BookingControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isBadRequest());
+
     }
 
     @Test
