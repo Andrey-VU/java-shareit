@@ -69,8 +69,7 @@ class UserServiceImplTest {
                 .name("New User")
                 .build();
         when(userRepo.save(UserMapper.makeUser(withIncorrectEmail).orElseThrow())).thenThrow(ValidationException.class);
-        assertThrows(ValidationException.class,
-                () -> userService.create(withIncorrectEmail));
+        assertThrows(ValidationException.class, () -> userService.create(withIncorrectEmail));
     }
 
     @Test

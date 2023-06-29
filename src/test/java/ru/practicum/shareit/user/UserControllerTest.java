@@ -87,9 +87,7 @@ class UserControllerTest {
                 .name("Name")
                 .email("a@a.a")
                 .build();
-
         List<UserDto> listWithUser = List.of(userDto);
-
         when(userService.getUsers()).thenReturn(listWithUser);
 
         String result = mockMvc.perform(get("/users")

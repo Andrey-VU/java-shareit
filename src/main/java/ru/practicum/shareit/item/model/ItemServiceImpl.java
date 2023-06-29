@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
@@ -53,7 +54,7 @@ public class ItemServiceImpl implements ItemService {
         Item itemForUpdate = itemMapperService.prepareItemToUpdate(ownerId, itemId, itemDtoWithUpdate);
         Item itemUpdated = itemRepo.save(itemForUpdate);
         return ItemMapper.makeDtoFromItem(itemUpdated)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
     }
 
     @Override
@@ -62,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
         if (!text.isBlank()) {
             searchResult = itemRepo.findByText(text).stream()
                     .map(item -> ItemMapper.makeDtoFromItem(item)
-                            .orElseThrow(() -> new NullPointerException("dto объект не найден")))
+                            .orElseThrow(() -> new ItemNotFoundException("dto объект не найден")))
                     .collect(Collectors.toList());
         }
         return searchResult;
@@ -75,12 +76,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public boolean deleteItem(Long ownerId, Long itemId) {
+    public void deleteItem(Long ownerId, Long itemId) {
         User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
-        itemRepo.delete(ItemMapper.makeItem(getItem(itemId, ownerId), owner)
-                .orElseThrow(() -> new NullPointerException("объект не найден")));
-        return true;
+                .orElseThrow(() -> new UserNotFoundException("User объект не найден"));
+        Item item = ItemMapper.makeItem(getItem(itemId, ownerId), owner)
+                .orElseThrow(() -> new UserNotFoundException("Item не найден"));
+        itemRepo.delete(item);
     }
 
     @Override

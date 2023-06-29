@@ -119,6 +119,7 @@ class ItemControllerMockitoTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(commentDtoToAdd)))
                 .andExpect(status().isOk())
+//                .andExpect()
 
                 .andReturn()
                 .getResponse()

@@ -94,9 +94,6 @@ class BookingControllerTest {
     void getBookings_whenCorrect_thenReturn200() {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 1L))
-//                        .contentType("application/json")
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isOk());
     }
 
@@ -106,35 +103,32 @@ class BookingControllerTest {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 1L)
                         .param("state", "heh"))
-//                        .contentType("application/json")
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isBadRequest());
     }
 
-//    @Test
-//    @SneakyThrows
-//    void getBookings_whenFromNotValid_thenReturn400() {
-//        mockMvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param( "from", "-10")
-//                        .contentType("application/json")
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
-//                .andExpect(status().isBadRequest());
-//    }
-//
-//    @Test
-//    @SneakyThrows
-//    void getBookings_whenSizeNotValid_thenReturn400() {
-//        mockMvc.perform(get("/bookings")
-//                        .header("X-Sharer-User-Id", 1L)
-//                        .param( "size", "0")
-//                        .contentType("application/json")
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
-//                .andExpect(status().isBadRequest());
-//    }
+    @Test
+    @SneakyThrows
+    void getBookings_whenFromNotValid_thenReturn400() {
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("from", "-10")
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    void getBookings_whenSizeNotValid_thenReturn400() {
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("size", "0")
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
 
 
     @Test
