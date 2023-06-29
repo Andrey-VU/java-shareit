@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ItemController.class)
@@ -49,8 +49,8 @@ class ItemControllerMockitoTest {
 
         commentDtoToAdd = CommentRequestDto.builder()
                 .text("noComment")
-                .itemId(1L)
-                .authorId(1L)
+//                .itemId(1L)
+//                .authorId(1L)
                 .build();
 
 
@@ -124,92 +124,46 @@ class ItemControllerMockitoTest {
                 .getResponse()
                 .getContentAsString();
 
-//        assertEquals(objectMapper.writeValueAsString(afterSave), result);
-
-
+//       assertEquals(objectMapper.writeValueAsString(afterSave), result);
     }
+
+    @Test
+    @SneakyThrows
+    void addComment_whenInputNotValid_thenStatus400() {
+        commentDtoToAdd.setText("");
+        mockMvc.perform(post("/items/{itemId}/comment", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(commentDtoToAdd)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    void getItems_whenCorrect_thenStatus200() {
+        mockMvc.perform(get("/items", 1L)
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void searchItems_whenCorrect_thenStatus200() {
+        mockMvc.perform(get("/items/search")
+                        .param("text", "text"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void deleteItem_whenCorrect_thenStatus200() {
+        mockMvc.perform(delete("/items/{itemId}", 1L)
+                        .param("text", "text")
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk());
+    }
+
+
 }
 
-//    @Test
-//    @SneakyThrows
-//    void addComment_whenUserIsNotExist_thenStatus404() {
-//        CommentRequestDto commentDtoToAdd = CommentRequestDto.builder()
-//                .text("noComment")
-//                .itemId(1L)
-//                .authorId(999L)
-//                .build();
-
-//        mockMvc.perform(post("/items/{itemId}/comment", 1L)
-//                .header("X-Sharer-User-Id", 999L)
-//                .contentType("application/json")
-//                .characterEncoding(StandardCharsets.UTF_8)
-//                .content(objectMapper.writeValueAsString(commentDtoToAdd)))
-//                .andExpect(status().isNotFound());
-
-
-//    CommentDto afterSave = CommentDto.builder()
-//            .authorName("AuthorOfComment")
-//            .text("noComment")
-//            .id(1L)
-//            .created(time)
-//            .build();
-//
-//    User author = User.builder()
-//            .id(1L)
-//            .name("AuthorOfComment")
-//            .email("a@a.a")
-//            .build();
-//
-//    ItemRequest itemRequest = ItemRequest.builder()
-//            .requester(author)
-//            .description("qwer")
-//            .created(time)
-//            .id(1L)
-//            .build();
-//
-//    User owner = User.builder()
-//            .id(2L)
-//            .name("OwnerOfItem")
-//            .email("o@o.o")
-//            .build();
-//
-//    Item item = Item.builder()
-//            .owner(owner)
-//            .isAvailable(true)
-//            .description("desc")
-//            .name("Item")
-//            .request(itemRequest)
-//            .build();
-//
-//    Comment commentToSave = Comment.builder()
-//            .author(author)
-//            .item(item)
-//            .created(time)
-//            .text("noComment")
-//            .build();
-//
-//    Comment commentFromRepo = CommentMapper.requestToEntity(item, author, commentDtoToAdd.getText());
-//        commentFromRepo.setId(1L);
-//
-//                List<Booking> bookingOfAuthor = List.of(Booking.builder()
-//        .item(item)
-//        .booker(author)
-//        .status(StatusOfBooking.APPROVED)
-//
-//        .build());
-//
-//        when(itemService.addNewCommentToItem(commentDtoToAdd)).thenReturn(afterSave);
-//        when(itemMapperService.prepareCommentToSave(commentDtoToAdd)).thenReturn(commentToSave);
-//        when(userService.getUser(1L)).thenReturn(UserMapper.makeDto(author).orElseThrow());
-//        when(bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(1L, time)).thenReturn(bookingOfAuthor);
-//        when(itemRepo.findById(1L)).thenReturn(Optional.ofNullable(item));
-//        when(commentRepo.save(commentToSave)).thenReturn(commentFromRepo);
-//
-//    LocalDateTime time = LocalDateTime.now();
-//    CommentRequestDto commentDtoToAdd = CommentRequestDto.builder()
-//            .text("noComment")
-//            .itemId(1L)
-//            .authorId(1L)
-//            .build();
-//
-//

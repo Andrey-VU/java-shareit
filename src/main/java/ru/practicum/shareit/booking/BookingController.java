@@ -63,10 +63,10 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingResponseDto> getBookingsOfOwnersItems(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                             @Valid @RequestParam(defaultValue = "ALL") StateForBooking state,
-                                                             @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                                             @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
+    public List<BookingResponseDto> getBookingsOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                     @Valid @RequestParam(defaultValue = "ALL") StateForBooking state,
+                                                     @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                                     @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
         log.info("Search {} bookings of owner's (id {}) items - Started", state, ownerId);
         List<BookingResponseDto> bookingsOfOwnerItems =
                 bookingService.getBookingsForOwner(ownerId, state, from, size);

@@ -20,8 +20,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookingController.class)
@@ -68,21 +67,36 @@ class BookingControllerTest {
     @SneakyThrows
     void getBooking_whenCorrect_thenReturn200() {
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType("application/json")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                        .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk());
     }
 
     @Test
     @SneakyThrows
+    void getBookingsOwner_whenCorrect_thenReturn200() {
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void getBookingsOwner_whenStateNotValid_thenReturn400() {
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "heh"))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    @SneakyThrows
     void getBookings_whenCorrect_thenReturn200() {
         mockMvc.perform(get("/bookings")
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType("application/json")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                        .header("X-Sharer-User-Id", 1L))
+//                        .contentType("application/json")
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isOk());
     }
 
@@ -91,10 +105,10 @@ class BookingControllerTest {
     void getBookings_whenStateNotValid_thenReturn400() {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", 1L)
-                        .param("state", "heh")
-                        .contentType("application/json")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                        .param("state", "heh"))
+//                        .contentType("application/json")
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -178,16 +192,38 @@ class BookingControllerTest {
     }
 
 
-//    @Test
-//    void approve() {
-//    }
-//
-//
-//    @Test
-//    void getBookings() {
-//    }
-//
-//    @Test
-//    void getBookingsOfOwnersItems() {
-//    }
+    @Test
+    @SneakyThrows
+    void approve_whenInputCorrectAndStatusApprove_thenReturn200WithDto() {
+        bookingResponseDto.setStatus(StatusOfBooking.APPROVED);
+        when(bookingService.approveBooking(1L, 1L, true)).thenReturn(bookingResponseDto);
+
+        String result = mockMvc.perform(patch("/bookings/{bookingId}", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("approved", "true"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(bookingResponseDto), result);
+    }
+
+    @Test
+    @SneakyThrows
+    void approve_whenInputCorrectAndStatusRejected_thenReturn200WithDto() {
+        bookingResponseDto.setStatus(StatusOfBooking.REJECTED);
+        when(bookingService.approveBooking(1L, 1L, false)).thenReturn(bookingResponseDto);
+
+        String result = mockMvc.perform(patch("/bookings/{bookingId}", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("approved", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(bookingResponseDto), result);
+    }
+
 }
