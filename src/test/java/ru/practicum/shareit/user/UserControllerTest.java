@@ -32,8 +32,7 @@ class UserControllerTest {
     @SneakyThrows
     @Test
     void create_whenIncomingDtoCorrect_thenReturnStatusIsOkWithBody() {
-        UserDto userDtoToCreate = new UserDto();
-        userDtoToCreate = UserDto.builder()
+        UserDto userDtoToCreate = UserDto.builder()
                 .name("Name")
                 .email("a@a.a")
                 .build();

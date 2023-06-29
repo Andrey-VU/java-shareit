@@ -31,7 +31,7 @@ public class ItemController {
         requestDto.setItemId(itemId);
 
         CommentDto commentDto = itemService.addNewCommentToItem(requestDto);
-        log.info("Comment {} added to item id: {} - Finished", commentDto.getText(), itemId);
+        log.info("Comment added to item id: {} - Finished", itemId);
         return commentDto;
     }
 

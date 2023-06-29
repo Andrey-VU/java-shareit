@@ -1,21 +1,36 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.BookingServiceImpl;
+import ru.practicum.shareit.booking.model.StatusOfBooking;
+import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookingController.class)
 class BookingControllerTest {
-    LocalDateTime start;
-    LocalDateTime end;
-    User booker;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private User booker;
+    private BookingRequestDto bookingRequestDto;
+    private BookingResponseDto bookingResponseDto;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -34,42 +49,139 @@ class BookingControllerTest {
                 .id(1L)
                 .build();
 
+        bookingRequestDto = BookingRequestDto.builder()
+                .itemId(1L)
+                .start(start)
+                .end(end)
+                .build();
 
+        bookingResponseDto = BookingResponseDto.builder()
+                .start(start)
+                .end(end)
+                .id(1L)
+                .booker(UserMapper.makeDto(booker).orElseThrow())
+                .status(StatusOfBooking.WAITING)
+                .build();
     }
+
+    @Test
+    @SneakyThrows
+    void getBooking_whenCorrect_thenReturn200() {
+        mockMvc.perform(get("/bookings/{bookingId}", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void getBookings_whenCorrect_thenReturn200() {
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @SneakyThrows
+    void getBookings_whenStateNotValid_thenReturn400() {
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "heh")
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+//    @Test
+//    @SneakyThrows
+//    void getBookings_whenFromNotValid_thenReturn400() {
+//        mockMvc.perform(get("/bookings")
+//                        .header("X-Sharer-User-Id", 1L)
+//                        .param( "from", "-10")
+//                        .contentType("application/json")
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+//                .andExpect(status().isBadRequest());
+//    }
 //
 //    @Test
 //    @SneakyThrows
-//    void add() {
-//        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
-//                .start(start)
-//                .end(end)
-//                .build();
-//
-//        BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
-//                .start(start)
-//                .end(end)
-//                .id(1L)
-//                .booker(UserMapper.makeDto(booker).orElseThrow())
-//                .status(StatusOfBooking.WAITING)
-//                .build();
-//
-//       mockMvc.perform(post("/bookings")
-//                    .header("X-Sharer-User-Id", 1L)
-//                    .contentType("application/json")
-//                    .characterEncoding(StandardCharsets.UTF_8)
-//                    .content(objectMapper.writeValueAsString(bookingRequestDto)))
-//            .andExpect(status().isOk());
-//
-//       when(bookingService.addNewBooking(1L, bookingRequestDto)).thenReturn(bookingResponseDto);
+//    void getBookings_whenSizeNotValid_thenReturn400() {
+//        mockMvc.perform(get("/bookings")
+//                        .header("X-Sharer-User-Id", 1L)
+//                        .param( "size", "0")
+//                        .contentType("application/json")
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+//                .andExpect(status().isBadRequest());
 //    }
-//
+
+
+    @Test
+    @SneakyThrows
+    void add_whenInputCorrect_thenReturn200WithDto() {
+        when(bookingService.addNewBooking(1L, bookingRequestDto)).thenReturn(bookingResponseDto);
+
+        String result = mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(bookingResponseDto), result);
+    }
+
+    @Test
+    @SneakyThrows
+    void add_whenInputWithoutEnd_thenReturn400() {
+        bookingRequestDto.setEnd(null);
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    void add_whenInputWithoutStart_thenReturn400() {
+        bookingRequestDto.setStart(null);
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @SneakyThrows
+    void add_whenInputWithoutItemId_thenReturn400() {
+        bookingRequestDto.setItemId(null);
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType("application/json")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .content(objectMapper.writeValueAsString(bookingRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+
 //    @Test
 //    void approve() {
 //    }
 //
-//    @Test
-//    void getBooking() {
-//    }
 //
 //    @Test
 //    void getBookings() {
