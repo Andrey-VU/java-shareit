@@ -57,7 +57,7 @@ public class ItemMapperService {
     public ItemDto getItemDto(Item item, Long userId) {
         List<CommentDto> commentsForItemDto = findCommentsToItem(item);
         if (item.getOwner().getId().equals(userId)) {
-            return getItemDtoForOwner(item, userId, commentsForItemDto);
+            return getItemDtoForOwner(item, commentsForItemDto);
         } else {
             return getItemDtoForUser(item, commentsForItemDto);
         }
@@ -92,24 +92,24 @@ public class ItemMapperService {
 
     public ItemDto getItemDtoForUser(Item item, List<CommentDto> commentsForItemDto) {
         return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
     }
 
-    public ItemDto getItemDtoForOwner(Item item, Long userId, List<CommentDto> commentsForItemDto) {
+    public ItemDto getItemDtoForOwner(Item item, List<CommentDto> commentsForItemDto) {
         return ItemMapper.makeDtoFromItemWithBooking(item, commentsForItemDto,
                         findLastBooking(item), findNextBooking(item))
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
     }
 
     public Item prepareItemToUpdate(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         validateId(ownerId);
         User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
         ItemDto itemDtoFromRepo = getItemForUpdate(itemId);
 
         return ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
     }
 
     private BookingForItemDto findNextBooking(Item item) {
@@ -174,8 +174,9 @@ public class ItemMapperService {
         }
 
         Item item = itemRepo.findById(requestDto.getItemId())
-                .orElseThrow(() -> new NullPointerException("Объект не найден"));
+                .orElseThrow(() -> new ItemNotFoundException("Объект не найден"));
 
-        return CommentMapper.requestToEntity(item, author, requestDto.getText());
+        Comment comment = CommentMapper.requestToEntity(item, author, requestDto.getText());
+        return comment;
     }
 }

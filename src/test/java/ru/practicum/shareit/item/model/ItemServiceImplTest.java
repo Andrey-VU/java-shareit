@@ -62,8 +62,6 @@ class ItemServiceImplTest {
 
         commentDtoToAdd = CommentRequestDto.builder()
                 .text("noComment")
-//                .itemId(1L)
-//                .authorId(1L)
                 .build();
 
 
@@ -111,10 +109,6 @@ class ItemServiceImplTest {
         commentFromRepo = CommentMapper.requestToEntity(item, author, commentDtoToAdd.getText());
         commentFromRepo.setId(1L);
     }
-
-//    @Test
-//    void addNewItem() {
-//    }
 
     @Test
     void getItem_whenInputCorrect_thenReturnItemDto() {
