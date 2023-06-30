@@ -108,6 +108,24 @@ class ItemMapperServiceTest {
     }
 
     @Test
+    void prepareItemToUpdate_whenRequestIsCorrect_thenReturnItem() {
+        ItemDto itemDtoWithUpdate = ItemDto.builder()
+                .description("item description")
+                .available(true)
+                .id(1L)
+                .name("test item update")
+                .ownerId(ownerId)
+                .build();
+
+        item.setName("test item update");
+
+        when(userService.getUser(ownerId)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemRepo.findById(1L)).thenReturn(Optional.ofNullable(item));
+
+        assertEquals(item, itemMapperService.prepareItemToUpdate(ownerId, 1L, itemDtoWithUpdate));
+    }
+
+    @Test
     void addNewItem_whenNameNotValid_thenThrowIncorrectItemDtoException() {
         ItemDto itemDtoWithoutName = ItemDto.builder()
                 .available(true)

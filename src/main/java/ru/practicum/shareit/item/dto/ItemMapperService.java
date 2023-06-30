@@ -150,7 +150,8 @@ public class ItemMapperService {
     private ItemDto getItemForUpdate(Long itemId) {
         Item item = itemRepo.findById(itemId).orElseThrow(() ->
                 new ItemNotFoundException("Item is not found"));
-        return getItemDtoForUser(item, findCommentsToItem(item));
+        ItemDto itemDto = getItemDtoForUser(item, findCommentsToItem(item));
+        return itemDto;
     }
 
     private void validateId(Long id) {

@@ -110,7 +110,7 @@ public class BookingMapperService {
     public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, StateForBooking state,
                                                            Integer from, Integer size) {
         userService.getUser(bookerId);
-        Page<Booking> answerPage = null;
+        Page<Booking> answerPage;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
 
         switch (state) {

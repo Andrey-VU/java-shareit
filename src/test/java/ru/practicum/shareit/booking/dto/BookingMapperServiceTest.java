@@ -32,10 +32,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BookingMapperServiceTest {
-    private final Long id1 = 1L;
-    private final Long id2 = 2L;
-    private LocalDateTime start = LocalDateTime.now();
-    private LocalDateTime end = start.plusDays(1);
+    private final Long ownerId1 = 1L;
+    private final Long bookerId2 = 2L;
+    private LocalDateTime start = LocalDateTime.now().plusDays(1);
+    private LocalDateTime end = start.plusDays(2);
     private User userOwner;
     private User userBooker;
     private Item item;
@@ -59,19 +59,19 @@ class BookingMapperServiceTest {
     @BeforeEach
     void setUp() {
         newBookingRequestDto = BookingRequestDto.builder()
-                .itemId(id1)
+                .itemId(1L)
                 .start(start)
                 .end(end)
                 .build();
 
         userOwner = User.builder()
-                .id(id1)
+                .id(ownerId1)
                 .email("o@o.ru")
                 .name("OwnerUser")
                 .build();
 
         userBooker = User.builder()
-                .id(id2)
+                .id(bookerId2)
                 .email("b@b.ru")
                 .name("BookerUser")
                 .build();
@@ -79,7 +79,7 @@ class BookingMapperServiceTest {
         item = Item.builder()
                 .description("item description")
                 .isAvailable(true)
-                .id(id1)
+                .id(1L)
                 .name("test item")
                 .owner(userOwner)
                 .build();
@@ -88,7 +88,7 @@ class BookingMapperServiceTest {
 
         newBooking = Booking.builder()
                 .booker(userBooker)
-                .id(id1)
+                .id(1L)
                 .status(StatusOfBooking.WAITING)
                 .start(start)
                 .end(end)
@@ -97,7 +97,7 @@ class BookingMapperServiceTest {
 
         approvedBooking = Booking.builder()
                 .booker(userBooker)
-                .id(id1)
+                .id(1L)
                 .status(StatusOfBooking.APPROVED)
                 .start(start)
                 .end(end)
@@ -106,7 +106,7 @@ class BookingMapperServiceTest {
 
         rejectedBooking = Booking.builder()
                 .booker(userBooker)
-                .id(id1)
+                .id(1L)
                 .status(StatusOfBooking.REJECTED)
                 .start(start)
                 .end(end)
@@ -166,50 +166,114 @@ class BookingMapperServiceTest {
     void bookingRequestPrepareForAdd_whenAvailableFalse_thenReturnValidationException() {
         ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
         itemDto.setAvailable(false);
-        when(itemService.getItem(1L, id2)).thenReturn(itemDto);
+        when(itemService.getItem(1L, bookerId2)).thenReturn(itemDto);
         ValidationException validationException = assertThrows(ValidationException.class,
-                () -> bookingMapperService.bookingRequestPrepareForAdd(id2, newBookingRequestDto));
+                () -> bookingMapperService.bookingRequestPrepareForAdd(bookerId2, newBookingRequestDto));
         validationException.getMessage();
     }
 
     @Test
     void bookingRequestPrepareForAdd_whenStartDateNotValid_thenReturnValidationException() {
         ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
-        when(itemService.getItem(1L, id2)).thenReturn(itemDto);
+        when(itemService.getItem(1L, bookerId2)).thenReturn(itemDto);
 
         BookingRequestDto bookingRequestDtoStartAfterEnd = BookingRequestDto.builder()
-                .itemId(id1)
+                .itemId(ownerId1)
                 .start(start)
                 .end(start.minusDays(1))
                 .build();
 
         ValidationException validationException = assertThrows(ValidationException.class,
-                () -> bookingMapperService.bookingRequestPrepareForAdd(id2, bookingRequestDtoStartAfterEnd));
+                () -> bookingMapperService.bookingRequestPrepareForAdd(bookerId2, bookingRequestDtoStartAfterEnd));
+        validationException.getMessage();
+    }
+
+    @Test
+    void bookingRequestPrepareForAdd_whenStartDateIsInThePast_thenReturnValidationException() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(itemService.getItem(1L, bookerId2)).thenReturn(itemDto);
+
+        BookingRequestDto bookingRequestDtoStartAfterEnd = BookingRequestDto.builder()
+                .itemId(ownerId1)
+                .start(start.minusDays(5))
+                .end(end)
+                .build();
+
+        ValidationException validationException = assertThrows(ValidationException.class,
+                () -> bookingMapperService.bookingRequestPrepareForAdd(bookerId2, bookingRequestDtoStartAfterEnd));
         validationException.getMessage();
     }
 
     @Test
     void bookingRequestPrepareForAdd_whenStartEqualsEnd_thenReturnValidationException() {
         BookingRequestDto bookingRequestDtoWithStartAndEndEquals = BookingRequestDto.builder()
-                .itemId(id1)
+                .itemId(ownerId1)
                 .start(start)
                 .end(start)
                 .build();
 
         ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
-        when(itemService.getItem(1L, id2)).thenReturn(itemDto);
+        when(itemService.getItem(1L, bookerId2)).thenReturn(itemDto);
         newBookingRequestDto.setStart(end);
         ValidationException validationException = assertThrows(ValidationException.class,
-                () -> bookingMapperService.bookingRequestPrepareForAdd(id2, bookingRequestDtoWithStartAndEndEquals));
+                () -> bookingMapperService.bookingRequestPrepareForAdd(bookerId2, bookingRequestDtoWithStartAndEndEquals));
         validationException.getMessage();
     }
 
     @Test
-    void accessVerification() {
+    void bookingRequestPrepareForAdd_whenRequestValid_thenReturnBooking() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+
+        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
+                .itemId(ownerId1)
+                .start(start)
+                .end(end)
+                .build();
+
+        when(itemService.getItem(1L, bookerId2)).thenReturn(itemDto);
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).get());
+
+        assertEquals(newBooking, bookingMapperService.bookingRequestPrepareForAdd(bookerId2, bookingRequestDto));
     }
 
     @Test
-    void prepareResponseDtoList() {
+    void bookingRequestPrepareForAdd_whenUserEqualsOwner_thenThrowBookingNotFoundException() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+
+        BookingRequestDto bookingRequestDto = BookingRequestDto.builder()
+                .itemId(ownerId1)
+                .start(start)
+                .end(end)
+                .build();
+
+        when(itemService.getItem(1L, ownerId1)).thenReturn(itemDto);
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).get());
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).get());
+
+        BookingNotFoundException ex = assertThrows(BookingNotFoundException.class,
+                () -> bookingMapperService.bookingRequestPrepareForAdd(ownerId1, bookingRequestDto));
+        ex.getMessage();
+    }
+
+
+    @Test
+    void accessVerification_whenCorrect_thenReturnTrue() {
+        assertEquals(true,
+                bookingMapperService.accessVerification(newBooking, bookerId2));
+    }
+
+    @Test
+    void accessVerification_whenUserIsNotBooker_thenThrowBookingNotFoundException() {
+        BookingNotFoundException ex = assertThrows(BookingNotFoundException.class,
+                () -> bookingMapperService.accessVerification(newBooking, 4L));
+    }
+
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectAndStateAll_thenReturnListDto() {
+//        PageRequest pageRequest = PageRequest.of(0, 1);
+//        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+
     }
 
 
@@ -222,10 +286,10 @@ class BookingMapperServiceTest {
 
     @Test
     void prepareResponseDtoListForOwner_whenRequestNotFromOwner_thenThrowUserNotFoundException() {
-        when(userService.getUser(id2)).thenReturn(UserMapper.makeDto(userBooker).orElseThrow());
-        when(itemService.getItems(id2)).thenReturn(new ArrayList<>());
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).orElseThrow());
+        when(itemService.getItems(bookerId2)).thenReturn(new ArrayList<>());
         ItemNotFoundException itemNotFoundException = assertThrows(ItemNotFoundException.class,
-                () -> bookingMapperService.prepareResponseDtoListForOwner(id2, StateForBooking.ALL, 0, 1));
+                () -> bookingMapperService.prepareResponseDtoListForOwner(bookerId2, StateForBooking.ALL, 0, 1));
         itemNotFoundException.getMessage();
     }
 }

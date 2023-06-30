@@ -110,6 +110,33 @@ class ItemServiceImplTest {
         commentFromRepo.setId(1L);
     }
 
+
+    @Test
+    void addNewItem_whenCorrect_thenReturnItemDto() {
+        Item item1 = Item.builder()
+                .id(1L)
+                .owner(owner)
+                .isAvailable(true)
+                .description("desc")
+                .name("Item")
+                .request(itemRequest)
+                .build();
+
+        ItemDto itemDto = ItemDto.builder()
+                .available(true)
+                .description("desc")
+                .name("Item")
+                .build();
+
+        when(itemMapperService.addNewItem(owner.getId(), itemDto)).thenReturn(item);
+        when(itemRepo.save(item)).thenReturn(item1);
+
+        ItemDto expectedItemDto = ItemMapper.makeDtoFromItem(item1).get();
+
+        assertEquals(expectedItemDto, itemService.addNewItem(owner.getId(), itemDto));
+    }
+
+
     @Test
     void getItem_whenInputCorrect_thenReturnItemDto() {
         ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
