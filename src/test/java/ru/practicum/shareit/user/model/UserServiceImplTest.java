@@ -92,10 +92,10 @@ class UserServiceImplTest {
 
     @Test
     void getUser_whenIdIsNotCorrect_thenThrowException() {
-        when(userRepo.findById(999L)).thenThrow(UserNotFoundException.class);
-        when(userRepo.findById(-999L)).thenThrow(UserNotFoundException.class);
-        assertThrows(UserNotFoundException.class, () -> userService.getUser(999L));
-        assertThrows(UserNotFoundException.class, () -> userService.getUser(-999L));
+        UserNotFoundException ex = assertThrows(UserNotFoundException.class, () -> userService.getUser(999L));
+        UserNotFoundException ex2 = assertThrows(UserNotFoundException.class, () -> userService.getUser(-999L));
+        ex.getMessage();
+        ex2.getMessage();
     }
 
     @Test

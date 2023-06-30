@@ -53,7 +53,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto getItemRequest(Long userId, Long requestId) {
         itemRequestMapperService.requesterValidate(userId);
-        return itemRequestMapperService.prepareForReturnDto(itemRequestRepo.findById(requestId)
-                .orElseThrow(() -> new ItemRequestNotFoundException("Item is not found!")));
+        ItemRequest itemRequest = itemRequestRepo.findById(requestId)
+                .orElseThrow(() -> new ItemRequestNotFoundException("Item is not found!"));
+        return itemRequestMapperService.prepareForReturnDto(itemRequest);
     }
 }

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -110,6 +111,7 @@ class ItemRequestServiceImplTest {
                 () -> itemRequestService.addNewItemRequest(999L, itemRequestDto));
     }
 
+
     @Test
     void addNewItemRequest_withoutDescription_thenValidationExceptionExceptionThrown() {
         itemRequestDto.setDescription(null);
@@ -123,7 +125,6 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-        //получить список своих запросов вместе с данными об ответах на них
     void getItemRequests_whenRequestIsFound_thenReturnListWithDto() {
         when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
         when(itemRequestRepo.findAllByRequesterId(requesterId1)).thenReturn(expectedList);
@@ -131,6 +132,13 @@ class ItemRequestServiceImplTest {
                 .thenReturn(List.of(itemRequestDtoResponse));
         List<ItemRequestDto> actual = itemRequestService.getItemRequests(requesterId1);
         assertEquals(expectedListDto, actual);
+    }
+
+    @Test
+    void getItemRequests_whenRequestIsNotFound_thenThrowItemRequestNotFoundException() {
+        when(itemRequestMapperService.requesterValidate(1L)).thenReturn(true);
+        ItemRequestNotFoundException ex = assertThrows(ItemRequestNotFoundException.class,
+                () -> itemRequestService.getItemRequest(1L, 999L));
     }
 
     @Test

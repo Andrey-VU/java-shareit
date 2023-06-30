@@ -36,18 +36,18 @@ public class ItemMapperService {
 
     public Item addNewItem(Long ownerId, ItemDto itemDto) {
         itemDtoValidate(ownerId, itemDto);
-        User user = UserMapper.makeUserWithId(userService.getUser(ownerId))
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
                 .orElseThrow(() -> new UserNotFoundException("User не найден"));
 
         Item item = new Item();
 
         if (itemDto.getRequestId() == null) {
-            item = ItemMapper.makeItem(itemDto, user)
+            item = ItemMapper.makeItem(itemDto, owner)
                     .orElseThrow(() -> new UserNotFoundException("User не найден"));
         } else {
             ItemRequest request = itemRequestRepo.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest Not Found!"));
-            item = ItemMapper.makeItemWithRequest(itemDto, user, request)
+            item = ItemMapper.makeItemWithRequest(itemDto, owner, request)
                     .orElseThrow(() -> new UserNotFoundException("User не найден"));
         }
 
@@ -86,7 +86,7 @@ public class ItemMapperService {
         return allItems.stream()
                 .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, findCommentsToItem(item),
                                 findLastBooking(item), findNextBooking(item))
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
+                        .orElseThrow(() -> new ItemNotFoundException("dto объект не найден")))
                 .collect(Collectors.toList());
     }
 
@@ -121,7 +121,7 @@ public class ItemMapperService {
         BookingForItemDto nextBooking = new BookingForItemDto();
         if (allNextBooking.size() > 0) {
             nextBooking = BookingMapper.entityToBookingForItemDto(allNextBooking.get(0))
-                    .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                    .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
         } else nextBooking = null;
         return nextBooking;
     }
@@ -135,7 +135,7 @@ public class ItemMapperService {
         BookingForItemDto lastBooking = new BookingForItemDto();
         if (allLastBooking.size() > 0) {
             lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1))
-                    .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                    .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
         } else lastBooking = null;
         return lastBooking;
     }

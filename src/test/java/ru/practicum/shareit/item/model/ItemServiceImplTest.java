@@ -171,9 +171,6 @@ class ItemServiceImplTest {
         assertEquals(allItemsDto, itemService.getItems(1L));
     }
 
-//    @Test
-//    void updateItem() {
-//    }
 
     @Test
     void searchForItems_whenTextIsEmpty_thenReturnEmptyList() {
