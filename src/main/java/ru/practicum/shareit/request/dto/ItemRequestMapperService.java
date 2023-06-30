@@ -61,7 +61,6 @@ public class ItemRequestMapperService {
             itemRequestDto = ItemRequestMapper.makeItemRequestDtoWithItemsList(itemRequest, itemsDtoForRequest)
                     .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest is not found"));
         }
-
         return itemRequestDto;
     }
 

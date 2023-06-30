@@ -37,10 +37,10 @@ public class BookingMapperService {
     BookingRepository bookingRepo;
 
     public Booking addStatusToBooking(Long ownerId, Long bookingId, Boolean approved) {
+        Booking bookingFromRepo = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new NullPointerException("Объект не найден"));
 
-        if (!bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new NullPointerException("Объект не найден"))
-                .getStatus().equals(StatusOfBooking.WAITING)) {
+        if (!bookingFromRepo.getStatus().equals(StatusOfBooking.WAITING)) {
             log.info("Статус бронирования уже был установлен");
             throw new ValidationException("Secondary approval is prohibited!");
         }
@@ -49,8 +49,6 @@ public class BookingMapperService {
             log.warn("статус подтверждения не может быть пустым");
             throw new ValidationException("Approve validation error. Status is null");
         }
-        Booking bookingFromRepo = bookingRepo.findById(bookingId)
-                .orElseThrow(() -> new NullPointerException("Объект не найден"));
         if (!bookingFromRepo.getItem().getOwner().getId().equals(ownerId)) {
             log.info("Подтверждение статуса бронирования доступно только владельцу вещи");
             throw new BookingNotFoundException("Access error. Only Owner can approve booking");

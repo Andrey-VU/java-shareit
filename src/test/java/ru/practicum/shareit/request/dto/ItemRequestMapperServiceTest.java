@@ -8,12 +8,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.IncorrectIdException;
 import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.model.UserServiceImpl;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -24,6 +31,7 @@ class ItemRequestMapperServiceTest {
     private UserDto userDtoRequester;
     private User requester;
     private ItemRequest expectedItemRequest;
+    private LocalDateTime created = LocalDateTime.now();
 
     @Mock
     private UserServiceImpl userService;
@@ -96,10 +104,69 @@ class ItemRequestMapperServiceTest {
     }
 
     @Test
-    void prepareForReturnDto() {
+    void prepareForReturnDto_whenIncomeRequestIsCorrect_thenReturnDto() {
+        User owner = User.builder()
+                .id(2L)
+                .name("Owner")
+                .email("o@o.o")
+                .build();
+
+        Item item = Item.builder()
+                .owner(owner)
+                .name("ItemName")
+                .isAvailable(true)
+                .description("some item")
+                .build();
+
+        ItemRequest itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("some item")
+                .requester(requester)
+                .created(created)
+                .build();
+
+        List<Item> itemsForRequest = List.of(item);
+        List<ItemDto> itemDtoList = List.of(ItemMapper.makeDtoFromItem(item).get());
+
+        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+                .requesterId(1L)
+                .description(itemRequest.getDescription())
+                .items(itemDtoList)
+                .created(created)
+                .id(1L)
+                .build();
+
+        when(itemRepo.findAllByRequestId(1L)).thenReturn(itemsForRequest);
+        assertEquals(itemRequestDto, itemRequestMapperService.prepareForReturnDto(itemRequest));
     }
 
     @Test
+    void prepareForReturnDto_whenItemNotFound_thenReturnDtoWithEmptyList() {
+        ItemRequest itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("some item")
+                .requester(requester)
+                .created(created)
+                .build();
+
+        List<Item> itemsForRequest = new ArrayList<>();
+        List<ItemDto> itemDtoList = new ArrayList<>();
+
+        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+                .requesterId(1L)
+                .description(itemRequest.getDescription())
+                .items(itemDtoList)
+                .created(created)
+                .id(1L)
+                .build();
+
+        when(itemRepo.findAllByRequestId(1L)).thenReturn(itemsForRequest);
+        assertEquals(itemRequestDto, itemRequestMapperService.prepareForReturnDto(itemRequest));
+    }
+
+
+    @Test
     void prepareForReturnListDto() {
+
     }
 }

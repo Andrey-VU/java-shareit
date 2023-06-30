@@ -29,12 +29,12 @@ import static org.mockito.Mockito.*;
 class BookingServiceImplTest {
     private final Long id1 = 1L;
     private final Long id2 = 2L;
-    BookingRequestDto newBookingRequestDto;
-    BookingResponseDto bookingResponseDtoFromRepo;
+    private BookingRequestDto newBookingRequestDto;
+    private BookingResponseDto bookingResponseDtoFromRepo;
     @Mock
-    BookingRepository bookingRepo;
+    private BookingRepository bookingRepo;
     @Mock
-    BookingMapperService bookingMapperService;
+    private BookingMapperService bookingMapperService;
     private LocalDateTime start = LocalDateTime.now();
     private LocalDateTime end = start.plusDays(1);
     private User userOwner;
