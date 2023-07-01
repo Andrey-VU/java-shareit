@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -110,13 +109,12 @@ public class BookingMapperService {
     public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, StateForBooking state,
                                                            Integer from, Integer size) {
         userService.getUser(bookerId);
-        Page<Booking> answerPage;
+        List<Booking> answerPage;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
 
         switch (state) {
             case ALL:
-                answerPage = bookingRepo
-                        .findByBookerIdOrderByStartDesc(bookerId, pageRequest);
+                answerPage = bookingRepo.findByBookerIdOrderByStartDesc(bookerId, pageRequest);
                 break;
             case FUTURE:
                 answerPage = bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now(),
@@ -154,7 +152,7 @@ public class BookingMapperService {
 
     public List<BookingResponseDto> prepareResponseDtoListForOwner(Long ownerId, StateForBooking state, Integer from, Integer size) {
         userService.getUser(ownerId);
-        Page<Booking> answerPage = null;
+        List<Booking> answerPage;
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
 
         if (itemService.getItems(ownerId).size() == 0) {
@@ -174,19 +172,16 @@ public class BookingMapperService {
                 answerPage = bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, pageRequest, status);
                 break;
             case FUTURE:
-                answerPage =
-                        bookingRepo.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId,
-                                LocalDateTime.now(), pageRequest);
+                answerPage = bookingRepo.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(ownerId,
+                        LocalDateTime.now(), pageRequest);
                 break;
             case CURRENT:
-                answerPage =
-                        bookingRepo.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
-                                LocalDateTime.now(), LocalDateTime.now(), pageRequest);
+                answerPage = bookingRepo.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId,
+                        LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
-                answerPage =
-                        bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId,
-                                LocalDateTime.now(), pageRequest);
+                answerPage = bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId,
+                        LocalDateTime.now(), pageRequest);
                 break;
             default:
                 log.warn("Статус запроса {} не поддерживается", state);

@@ -3,9 +3,9 @@ package ru.practicum.shareit.booking.dto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StateForBooking;
@@ -24,10 +24,13 @@ import ru.practicum.shareit.user.model.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,6 +58,9 @@ class BookingMapperServiceTest {
 
     @InjectMocks
     private BookingMapperService bookingMapperService;
+
+    @Captor
+    private ArgumentCaptor<List<BookingResponseDto>> listBookingArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -270,19 +276,257 @@ class BookingMapperServiceTest {
     }
 
     @Test
-    void prepareResponseDtoList_whenResponseCorrectAndStateAll_thenReturnListDto() {
-//        PageRequest pageRequest = PageRequest.of(0, 1);
-//        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+    void prepareResponseDtoList_whenResponseCorrectAndStateAll_thenReturnEmptyListDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findByBookerIdOrderByStartDesc(bookerId2, pageRequest)).thenReturn(listFromRepo);
 
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.ALL, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
     }
 
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectBookingNotNullAndStateAll_thenReturnListBookingDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findByBookerIdOrderByStartDesc(bookerId2, pageRequest)).thenReturn(listFromRepo);
 
-//    @Test
-//    void prepareResponseDtoListForOwner_whenRequestFromOwner() {
-//        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
-//        when(userService.getUser(id1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
-//        when(itemService.getItems(id1)).thenReturn(List.of(itemDto));
-//    }
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.ALL, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectAndStateFuture_thenReturnEmptyListDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(eq(bookerId2), Mockito.any(LocalDateTime.class),
+                eq(pageRequest))).thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.FUTURE, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectAndStateCurrent_thenReturnEmptyListDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(eq(bookerId2),
+                Mockito.any(LocalDateTime.class), Mockito.any(LocalDateTime.class),
+                eq(pageRequest))).thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.CURRENT, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectAndStatePast_thenReturnEmptyListDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(eq(bookerId2),
+                Mockito.any(LocalDateTime.class), eq(pageRequest))).thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.PAST, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectAndStateWaiting_thenReturnEmptyListDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId2, pageRequest, StatusOfBooking.WAITING))
+                .thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.WAITING, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoList_whenResponseCorrectAndStateRejected_thenReturnEmptyListDto() {
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+
+        when(userService.getUser(bookerId2)).thenReturn(UserMapper.makeDto(userBooker).get());
+        when(bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId2, pageRequest, StatusOfBooking.REJECTED))
+                .thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoList(bookerId2, StateForBooking.REJECTED, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoListForOwner_whenResponseCorrectBookingAndStateAll_thenReturnListWithDto() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemService.getItems(1L)).thenReturn(List.of(itemDto));
+
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId1, pageRequest)).thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoListForOwner(ownerId1, StateForBooking.ALL, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoListForOwner_whenResponseCorrectBookingAndStateWaiting_thenReturnListWithDto() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemService.getItems(1L)).thenReturn(List.of(itemDto));
+
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId1, pageRequest, StatusOfBooking.WAITING))
+                .thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoListForOwner(ownerId1, StateForBooking.WAITING, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoListForOwner_whenResponseCorrectBookingAndStateRejected_thenReturnListWithDto() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemService.getItems(1L)).thenReturn(List.of(itemDto));
+
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(bookingRepo.findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId1, pageRequest, StatusOfBooking.REJECTED))
+                .thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoListForOwner(ownerId1, StateForBooking.REJECTED, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoListForOwner_whenResponseCorrectBookingAndStateCurrent_thenReturnListWithDto() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemService.getItems(1L)).thenReturn(List.of(itemDto));
+
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(bookingRepo.findAllByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(eq(ownerId1),
+                Mockito.any(LocalDateTime.class), Mockito.any(LocalDateTime.class), eq(pageRequest)))
+                .thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoListForOwner(ownerId1, StateForBooking.CURRENT, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoListForOwner_whenResponseCorrectBookingAndStatePast_thenReturnListWithDto() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemService.getItems(1L)).thenReturn(List.of(itemDto));
+
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(eq(ownerId1),
+                Mockito.any(LocalDateTime.class), eq(pageRequest)))
+                .thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoListForOwner(ownerId1, StateForBooking.PAST, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
+    @Test
+    void prepareResponseDtoListForOwner_whenResponseCorrectBookingAndStateFuture_thenReturnListWithDto() {
+        ItemDto itemDto = ItemMapper.makeDtoFromItem(item).orElseThrow();
+        when(userService.getUser(ownerId1)).thenReturn(UserMapper.makeDto(userOwner).orElseThrow());
+        when(itemService.getItems(1L)).thenReturn(List.of(itemDto));
+
+        List<Booking> listFromRepo = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(0, 1);
+        when(bookingRepo.findAllByItemOwnerIdAndStartAfterOrderByStartDesc(eq(ownerId1),
+                Mockito.any(LocalDateTime.class), eq(pageRequest))).thenReturn(listFromRepo);
+
+        List<BookingResponseDto> expectedAnswerList = listFromRepo.stream()
+                .map(booking -> BookingMapper.entityToResponseDto(booking).get())
+                .collect(Collectors.toList());
+
+        List<BookingResponseDto> actualAnswerList =
+                bookingMapperService.prepareResponseDtoListForOwner(ownerId1, StateForBooking.FUTURE, 0, 1);
+
+        assertEquals(expectedAnswerList, actualAnswerList);
+    }
+
 
     @Test
     void prepareResponseDtoListForOwner_whenRequestNotFromOwner_thenThrowUserNotFoundException() {
