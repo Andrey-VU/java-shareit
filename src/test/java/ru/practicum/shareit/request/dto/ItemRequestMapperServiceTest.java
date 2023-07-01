@@ -167,6 +167,26 @@ class ItemRequestMapperServiceTest {
 
     @Test
     void prepareForReturnListDto() {
+        List<ItemDto> itemsDto = new ArrayList<>();
 
+        ItemRequestDto itemRequestDto = ItemRequestDto.builder()
+                .id(1L)
+                .description("desc")
+                .requesterId(1L)
+                .created(created)
+                .items(itemsDto)
+                .build();
+
+        ItemRequest itemRequest = ItemRequest.builder()
+                .id(1L)
+                .description("desc")
+                .requester(requester)
+                .created(created)
+                .build();
+
+        List<ItemRequest> itemRequests = List.of(itemRequest);
+
+        List<ItemRequestDto> actual = itemRequestMapperService.prepareForReturnListDto(itemRequests);
+        assertEquals(List.of(itemRequestDto), actual);
     }
 }

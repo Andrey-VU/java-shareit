@@ -54,7 +54,7 @@ class ItemServiceImplTest {
     private ItemServiceImpl itemService;
 
     @Captor
-    private ArgumentCaptor<User> userArgumentCaptor;
+    private ArgumentCaptor<Item> itemArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -63,7 +63,6 @@ class ItemServiceImplTest {
         commentDtoToAdd = CommentRequestDto.builder()
                 .text("noComment")
                 .build();
-
 
         afterSave = CommentDto.builder()
                 .authorName("AuthorOfComment")
@@ -109,7 +108,6 @@ class ItemServiceImplTest {
         commentFromRepo = CommentMapper.requestToEntity(item, author, commentDtoToAdd.getText());
         commentFromRepo.setId(1L);
     }
-
 
     @Test
     void addNewItem_whenCorrect_thenReturnItemDto() {
@@ -192,6 +190,93 @@ class ItemServiceImplTest {
         assertEquals(allItemsDto, itemService.getItems(1L));
     }
 
+    @Test
+    void updateItem_whenItemFound_thenUpdateOnlyAvailableField() {
+        Long itemId1 = 1L;
+        Long ownerId1 = 1L;
+        ItemDto oldItemDto = new ItemDto();
+        oldItemDto.setId(itemId1);
+        oldItemDto.setName("OldItem");
+        oldItemDto.setDescription("OldDescription");
+        oldItemDto.setAvailable(false);
+        oldItemDto.setOwnerId(ownerId1);
+
+        ItemDto newItemDto = new ItemDto();
+        newItemDto.setName("OldItem");
+        newItemDto.setAvailable(true);
+
+        User owner = new User();
+        owner.setId(ownerId1);
+        owner.setEmail("o@o.o");
+        owner.setName("OwnerName");
+
+        Item itemForUpdate = ItemMapper.makeItemForUpdate(oldItemDto, newItemDto, owner).orElseThrow();
+        ItemDto itemAfterUpdate = new ItemDto();
+        itemAfterUpdate.setId(itemId1);
+        itemAfterUpdate.setName("OldItem");
+        itemAfterUpdate.setDescription("OldDescription");
+        itemAfterUpdate.setAvailable(true);
+        itemAfterUpdate.setOwnerId(ownerId1);
+
+        when(itemMapperService.prepareItemToUpdate(ownerId1, itemId1, newItemDto)).thenReturn(itemForUpdate);
+        when(itemRepo.save(itemForUpdate)).thenReturn(itemForUpdate);
+
+        ItemDto actualItemDto = itemService.updateItem(ownerId1, itemId1, newItemDto);
+        verify(itemRepo).save(itemArgumentCaptor.capture());
+        Item savedItem = itemArgumentCaptor.getValue();
+
+        assertEquals(itemAfterUpdate.getName(), savedItem.getName());
+        assertEquals(itemAfterUpdate.getOwnerId(), savedItem.getOwner().getId());
+        assertEquals(itemAfterUpdate.getDescription(), savedItem.getDescription());
+        assertEquals(true, savedItem.getIsAvailable());
+
+        assertEquals(itemAfterUpdate, actualItemDto);
+    }
+
+    @Test
+    void updateItem_whenItemFound_thenUpdateAllFields() {
+        Long itemId1 = 1L;
+        Long ownerId1 = 1L;
+        ItemDto oldItemDto = new ItemDto();
+        oldItemDto.setId(itemId1);
+        oldItemDto.setName("OldItem");
+        oldItemDto.setDescription("OldDescription");
+        oldItemDto.setAvailable(false);
+        oldItemDto.setOwnerId(ownerId1);
+
+        ItemDto newItemDto = new ItemDto();
+        newItemDto.setName("UpdatedItem");
+        newItemDto.setAvailable(true);
+        newItemDto.setDescription("Updated Description");
+        newItemDto.setComments(List.of(new CommentDto()));
+
+        User owner = new User();
+        owner.setId(ownerId1);
+        owner.setEmail("o@o.o");
+        owner.setName("OwnerName");
+
+        Item itemForUpdate = ItemMapper.makeItemForUpdate(oldItemDto, newItemDto, owner).orElseThrow();
+        ItemDto itemAfterUpdate = new ItemDto();
+        itemAfterUpdate.setId(itemId1);
+        itemAfterUpdate.setName(newItemDto.getName());
+        itemAfterUpdate.setDescription(newItemDto.getDescription());
+        itemAfterUpdate.setAvailable(true);
+        itemAfterUpdate.setOwnerId(ownerId1);
+
+        when(itemMapperService.prepareItemToUpdate(ownerId1, itemId1, newItemDto)).thenReturn(itemForUpdate);
+        when(itemRepo.save(itemForUpdate)).thenReturn(itemForUpdate);
+
+        ItemDto actualItemDto = itemService.updateItem(ownerId1, itemId1, newItemDto);
+        verify(itemRepo).save(itemArgumentCaptor.capture());
+        Item savedItem = itemArgumentCaptor.getValue();
+
+        assertEquals(itemAfterUpdate.getName(), savedItem.getName());
+        assertEquals(itemAfterUpdate.getOwnerId(), savedItem.getOwner().getId());
+        assertEquals(itemAfterUpdate.getDescription(), savedItem.getDescription());
+        assertEquals(true, savedItem.getIsAvailable());
+
+        assertEquals(itemAfterUpdate, actualItemDto);
+    }
 
     @Test
     void searchForItems_whenTextIsEmpty_thenReturnEmptyList() {

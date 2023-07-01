@@ -31,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
         Item itemForSave = itemMapperService.addNewItem(ownerId, itemDto);
         Item item = itemRepo.save(itemForSave);
         return ItemMapper.makeDtoFromItem(item)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
     }
 
     @Override

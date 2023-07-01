@@ -163,6 +163,19 @@ class ItemMapperServiceTest {
     }
 
     @Test
+    void addNewItem_whenRequestIdNull_thenReturnEntityWithoutRequest() {
+        UserDto userDto = UserMapper.makeDto(userOwner).orElseThrow();
+        Item expectedItem = new Item(1L, userOwner, item.getName(),
+                item.getDescription(), true, null);
+
+        itemDtoValid.setRequestId(null);
+        when(userService.getUser(ownerId)).thenReturn(userDto);
+
+        assertEquals(expectedItem, itemMapperService.addNewItem(ownerId, itemDtoValid));
+
+    }
+
+    @Test
     void addNewItem_whenRequestCorrect_thenReturnEntity() {
         UserDto userDto = UserMapper.makeDto(userOwner).orElseThrow();
         when(userService.getUser(ownerId)).thenReturn(userDto);
@@ -220,6 +233,24 @@ class ItemMapperServiceTest {
         ItemDto expectedItemDto = new ItemDto(1L, "test item", "item description", true,
                 1L, null, new ArrayList<>(), lastBooking, nextBooking);
         assertEquals(expectedItemDto, itemMapperService.getItemDtoForUser(item, new ArrayList<>()));
+    }
+
+    @Test
+    void getItems_whenNextBookingNotFound_thenReturnListWithItemWithNullLastBooking() {
+        BookingForItemDto lastBooking = null;
+        BookingForItemDto nextBooking = null;
+        ItemDto expectedItemDto = new ItemDto(1L, "test item", "item description", true,
+                1L, null, new ArrayList<>(), lastBooking, nextBooking);
+        Item item = ItemMapper.makeItem(expectedItemDto, userOwner).get();
+
+        List<Booking> nextList = new ArrayList<>();
+
+        when(bookingRepo.findAllByItemIdAndStartAfterOrderByStartAsc(eq(item.getId()),
+                Mockito.any(LocalDateTime.class))).thenReturn(nextList);
+
+        assertEquals(List.of(expectedItemDto), itemMapperService.getItems(List.of(item)));
+
+
     }
 
     @Test

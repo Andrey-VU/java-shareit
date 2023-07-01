@@ -29,7 +29,6 @@ public class ItemRequest {
     @ToString.Exclude
     private User requester;
 
-    //    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @CreationTimestamp
     private LocalDateTime created;
 
