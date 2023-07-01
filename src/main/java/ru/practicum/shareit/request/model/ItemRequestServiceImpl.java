@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -38,8 +37,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getAllItemRequests(Long userId, Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created"));
-        Page<ItemRequest> answerPage = itemRequestRepo.findAll(pageRequest);
-        List<ItemRequest> answerList = answerPage
+        List<ItemRequest> answerList = itemRequestRepo.findAll(pageRequest)
                 .stream()
                 .collect(Collectors.toList());
         List<ItemRequestDto> answerDtoList = answerList.stream()

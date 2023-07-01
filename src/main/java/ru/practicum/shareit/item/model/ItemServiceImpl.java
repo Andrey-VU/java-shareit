@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectIdException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
@@ -30,16 +28,14 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto addNewItem(Long ownerId, ItemDto itemDto) {
         Item itemForSave = itemMapperService.addNewItem(ownerId, itemDto);
         Item item = itemRepo.save(itemForSave);
-        return ItemMapper.makeDtoFromItem(item)
-                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
+        return ItemMapper.makeDtoFromItem(item).get();
     }
 
     @Override
     public ItemDto getItem(Long itemId, Long userId) {
         validateId(itemId);
         validateId(userId);
-        Item item = itemRepo.findById(itemId).orElseThrow(() ->
-                new ItemNotFoundException("Item is not found"));
+        Item item = itemRepo.findById(itemId).get();
         return itemMapperService.getItemDto(item, userId);
     }
 
@@ -53,8 +49,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
         Item itemForUpdate = itemMapperService.prepareItemToUpdate(ownerId, itemId, itemDtoWithUpdate);
         Item itemUpdated = itemRepo.save(itemForUpdate);
-        return ItemMapper.makeDtoFromItem(itemUpdated)
-                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
+        return ItemMapper.makeDtoFromItem(itemUpdated).get();
     }
 
     @Override
@@ -62,8 +57,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> searchResult = new ArrayList<>();
         if (!text.isBlank()) {
             searchResult = itemRepo.findByText(text).stream()
-                    .map(item -> ItemMapper.makeDtoFromItem(item)
-                            .orElseThrow(() -> new ItemNotFoundException("dto объект не найден")))
+                    .map(item -> ItemMapper.makeDtoFromItem(item).get())
                     .collect(Collectors.toList());
         }
         return searchResult;
@@ -77,10 +71,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Long ownerId, Long itemId) {
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new UserNotFoundException("User объект не найден"));
-        Item item = ItemMapper.makeItem(getItem(itemId, ownerId), owner)
-                .orElseThrow(() -> new UserNotFoundException("Item не найден"));
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId)).get();
+        Item item = ItemMapper.makeItem(getItem(itemId, ownerId), owner).get();
         itemRepo.delete(item);
     }
 

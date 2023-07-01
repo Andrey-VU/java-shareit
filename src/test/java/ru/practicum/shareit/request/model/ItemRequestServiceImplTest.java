@@ -152,18 +152,31 @@ class ItemRequestServiceImplTest {
     }
 
 
-    @Test
-    void getAllItemRequests() {
+//    @Test
+//    void getAllItemRequests() {
 //        Integer from = 0;
 //        Integer size = 1;
-//
-//        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, Sort.by("created"));
+//        List<ItemRequest> itemRequests = List.of(itemRequest);
+//        Page<ItemRequest> itemRequestPage = new PageImpl<>(itemRequests);
+//        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size,
+//                Sort.by("created"));
 //        List<ItemRequest> answerPage = List.of(itemRequest);
-//        when(itemRequestRepo.findAll(pageRequest)).thenReturn((Page<ItemRequest>) answerPage);
+//        when(itemRequestRepo.findAll(pageRequest)).thenReturn(itemRequestPage);
 //
-//        when(itemRequestRepo.findAll(PageRequest.of(1, 1)))
-//                .thenReturn((Page<ItemRequest>) expectedPage);
+//        ItemDto item = ItemDto.builder()
+//                .id(1L)
+//                .name("Item")
+//                .requestId(1L)
+//                .description("desc")
+//                .available(true)
+//                .ownerId(1L)
+//
+//                .build();
+//        List<ItemDto> itemsDtoForRequest = List.of(item);
+//        ItemRequestDto ItemRequestDto = ItemRequestMapper.makeItemRequestDtoWithItemsList(itemRequest,
+//                itemsDtoForRequest).get();
+//        when(itemRequestMapperService.prepareForReturnDto(itemRequest)).thenReturn(ItemRequestDto);
 //        List<ItemRequestDto> actual = itemRequestService.getAllItemRequests(requesterId1, 1, 1);
 //        assertEquals(expectedListDto, actual);
-    }
+//    }
 }
