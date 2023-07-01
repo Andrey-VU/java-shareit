@@ -88,7 +88,6 @@ class BookingControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
     @Test
     @SneakyThrows
     void getBookings_whenCorrect_thenReturn200() {
@@ -142,7 +141,6 @@ class BookingControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(bookingRequestDto)))
                 .andExpect(status().isOk())
-//                .andExpect(content().json(objectMapper.writeValueAsString(bookingResponseDto))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

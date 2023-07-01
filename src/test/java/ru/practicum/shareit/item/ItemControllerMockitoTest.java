@@ -119,13 +119,10 @@ class ItemControllerMockitoTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(commentDtoToAdd)))
                 .andExpect(status().isOk())
-//                .andExpect()
 
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-
-//       assertEquals(objectMapper.writeValueAsString(afterSave), result);
     }
 
     @Test
@@ -164,7 +161,5 @@ class ItemControllerMockitoTest {
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk());
     }
-
-
 }
 

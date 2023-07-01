@@ -150,33 +150,4 @@ class ItemRequestServiceImplTest {
         List<ItemRequestDto> actual = itemRequestService.getItemRequests(requesterId1);
         assertEquals(List.of(new ItemRequestDto()), actual);
     }
-
-
-//    @Test
-//    void getAllItemRequests() {
-//        Integer from = 0;
-//        Integer size = 1;
-//        List<ItemRequest> itemRequests = List.of(itemRequest);
-//        Page<ItemRequest> itemRequestPage = new PageImpl<>(itemRequests);
-//        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size,
-//                Sort.by("created"));
-//        List<ItemRequest> answerPage = List.of(itemRequest);
-//        when(itemRequestRepo.findAll(pageRequest)).thenReturn(itemRequestPage);
-//
-//        ItemDto item = ItemDto.builder()
-//                .id(1L)
-//                .name("Item")
-//                .requestId(1L)
-//                .description("desc")
-//                .available(true)
-//                .ownerId(1L)
-//
-//                .build();
-//        List<ItemDto> itemsDtoForRequest = List.of(item);
-//        ItemRequestDto ItemRequestDto = ItemRequestMapper.makeItemRequestDtoWithItemsList(itemRequest,
-//                itemsDtoForRequest).get();
-//        when(itemRequestMapperService.prepareForReturnDto(itemRequest)).thenReturn(ItemRequestDto);
-//        List<ItemRequestDto> actual = itemRequestService.getAllItemRequests(requesterId1, 1, 1);
-//        assertEquals(expectedListDto, actual);
-//    }
 }
