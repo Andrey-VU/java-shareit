@@ -23,16 +23,14 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDto addNewBooking(Long bookerId, BookingRequestDto dto) {
         Booking bookingForSave = bookingMapperService.bookingRequestPrepareForAdd(bookerId, dto);
         Booking newBooking = bookingRepo.save(bookingForSave);
-        return BookingMapper.entityToResponseDto(newBooking)
-                .orElseThrow(() -> new BookingNotFoundException("dto объект Booking не найден"));
+        return BookingMapper.entityToResponseDto(newBooking).get();
     }
 
     @Override
     public BookingResponseDto approveBooking(Long ownerId, Long bookingId, Boolean approved) {
         Booking bookingWithStatus = bookingMapperService.addStatusToBooking(ownerId, bookingId, approved);
         Booking updateBooking = bookingRepo.save(bookingWithStatus);
-        return BookingMapper.entityToResponseDto(updateBooking)
-                .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
+        return BookingMapper.entityToResponseDto(updateBooking).get();
     }
 
     @Override
@@ -41,8 +39,7 @@ public class BookingServiceImpl implements BookingService {
                 new BookingNotFoundException("Бронирование id " + bookingId + " не найдено"));
         bookingMapperService.accessVerification(bookingFromRepo, userId);
 
-        return BookingMapper.entityToResponseDto(bookingFromRepo)
-                .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
+        return BookingMapper.entityToResponseDto(bookingFromRepo).get();
     }
 
     @Override

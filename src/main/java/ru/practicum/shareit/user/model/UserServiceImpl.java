@@ -36,16 +36,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getUsers() {
         return userRepo.findAll().stream()
-                .map(user -> UserMapper.makeDto(user)
-                        .orElseThrow(() -> new UserNotFoundException("dto объект не найден")))
+                .map(user -> UserMapper.makeDto(user).get())
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto update(UserDto userDto, long id) {
         User user = prepareForUpdate(userDto, id);
-        return UserMapper.makeDto(userRepo.save(user))
-                .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
+        return UserMapper.makeDto(userRepo.save(user)).get();
     }
 
     @Override
@@ -69,8 +67,7 @@ public class UserServiceImpl implements UserService {
             userStorage.setEmail(userDto.getEmail());
         }
 
-        return UserMapper.makeUserWithId(userStorage)
-                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
+        return UserMapper.makeUserWithId(userStorage).get();
     }
 
 

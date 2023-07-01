@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.IncorrectIdException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
-import ru.practicum.shareit.exception.ItemRequestNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -46,8 +44,7 @@ public class ItemRequestMapperService {
     public ItemRequestDto prepareForReturnDto(ItemRequest itemRequest) {
         List<Item> itemsForRequest = itemRepo.findAllByRequestId(itemRequest.getId());
         List<ItemDto> itemsDtoForRequest = itemsForRequest.stream()
-                .map(item -> ItemMapper.makeDtoFromItem(item)
-                        .orElseThrow(() -> new ItemNotFoundException("ItemDto is not created")))
+                .map(item -> ItemMapper.makeDtoFromItem(item).get())
                 .collect(Collectors.toList());
 
         log.info("Размер списка вещей, которые предложены в ответ на запрос {}, составляет: {}",
@@ -55,11 +52,9 @@ public class ItemRequestMapperService {
 
         ItemRequestDto itemRequestDto;
         if (itemsForRequest.size() == 0) {
-            itemRequestDto = ItemRequestMapper.makeItemRequestDto(itemRequest).orElseThrow(() ->
-                    new ItemRequestNotFoundException("ItemRequest is not found"));
+            itemRequestDto = ItemRequestMapper.makeItemRequestDto(itemRequest).get();
         } else {
-            itemRequestDto = ItemRequestMapper.makeItemRequestDtoWithItemsList(itemRequest, itemsDtoForRequest)
-                    .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest is not found"));
+            itemRequestDto = ItemRequestMapper.makeItemRequestDtoWithItemsList(itemRequest, itemsDtoForRequest).get();
         }
         return itemRequestDto;
     }

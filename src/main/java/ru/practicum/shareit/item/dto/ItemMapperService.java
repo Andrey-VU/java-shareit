@@ -36,19 +36,16 @@ public class ItemMapperService {
 
     public Item addNewItem(Long ownerId, ItemDto itemDto) {
         itemDtoValidate(ownerId, itemDto);
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new UserNotFoundException("User не найден"));
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId)).get();
 
         Item item = new Item();
 
         if (itemDto.getRequestId() == null) {
-            item = ItemMapper.makeItem(itemDto, owner)
-                    .orElseThrow(() -> new UserNotFoundException("User не найден"));
+            item = ItemMapper.makeItem(itemDto, owner).get();
         } else {
             ItemRequest request = itemRequestRepo.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest Not Found!"));
-            item = ItemMapper.makeItemWithRequest(itemDto, owner, request)
-                    .orElseThrow(() -> new UserNotFoundException("User не найден"));
+            item = ItemMapper.makeItemWithRequest(itemDto, owner, request).get();
         }
 
         return item;
@@ -85,31 +82,26 @@ public class ItemMapperService {
     public List<ItemDto> getItems(List<Item> allItems) {
         return allItems.stream()
                 .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, findCommentsToItem(item),
-                                findLastBooking(item), findNextBooking(item))
-                        .orElseThrow(() -> new ItemNotFoundException("dto объект не найден")))
+                        findLastBooking(item), findNextBooking(item)).get())
                 .collect(Collectors.toList());
     }
 
     public ItemDto getItemDtoForUser(Item item, List<CommentDto> commentsForItemDto) {
-        return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto)
-                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
+        return ItemMapper.makeDtoFromItemWithComment(item, commentsForItemDto).get();
     }
 
     public ItemDto getItemDtoForOwner(Item item, List<CommentDto> commentsForItemDto) {
         return ItemMapper.makeDtoFromItemWithBooking(item, commentsForItemDto,
-                        findLastBooking(item), findNextBooking(item))
-                .orElseThrow(() -> new ItemNotFoundException("dto объект не найден"));
+                findLastBooking(item), findNextBooking(item)).get();
     }
 
     public Item prepareItemToUpdate(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
         validateId(itemId);
         validateId(ownerId);
-        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId))
-                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
+        User owner = UserMapper.makeUserWithId(userService.getUser(ownerId)).get();
         ItemDto itemDtoFromRepo = getItemForUpdate(itemId);
 
-        return ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner)
-                .orElseThrow(() -> new UserNotFoundException("объект не найден"));
+        return ItemMapper.makeItemForUpdate(itemDtoFromRepo, itemDtoWithUpdate, owner).get();
     }
 
     private BookingForItemDto findNextBooking(Item item) {
@@ -118,10 +110,9 @@ public class ItemMapperService {
         allNextBooking = allNextBooking.stream()
                 .filter(booking -> booking.getStatus().equals(StatusOfBooking.APPROVED))
                 .collect(Collectors.toList());
-        BookingForItemDto nextBooking = new BookingForItemDto();
+        BookingForItemDto nextBooking;
         if (allNextBooking.size() > 0) {
-            nextBooking = BookingMapper.entityToBookingForItemDto(allNextBooking.get(0))
-                    .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
+            nextBooking = BookingMapper.entityToBookingForItemDto(allNextBooking.get(0)).get();
         } else nextBooking = null;
         return nextBooking;
     }
@@ -134,8 +125,7 @@ public class ItemMapperService {
                 .collect(Collectors.toList());
         BookingForItemDto lastBooking = new BookingForItemDto();
         if (allLastBooking.size() > 0) {
-            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1))
-                    .orElseThrow(() -> new BookingNotFoundException("dto объект не найден"));
+            lastBooking = BookingMapper.entityToBookingForItemDto(allLastBooking.get(allLastBooking.size() - 1)).get();
         } else lastBooking = null;
         return lastBooking;
     }
@@ -162,8 +152,7 @@ public class ItemMapperService {
     }
 
     public Comment prepareCommentToSave(CommentRequestDto requestDto) {
-        User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId()))
-                .orElseThrow(() -> new UserNotFoundException("User не найден"));
+        User author = UserMapper.makeUserWithId(userService.getUser(requestDto.getAuthorId())).get();
         List<Booking> endedBookingOfAuthor =
                 bookingRepo.findAllByBookerIdAndEndBeforeOrderByStartDesc(author.getId(), LocalDateTime.now())
                         .stream()

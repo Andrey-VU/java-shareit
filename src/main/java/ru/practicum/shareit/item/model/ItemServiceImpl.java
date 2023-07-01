@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IncorrectIdException;
+import ru.practicum.shareit.exception.ItemNotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
@@ -35,7 +36,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItem(Long itemId, Long userId) {
         validateId(itemId);
         validateId(userId);
-        Item item = itemRepo.findById(itemId).get();
+        Item item = itemRepo.findById(itemId)
+                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
         return itemMapperService.getItemDto(item, userId);
     }
 
