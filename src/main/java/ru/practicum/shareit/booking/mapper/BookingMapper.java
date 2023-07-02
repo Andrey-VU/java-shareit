@@ -14,6 +14,10 @@ import java.util.Optional;
 
 @Slf4j
 public final class BookingMapper {
+
+    private BookingMapper() {
+    }
+
     public static Optional<Booking> requestDtoToEntity(BookingRequestDto dto, Item item, User booker) {
         Booking booking = new Booking();
         booking.setStart(dto.getStart());

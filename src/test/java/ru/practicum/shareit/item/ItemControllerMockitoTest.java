@@ -49,8 +49,6 @@ class ItemControllerMockitoTest {
 
         commentDtoToAdd = CommentRequestDto.builder()
                 .text("noComment")
-//                .itemId(1L)
-//                .authorId(1L)
                 .build();
 
 
@@ -97,20 +95,11 @@ class ItemControllerMockitoTest {
 
         commentFromRepo = CommentMapper.requestToEntity(item, author, commentDtoToAdd.getText());
         commentFromRepo.setId(1L);
-
-
-    }
-
-    @Test
-    @SneakyThrows
-    void getItems_() {
-
     }
 
     @Test
     @SneakyThrows
     void addComment_whenCorrect_thenStatus200AndReturnCommentDto() {
-
         when(itemService.addNewCommentToItem(commentDtoToAdd)).thenReturn(afterSave);
 
         String result = mockMvc.perform(post("/items/{itemId}/comment", 1L)
@@ -119,7 +108,6 @@ class ItemControllerMockitoTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .content(objectMapper.writeValueAsString(commentDtoToAdd)))
                 .andExpect(status().isOk())
-
                 .andReturn()
                 .getResponse()
                 .getContentAsString();

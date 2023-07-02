@@ -8,9 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 public final class ItemRequestMapper {
+
+    private ItemRequestMapper() {
+    }
+
     public static Optional<ItemRequest> makeItemRequest(ItemRequestDto dto, User requester) {
         ItemRequest itemRequest = new ItemRequest();
-
         if (dto.getId() != null) {
             itemRequest.setId(itemRequest.getId());
         }

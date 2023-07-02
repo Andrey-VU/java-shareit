@@ -8,13 +8,13 @@ import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@EqualsAndHashCode
 public class ItemRequestDto {
     private Long id;
 
@@ -34,18 +34,5 @@ public class ItemRequestDto {
                 ", requesterId=" + requesterId +
                 ", created=" + created +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ItemRequestDto)) return false;
-        ItemRequestDto that = (ItemRequestDto) o;
-        return Objects.equals(description, that.description) && Objects.equals(requesterId, that.requesterId) && Objects.equals(created, that.created);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(description, requesterId, created);
     }
 }

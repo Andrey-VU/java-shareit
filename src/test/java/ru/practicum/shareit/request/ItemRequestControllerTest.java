@@ -98,7 +98,6 @@ class ItemRequestControllerTest {
     }
 
     @Test
-        //
     void getItemRequests_whenUserHasNotRequests_thenReturn404() throws Exception {
         when(itemRequestService.getItemRequests(10L)).thenThrow(ItemRequestNotFoundException.class);
         mvc.perform(get("/requests")
@@ -126,9 +125,7 @@ class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
 
-                .andExpect(status().isOk())
-//                        .andExpect(jsonPath("$.requestId").value(1L))
-        ;
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -9,8 +8,11 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+
 public final class ItemMapper {
+
+    private ItemMapper() {
+    }
 
     public static Optional<Item> makeItem(ItemDto itemDto, User owner) {
 

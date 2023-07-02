@@ -43,10 +43,10 @@ class UserControllerTest {
 
         String result = mockMvc.perform(post("/users")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDtoToCreate)))  // здесь тело запроса
+                        .content(objectMapper.writeValueAsString(userDtoToCreate)))
                 .andExpect(status().isOk())
-                .andReturn()                    // проверяем возвращаемое значение
-                .getResponse()                  //
+                .andReturn()
+                .getResponse()
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(userDtoToCreate), result);
@@ -62,7 +62,7 @@ class UserControllerTest {
 
         mockMvc.perform(post("/users")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDtoToCreate)))  // здесь тело запроса
+                        .content(objectMapper.writeValueAsString(userDtoToCreate)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -94,8 +94,8 @@ class UserControllerTest {
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(listWithUser)))
                 .andExpect(status().isOk())
-                .andReturn()                    // проверяем возвращаемое значение
-                .getResponse()                  //
+                .andReturn()
+                .getResponse()
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(listWithUser), result);
@@ -106,7 +106,7 @@ class UserControllerTest {
     void getUser() {
         Long userId = 1L;
         mockMvc.perform(get("/users/{userId}", userId))
-                .andDo(print())           // увидеть дополнительные параметры для анализа
+                .andDo(print())
                 .andExpect(status().isOk());
 
         verify(userService).getUser(userId);
@@ -140,26 +140,7 @@ class UserControllerTest {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(updatedUser), result);
-
     }
-
-//    @SneakyThrows
-//    @Test
-//    void update_whenUserNotValid_thenReturnBadRequest() {
-//        Long userId = 0L;
-//        UserDto userDtoToUpdate = new UserDto();
-//        userDtoToUpdate = UserDto.builder()
-//                .name("Name")
-//                .email("a@a.a")
-//                .build();
-//
-//        mockMvc.perform(patch("/users/{userId}", userId)
-//                        .contentType("application/json")
-//                        .content(objectMapper.writeValueAsString(userDtoToUpdate)))
-//                .andExpect(status().isBadRequest());
-//
-//        verify(userService, never()).update(userDtoToUpdate, userId);
-//    }
 
     @SneakyThrows
     @Test

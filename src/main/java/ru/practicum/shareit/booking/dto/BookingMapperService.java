@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class BookingMapperService {
-    ItemService itemService;
-    UserService userService;
-    BookingRepository bookingRepo;
+    private ItemService itemService;
+    private UserService userService;
+    private BookingRepository bookingRepo;
 
     public Booking addStatusToBooking(Long ownerId, Long bookingId, Boolean approved) {
         Booking bookingFromRepo = bookingRepo.findById(bookingId)
@@ -92,13 +92,12 @@ public class BookingMapperService {
         }
     }
 
-    public boolean accessVerification(Booking bookingFromRepo, Long userId) {
+    public void accessVerification(Booking bookingFromRepo, Long userId) {
         if (!(bookingFromRepo.getBooker().getId().equals(userId)
                 || bookingFromRepo.getItem().getOwner().getId().equals(userId))) {
             log.info("Просмотр бронирования доступен только арендатору или владельцу вещи");
             throw new BookingNotFoundException("Access error. Only for Owner or Booker");
         }
-        return true;
     }
 
     public List<BookingResponseDto> prepareResponseDtoList(Long bookerId, StateForBooking state,

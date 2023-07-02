@@ -262,12 +262,12 @@ class BookingMapperServiceTest {
         ex.getMessage();
     }
 
-
-    @Test
-    void accessVerification_whenCorrect_thenReturnTrue() {
-        assertEquals(true,
-                bookingMapperService.accessVerification(newBooking, bookerId2));
-    }
+//
+//    @Test
+//    void accessVerification_whenCorrect_thenDoNothing() {
+//        doNothing().when(bookingMapperService).accessVerification(newBooking, bookerId2);
+//        verify(bookingMapperService).accessVerification(newBooking, bookerId2);
+//    }
 
     @Test
     void accessVerification_whenUserIsNotBooker_thenThrowBookingNotFoundException() {

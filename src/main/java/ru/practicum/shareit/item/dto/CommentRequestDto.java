@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class CommentRequestDto {
     private Long authorId;
     private Long itemId;

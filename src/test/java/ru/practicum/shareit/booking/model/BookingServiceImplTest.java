@@ -150,10 +150,11 @@ class BookingServiceImplTest {
                 .addStatusToBooking(id1, id2, null);
     }
 
+
     @Test
     void getBooking_whenRequestCorrect_thenReturnDto() {
         when(bookingRepo.findById(id1)).thenReturn(Optional.ofNullable(newBooking));
-        when(bookingMapperService.accessVerification(newBooking, id1)).thenReturn(true);
+        doNothing().when(bookingMapperService).accessVerification(newBooking, id1);
 
         BookingResponseDto expected = bookingResponseDtoFromRepo;
 

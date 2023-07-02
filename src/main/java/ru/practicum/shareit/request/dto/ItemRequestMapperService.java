@@ -20,8 +20,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Component
 public class ItemRequestMapperService {
-    UserService userService;
-    ItemRepository itemRepo;
+    private UserService userService;
+    private ItemRepository itemRepo;
+
 
     public ItemRequest prepareForSaveItemRequest(Long requesterId, ItemRequestDto dto) {
         User requester = UserMapper.makeUserWithId(userService.getUser(requesterId)).get();
