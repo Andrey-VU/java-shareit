@@ -31,7 +31,7 @@ public class ItemController {
         requestDto.setItemId(itemId);
 
         CommentDto commentDto = itemService.addNewCommentToItem(requestDto);
-        log.info("Comment {} added to item id: {} - Finished", commentDto.getText(), itemId);
+        log.info("Comment added to item id: {} - Finished", itemId);
         return commentDto;
     }
 
@@ -83,8 +83,8 @@ public class ItemController {
     public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                            @PathVariable Long itemId) {
         log.info("Delete item id {} user id {} - Started", itemId, userId);
-        boolean isDel = itemService.deleteItem(userId, itemId);
-        log.info("item id {} was deleted - {} ", itemId, isDel);
+        itemService.deleteItem(userId, itemId);
+        log.info("item id {} was deleted - {} ", itemId);
     }
 
     @DeleteMapping

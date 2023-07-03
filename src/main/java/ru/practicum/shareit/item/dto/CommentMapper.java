@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 
 @Slf4j
 public final class CommentMapper {
+    private CommentMapper() {
+    }
 
     public static Comment requestToEntity(Item item, User author, String text) {
         Comment newComment = new Comment();

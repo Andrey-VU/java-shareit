@@ -20,9 +20,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User user = userRepo.save(UserMapper.makeUser(userDto)
-                .orElseThrow(() -> new NullPointerException("User объект не создан")));
+                .orElseThrow(() -> new UserNotFoundException("User объект не создан")));
         return UserMapper.makeDto(user)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
     }
 
     @Override
@@ -30,31 +30,20 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("Пользователь id "
                 + id + " не найден"));
         return UserMapper.makeDto(user)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+                .orElseThrow(() -> new UserNotFoundException("dto объект не найден"));
     }
 
     @Override
     public List<UserDto> getUsers() {
         return userRepo.findAll().stream()
-                .map(user -> UserMapper.makeDto(user)
-                        .orElseThrow(() -> new NullPointerException("dto объект не найден")))
+                .map(user -> UserMapper.makeDto(user).get())
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto update(UserDto userDto, long id) {
-        UserDto userStorage = getUser(id);
-        if (userDto.getName() != null) {
-            userStorage.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            userStorage.setEmail(userDto.getEmail());
-        }
-        User user = UserMapper.makeUserWithId(userStorage)
-                .orElseThrow(() -> new NullPointerException("объект не найден"));
-
-        return UserMapper.makeDto(userRepo.save(user))
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+        User user = prepareForUpdate(userDto, id);
+        return UserMapper.makeDto(userRepo.save(user)).get();
     }
 
     @Override
@@ -68,4 +57,18 @@ public class UserServiceImpl implements UserService {
     public void clearAll() {
         userRepo.deleteAll();
     }
+
+    private User prepareForUpdate(UserDto userDto, long id) {
+        UserDto userStorage = getUser(id);
+        if (userDto.getName() != null) {
+            userStorage.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            userStorage.setEmail(userDto.getEmail());
+        }
+
+        return UserMapper.makeUserWithId(userStorage).get();
+    }
+
+
 }

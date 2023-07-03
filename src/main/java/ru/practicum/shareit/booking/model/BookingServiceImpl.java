@@ -23,16 +23,14 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDto addNewBooking(Long bookerId, BookingRequestDto dto) {
         Booking bookingForSave = bookingMapperService.bookingRequestPrepareForAdd(bookerId, dto);
         Booking newBooking = bookingRepo.save(bookingForSave);
-        return BookingMapper.entityToResponseDto(newBooking)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+        return BookingMapper.entityToResponseDto(newBooking).get();
     }
 
     @Override
     public BookingResponseDto approveBooking(Long ownerId, Long bookingId, Boolean approved) {
         Booking bookingWithStatus = bookingMapperService.addStatusToBooking(ownerId, bookingId, approved);
         Booking updateBooking = bookingRepo.save(bookingWithStatus);
-        return BookingMapper.entityToResponseDto(updateBooking)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+        return BookingMapper.entityToResponseDto(updateBooking).get();
     }
 
     @Override
@@ -41,17 +39,17 @@ public class BookingServiceImpl implements BookingService {
                 new BookingNotFoundException("Бронирование id " + bookingId + " не найдено"));
         bookingMapperService.accessVerification(bookingFromRepo, userId);
 
-        return BookingMapper.entityToResponseDto(bookingFromRepo)
-                .orElseThrow(() -> new NullPointerException("dto объект не найден"));
+        return BookingMapper.entityToResponseDto(bookingFromRepo).get();
     }
 
     @Override
-    public List<BookingResponseDto> getBookings(Long bookerId, String state) {
-        return bookingMapperService.prepareResponseDtoList(bookerId, state);
+    public List<BookingResponseDto> getBookings(Long bookerId, StateForBooking state, Integer from, Integer size) {
+        return bookingMapperService.prepareResponseDtoList(bookerId, state, from, size);
     }
 
     @Override
-    public List<BookingResponseDto> getListOfBookingsOfOwnersItems(Long ownerId, String state) {
-        return bookingMapperService.prepareResponseDtoListForOwner(ownerId, state);
+    public List<BookingResponseDto> getBookingsForOwner(Long ownerId, StateForBooking state,
+                                                        int from, int size) {
+        return bookingMapperService.prepareResponseDtoListForOwner(ownerId, state, from, size);
     }
 }
