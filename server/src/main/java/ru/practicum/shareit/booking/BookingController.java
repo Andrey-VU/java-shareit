@@ -42,7 +42,7 @@ public class BookingController {
         return bookingDtoFromRepo;
     }
 
-    @GetMapping("/{bookingId}")
+    @GetMapping("/{bookingId}")          // РЕАЛИЗОВАНО В GATEWAY
     public BookingResponseDto getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @PathVariable Long bookingId) {
         log.info("Search for booking id {} - Started", bookingId);
@@ -51,7 +51,7 @@ public class BookingController {
         return bookingResponseDto;
     }
 
-    @GetMapping
+    @GetMapping   //реализовано в GATEWAY
     public List<BookingResponseDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
                                                 @Valid @RequestParam(defaultValue = "ALL") StateForBooking state,
                                                 @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
