@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.shareit.booking.dto.BookingForItemDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -29,18 +28,5 @@ public class ItemDtoGateway {
 
     private BookingForItemDto lastBooking;
     private BookingForItemDto nextBooking;
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof ItemDtoGateway)) return false;
-//        ItemDtoGateway itemDto = (ItemDtoGateway) o;
-//        return Objects.equals(name, itemDto.name) && Objects.equals(description, itemDto.description) && Objects.equals(ownerId, itemDto.ownerId);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(name, description, ownerId);
-//    }
 }
 
