@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -35,11 +34,8 @@ public class ItemMapperService {
     private ItemRequestRepository itemRequestRepo;
 
     public Item addNewItem(Long ownerId, ItemDto itemDto) {
-        itemDtoValidate(ownerId, itemDto);
         User owner = UserMapper.makeUserWithId(userService.getUser(ownerId)).get();
-
         Item item = new Item();
-
         if (itemDto.getRequestId() == null) {
             item = ItemMapper.makeItem(itemDto, owner).get();
         } else {
@@ -60,25 +56,6 @@ public class ItemMapperService {
         }
     }
 
-    private void itemDtoValidate(long userId, ItemDto itemDto) {
-        String name = itemDto.getName();
-        String description = itemDto.getDescription();
-
-        if (StringUtils.isBlank(name)) {
-            log.warn("Item's name {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's name is not found");
-        }
-        if (StringUtils.isBlank(description)) {
-            log.warn("Item's description {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Item's description is not found");
-        }
-        if (itemDto.getAvailable() == null) {
-            log.warn("Available-status of item {} can't be null!", itemDto);
-            throw new IncorrectItemDtoException("Available-status of item not found");
-        }
-        userService.getUser(userId);
-    }
-
     public List<ItemDto> getItems(List<Item> allItems) {
         return allItems.stream()
                 .map(item -> ItemMapper.makeDtoFromItemWithBooking(item, findCommentsToItem(item),
@@ -96,8 +73,6 @@ public class ItemMapperService {
     }
 
     public Item prepareItemToUpdate(Long ownerId, Long itemId, ItemDto itemDtoWithUpdate) {
-        validateId(itemId);
-        validateId(ownerId);
         User owner = UserMapper.makeUserWithId(userService.getUser(ownerId)).get();
         ItemDto itemDtoFromRepo = getItemForUpdate(itemId);
 
@@ -142,13 +117,6 @@ public class ItemMapperService {
                 new ItemNotFoundException("Item is not found"));
         ItemDto itemDto = getItemDtoForUser(item, findCommentsToItem(item));
         return itemDto;
-    }
-
-    private void validateId(Long id) {
-        if (id < 1) {
-            log.warn("id {} incorrect", id);
-            throw new IncorrectIdException("id can't be less then 1");
-        }
     }
 
     public Comment prepareCommentToSave(CommentRequestDto requestDto) {
