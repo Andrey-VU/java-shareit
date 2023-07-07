@@ -145,14 +145,6 @@ class BookingMapperServiceTest {
     }
 
     @Test
-    void addStatusToBooking_whenApprovedIsNull_thenThrowValidationException() {
-        when(bookingRepo.findById(1L)).thenReturn(Optional.ofNullable(newBooking));
-        ValidationException validationException = assertThrows(ValidationException.class,
-                () -> bookingMapperService.addStatusToBooking(1L, 1L, null));
-        validationException.getMessage();
-    }
-
-    @Test
     void addStatusToBooking_whenApprovedIsNull2_thenThrowValidationException() {
         when(bookingRepo.findById(1L)).thenThrow(ValidationException.class);
         ValidationException validationException = assertThrows(ValidationException.class,

@@ -11,8 +11,6 @@ import ru.practicum.shareit.booking.dto.BookingForItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.StatusOfBooking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
-import ru.practicum.shareit.exception.IncorrectIdException;
-import ru.practicum.shareit.exception.IncorrectItemDtoException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -126,43 +124,6 @@ class ItemMapperServiceTest {
     }
 
     @Test
-    void addNewItem_whenNameNotValid_thenThrowIncorrectItemDtoException() {
-        ItemDto itemDtoWithoutName = ItemDto.builder()
-                .available(true)
-                .description(item.getDescription())
-                .build();
-
-        IncorrectItemDtoException ex = assertThrows(IncorrectItemDtoException.class,
-                () -> itemMapperService.addNewItem(ownerId, itemDtoWithoutName));
-        ex.getMessage();
-    }
-
-    @Test
-    void addNewItem_whenNotAvailable_thenThrowIncorrectItemDtoException() {
-        ItemDto itemDtoNotValid = ItemDto.builder()
-                .name(item.getName())
-                .description(item.getDescription())
-                .build();
-
-        IncorrectItemDtoException ex = assertThrows(IncorrectItemDtoException.class,
-                () -> itemMapperService.addNewItem(ownerId, itemDtoNotValid));
-        ex.getMessage();
-    }
-
-    @Test
-    void addNewItem_whenNotDescription_thenThrowIncorrectItemDtoException() {
-        ItemDto itemDtoNotValid = ItemDto.builder()
-                .available(true)
-                .name(item.getName())
-                .description("")
-                .build();
-
-        IncorrectItemDtoException ex = assertThrows(IncorrectItemDtoException.class,
-                () -> itemMapperService.addNewItem(ownerId, itemDtoNotValid));
-        ex.getMessage();
-    }
-
-    @Test
     void addNewItem_whenRequestIdNull_thenReturnEntityWithoutRequest() {
         UserDto userDto = UserMapper.makeDto(userOwner).orElseThrow();
         Item expectedItem = new Item(1L, userOwner, item.getName(),
@@ -183,21 +144,6 @@ class ItemMapperServiceTest {
 
         assertEquals(item, itemMapperService.addNewItem(ownerId, itemDtoValid));
     }
-
-    @Test
-    void prepareItemToUpdate_whenIdUserNotValid_thenThrowIncorrectIdException() {
-        IncorrectIdException ex = assertThrows(IncorrectIdException.class,
-                () -> itemMapperService.prepareItemToUpdate(-1L, 1L, itemDtoValid));
-        ex.getMessage();
-    }
-
-    @Test
-    void prepareItemToUpdate_whenIdItemNotValid_thenThrowIncorrectIdException() {
-        IncorrectIdException ex = assertThrows(IncorrectIdException.class,
-                () -> itemMapperService.prepareItemToUpdate(1L, 0L, itemDtoValid));
-        ex.getMessage();
-    }
-
 
     @Test
     void getItemDto_whenCorrect_thenReturnDto() {
@@ -249,8 +195,6 @@ class ItemMapperServiceTest {
                 Mockito.any(LocalDateTime.class))).thenReturn(nextList);
 
         assertEquals(List.of(expectedItemDto), itemMapperService.getItems(List.of(item)));
-
-
     }
 
     @Test

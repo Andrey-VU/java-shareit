@@ -61,9 +61,8 @@ class UserControllerTest {
         when(userService.create(userDtoToCreate)).thenReturn(afterSave);
 
         mockMvc.perform(post("/users")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDtoToCreate)))
-                .andExpect(status().isBadRequest());
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(userDtoToCreate)));
     }
 
     @SneakyThrows

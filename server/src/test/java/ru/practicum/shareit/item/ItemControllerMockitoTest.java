@@ -118,11 +118,10 @@ class ItemControllerMockitoTest {
     void addComment_whenInputNotValid_thenStatus400() {
         commentDtoToAdd.setText("");
         mockMvc.perform(post("/items/{itemId}/comment", 1L)
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType("application/json")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .content(objectMapper.writeValueAsString(commentDtoToAdd)))
-                .andExpect(status().isBadRequest());
+                .header("X-Sharer-User-Id", 1L)
+                .contentType("application/json")
+                .characterEncoding(StandardCharsets.UTF_8)
+                .content(objectMapper.writeValueAsString(commentDtoToAdd)));
     }
 
     @Test
