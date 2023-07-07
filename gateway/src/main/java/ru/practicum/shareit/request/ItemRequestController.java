@@ -38,8 +38,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     ResponseEntity<Object> getAllItemRequests(@RequestHeader(HEADER_USER_ID) Long userId,
-                                            @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                            @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
+                                              @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
+                                              @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
 
         log.info("GATEWAY: Get All requests - Started");
         return itemRequestClient.getAllItemRequests(userId, from, size);
@@ -47,7 +47,7 @@ public class ItemRequestController {
 
     @GetMapping("/{requestId}")
     ResponseEntity<Object> getItemRequest(@RequestHeader(HEADER_USER_ID) Long userId,
-                                  @PathVariable Long requestId) {
+                                          @PathVariable Long requestId) {
         log.info("GATEWAY: Get request id: {} - Started", requestId);
         ResponseEntity<Object> requestItemDto = itemRequestClient.getItemRequest(userId, requestId);
         log.info("GATEWAY: Request id {} was found - Finished", requestId);

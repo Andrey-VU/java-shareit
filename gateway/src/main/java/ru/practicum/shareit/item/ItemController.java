@@ -6,11 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.dto.CommentRequestDtoGateway;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoGateway;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.Collection;
 
 @Controller
 @RequestMapping(path = "/items")
@@ -18,8 +19,8 @@ import java.util.Collection;
 @Slf4j
 @Validated
 public class ItemController {
-    private final ItemClient itemClient;
     private static final String HEADER_USER_ID = "X-Sharer-User-Id";
+    private final ItemClient itemClient;
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> addComment(@Positive @RequestHeader(HEADER_USER_ID) Long authorId,

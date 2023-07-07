@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.ValidationException;
 
-
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -38,9 +37,9 @@ public class BookingController {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getBookingsForOwner(@RequestHeader(HEADER_USER_ID) long ownerId,
-                                              @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                              @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                              @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                                      @RequestParam(name = "state", defaultValue = "all") String stateParam,
+                                                      @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                      @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("GATEWAY: Get booking with state {}, userId={}, from={}, size={}", stateParam, ownerId, from, size);
