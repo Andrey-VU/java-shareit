@@ -15,13 +15,10 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 public class BookingRequestDto {
 
-    @NotNull(message = "Время начала бронирования не может быть пустым")
     private LocalDateTime start;
 
-    @NotNull(message = "Время завершения бронирования не может быть пустым")
     private LocalDateTime end;
 
-    @NotNull(message = "Бронирование невозможно без указания Item Id")
     private Long itemId;
 
     private StatusOfBooking status;

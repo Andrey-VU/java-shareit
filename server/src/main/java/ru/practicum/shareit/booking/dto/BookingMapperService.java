@@ -43,10 +43,6 @@ public class BookingMapperService {
             throw new ValidationException("Secondary approval is prohibited!");
         }
 
-        if (approved == null) {
-            log.warn("статус подтверждения не может быть пустым");
-            throw new ValidationException("Approve validation error. Status is null");
-        }
         if (!bookingFromRepo.getItem().getOwner().getId().equals(ownerId)) {
             log.info("Подтверждение статуса бронирования доступно только владельцу вещи");
             throw new BookingNotFoundException("Access error. Only Owner can approve booking");
@@ -107,9 +103,6 @@ public class BookingMapperService {
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size);
 
         switch (state) {
-            case ALL:
-                answerPage = bookingRepo.findByBookerIdOrderByStartDesc(bookerId, pageRequest);
-                break;
             case FUTURE:
                 answerPage = bookingRepo.findAllByBookerIdAndStartAfterOrderByStartDesc(bookerId, LocalDateTime.now(),
                         pageRequest);
@@ -128,10 +121,10 @@ public class BookingMapperService {
                         = state.equals(StateForBooking.WAITING) ? StatusOfBooking.WAITING : StatusOfBooking.REJECTED;
                 answerPage = bookingRepo.findAllByBookerIdAndStatusOrderByStartDesc(bookerId, pageRequest, status);
                 break;
-
+            case ALL:
             default:
-                log.warn("Статус запроса {} не поддерживается", state);
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+                answerPage = bookingRepo.findByBookerIdOrderByStartDesc(bookerId, pageRequest);
+                break;
         }
 
         assert answerPage != null;
@@ -155,9 +148,6 @@ public class BookingMapperService {
         }
 
         switch (state) {
-            case ALL:
-                answerPage = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
-                break;
 
             case WAITING:
             case REJECTED:
@@ -177,9 +167,10 @@ public class BookingMapperService {
                 answerPage = bookingRepo.findAllByItemOwnerIdAndEndBeforeOrderByStartDesc(ownerId,
                         LocalDateTime.now(), pageRequest);
                 break;
+            case ALL:
             default:
-                log.warn("Статус запроса {} не поддерживается", state);
-                throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+                answerPage = bookingRepo.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
+                break;
         }
 
         assert answerPage != null;

@@ -20,7 +20,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler(ConversionFailedException.class)
+    @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleConversionFailedException(final RuntimeException e) {
 

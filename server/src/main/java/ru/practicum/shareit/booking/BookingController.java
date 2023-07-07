@@ -25,10 +25,10 @@ public class BookingController {
 
     @PostMapping
     public BookingResponseDto add(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                  @Valid @RequestBody BookingRequestDto bookingDto) {
-        log.info("Add new booking: {} - Started", bookingDto);
+                                  @RequestBody BookingRequestDto bookingDto) {
+        log.info("SERVER: Add new booking: {} - Started", bookingDto);
         BookingResponseDto bookingDtoFromRepo = bookingService.addNewBooking(bookerId, bookingDto);
-        log.info("Create booking: {} - Finished", bookingDtoFromRepo);
+        log.info("SERVER: Create booking: {} - Finished", bookingDtoFromRepo);
         return bookingDtoFromRepo;
     }
 
@@ -36,41 +36,41 @@ public class BookingController {
     public BookingResponseDto approve(@RequestHeader("X-Sharer-User-Id") Long ownerId,
                                       @PathVariable Long bookingId,
                                       @RequestParam Boolean approved) {
-        log.info("Set status {} for booking id: {} by user id {}  - Started", approved, bookingId, ownerId);
+        log.info("SERVER: Set status {} for booking id: {} by user id {}  - Started", approved, bookingId, ownerId);
         BookingResponseDto bookingDtoFromRepo = bookingService.approveBooking(ownerId, bookingId, approved);
-        log.info("Set status: {} - Finished", bookingDtoFromRepo.getStatus());
+        log.info("SERVER: Set status: {} - Finished", bookingDtoFromRepo.getStatus());
         return bookingDtoFromRepo;
     }
 
-    @GetMapping("/{bookingId}")          // РЕАЛИЗОВАНО В GATEWAY
+    @GetMapping("/{bookingId}")
     public BookingResponseDto getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @PathVariable Long bookingId) {
-        log.info("Search for booking id {} - Started", bookingId);
+        log.info("SERVER: Search for booking id {} - Started", bookingId);
         BookingResponseDto bookingResponseDto = bookingService.getBooking(bookingId, userId);
-        log.info("Booking {} was found", bookingResponseDto);
+        log.info("SERVER: Booking {} was found", bookingResponseDto);
         return bookingResponseDto;
     }
 
-    @GetMapping   //реализовано в GATEWAY
+    @GetMapping
     public List<BookingResponseDto> getBookings(@RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                                @Valid @RequestParam(defaultValue = "ALL") StateForBooking state,
-                                                @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                                @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
-        log.info("Search user's (id {}) {} bookings - Started", bookerId, state);
+                                                @RequestParam(defaultValue = "ALL") StateForBooking state,
+                                                @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                @RequestParam(required = false, defaultValue = "20") Integer size) {
+        log.info("SERVER: Search user's (id {}) {} bookings - Started", bookerId, state);
         List<BookingResponseDto> bookingsOfUser = bookingService.getBookings(bookerId, state, from, size);
-        log.info("{} {} bookings was found", bookingsOfUser.size(), state);
+        log.info("SERVER: {} {} bookings was found", bookingsOfUser.size(), state);
         return bookingsOfUser;
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getBookingsOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                     @Valid @RequestParam(defaultValue = "ALL") StateForBooking state,
-                                                     @Valid @RequestParam(required = false, defaultValue = "0") @Min(0) Integer from,
-                                                     @Valid @RequestParam(required = false, defaultValue = "20") @Min(1) Integer size) {
-        log.info("Search {} bookings of owner's (id {}) items - Started", state, ownerId);
+                                                     @RequestParam(defaultValue = "ALL") StateForBooking state,
+                                                     @RequestParam(required = false, defaultValue = "0") Integer from,
+                                                     @RequestParam(required = false, defaultValue = "20") Integer size) {
+        log.info("SERVER: Search {} bookings of owner's (id {}) items - Started", state, ownerId);
         List<BookingResponseDto> bookingsOfOwnerItems =
                 bookingService.getBookingsForOwner(ownerId, state, from, size);
-        log.info("{} {} bookings was found", state, bookingsOfOwnerItems.size());
+        log.info("SERVER: {} {} bookings was found", state, bookingsOfOwnerItems.size());
         return bookingsOfOwnerItems;
     }
 }
