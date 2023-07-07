@@ -22,7 +22,6 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> create(@Valid @RequestBody UserDtoGateway userDto) {
         log.info("GATEWAY: Create On GateWay: {} - Started", userDto);
         ResponseEntity<Object> user = userClient.create(userDto);
@@ -30,35 +29,35 @@ public class UserController {
         return user;
     }
 
+    @PatchMapping("/{userId}")
+    public ResponseEntity<Object> update(@Positive @PathVariable("userId") long id,
+                                         @RequestBody UserDtoGateway userDto) {
+        log.info("GATEWAY: update {} for user id: {}  - Started", userDto, id);
+        ResponseEntity<Object> user = userClient.update(userDto, id);
+        log.info("GATEWAY: update: {} - Finished", user);
+        return user;
+    }
+
     @GetMapping
-    public ResponseEntity<Object> findAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public ResponseEntity<Object> findAll() {
         log.info("GATEWAY: findAll - Started");
         ResponseEntity<Object> allUsers = userClient.getUsers();
-        //log.info("findAll: найдено {} пользователей - Finished", allUsers.getBody());
         return allUsers;
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<Object> getUser(@Positive @PathVariable("userId") long id) {
-        log.info("getUser: {} - Started", id);
+        log.info("GATEWAY: getUser: {} - Started", id);
         ResponseEntity<Object> user = userClient.getUser(id);
-        log.info("getUser: {} - Finished", user);
-        return user;
-    }
-
-    @PatchMapping("/{userId}")
-    public ResponseEntity<Object> update(@Positive @PathVariable("userId") long id,
-                          @RequestBody UserDtoGateway userDto) {
-        log.info("update {} for user id: {}  - Started", userDto, id);
-        ResponseEntity<Object> user = userClient.update(userDto, id);
-        log.info("update: {} - Finished", user);
+        log.info("GATEWAY: getUser: {} - Finished", user);
         return user;
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@Positive @PathVariable("userId") Integer userId) {
-        log.info("deleteUser: {} userId - Started", userId);
+        log.info("GATEWAY: deleteUser: {} userId - Started", userId);
         userClient.delete(userId);
-        log.info("deleteUser: {} userId - Finished", userId);
+        log.info("GATEWAY: deleteUser: {} userId - Finished", userId);
     }
 }

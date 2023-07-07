@@ -25,6 +25,15 @@ public class UserController {
         return userDto1;
     }
 
+    @PatchMapping("/{userId}")
+    public UserDto update(@PathVariable("userId") long id,
+                          @RequestBody UserDto userDto) {
+        log.info("SERVER: update {} for user id: {}  - Started", userDto, id);
+        UserDto user = userService.update(userDto, id);
+        log.info("SERVER: update: {} - Finished", user);
+        return user;
+    }
+
     @GetMapping
     public List<UserDto> findAll() {
         log.info("SERVER: findAll on Server - Started");
@@ -38,15 +47,6 @@ public class UserController {
         log.info("SERVER: getUser: {} - Started", id);
         UserDto user = userService.getUser(id);
         log.info("SERVER: getUser: {} - Finished", user);
-        return user;
-    }
-
-    @PatchMapping("/{userId}")
-    public UserDto update(@PathVariable("userId") long id,
-                          @RequestBody UserDto userDto) {
-        log.info("SERVER: update {} for user id: {}  - Started", userDto, id);
-        UserDto user = userService.update(userDto, id);
-        log.info("SERVER: update: {} - Finished", user);
         return user;
     }
 
