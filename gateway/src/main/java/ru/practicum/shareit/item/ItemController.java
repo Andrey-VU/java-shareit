@@ -13,13 +13,14 @@ import ru.practicum.shareit.item.dto.ItemDtoGateway;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 
+import static ru.practicum.shareit.utils.HeaderUserIdConst.HEADER_USER_ID;
+
 @Controller
 @RequestMapping(path = "/items")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
 public class ItemController {
-    private static final String HEADER_USER_ID = "X-Sharer-User-Id";
     private final ItemClient itemClient;
 
     @PostMapping("/{itemId}/comment")

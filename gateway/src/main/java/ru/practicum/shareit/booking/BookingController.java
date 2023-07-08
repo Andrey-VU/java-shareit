@@ -14,13 +14,14 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import static ru.practicum.shareit.utils.HeaderUserIdConst.HEADER_USER_ID;
+
 @Controller
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
 public class BookingController {
-    private static final String HEADER_USER_ID = "X-Sharer-User-Id";
     private final BookingClient bookingClient;
 
     @GetMapping

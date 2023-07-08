@@ -13,12 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class BookingRequestDto {
-
     private LocalDateTime start;
-
     private LocalDateTime end;
-
     private Long itemId;
-
     private StatusOfBooking status;
 }

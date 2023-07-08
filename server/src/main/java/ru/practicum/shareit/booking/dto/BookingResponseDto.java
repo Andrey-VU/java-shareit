@@ -16,14 +16,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BookingResponseDto {
     private long id;
-
     private LocalDateTime start;
-
     private LocalDateTime end;
-
     private ItemDto item;
-
     private UserDto booker;
-
     private StatusOfBooking status;
 }
