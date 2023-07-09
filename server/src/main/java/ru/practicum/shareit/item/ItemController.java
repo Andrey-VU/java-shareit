@@ -10,6 +10,8 @@ import ru.practicum.shareit.item.model.ItemService;
 import java.util.Collection;
 import java.util.List;
 
+import static ru.practicum.shareit.utils.HeaderUserIdConst.HEADER_USER_ID;
+
 @RestController
 @RequestMapping(path = "/items")
 @Slf4j
@@ -21,7 +23,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long authorId,
+    public CommentDto addComment(@RequestHeader(HEADER_USER_ID) Long authorId,
                                  @PathVariable Long itemId,
                                  @RequestBody CommentRequestDto requestDto) {
         log.info("SERVER: Add new comment {} to item: {} - Started", requestDto, itemId);
@@ -35,7 +37,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto add(@RequestHeader("X-Sharer-User-Id") Long ownerId,
+    public ItemDto add(@RequestHeader(HEADER_USER_ID) Long ownerId,
                        @RequestBody ItemDto itemDto) {
         log.info("SERVER: add: {} - Started", itemDto);
         ItemDto itemDtoFromRepo = itemService.addNewItem(ownerId, itemDto);
@@ -44,7 +46,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto update(@RequestHeader(HEADER_USER_ID) Long userId,
                           @PathVariable Long itemId,
                           @RequestBody ItemDto itemDto) {
         log.info("SERVER: Update {} for item id: {} by user id {}  - Started", itemDto, itemId, userId);
@@ -54,7 +56,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemDto> getItems(@RequestHeader(HEADER_USER_ID) Long ownerId) {
         log.info("SERVER: GetItems for user id {} - Started", ownerId);
         List<ItemDto> itemsOfUser = itemService.getItems(ownerId);
         log.info("SERVER: Found {} items of user id {} - GetItems Finished", itemsOfUser.size(), ownerId);
@@ -62,7 +64,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ItemDto getItem(@RequestHeader(HEADER_USER_ID) Long userId,
                            @PathVariable Long itemId) {
         log.info("SERVER: Search for item id {} - Started", itemId);
         ItemDto itemDto = itemService.getItem(itemId, userId);
@@ -79,7 +81,7 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public void deleteItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public void deleteItem(@RequestHeader(HEADER_USER_ID) Long userId,
                            @PathVariable Long itemId) {
         log.info("SERVER: Delete item id {} user id {} - Started", itemId, userId);
         itemService.deleteItem(userId, itemId);
