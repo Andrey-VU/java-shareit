@@ -1,3 +1,3 @@
 # java-shareit
-Приложение электронная афиша
+Шеринг вещей: сервис краткосрочной аренды.
 Template repository for Shareit project.
